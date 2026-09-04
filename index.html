@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>道义·Q — AI 科技伦理审查可反馈系统</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+/* ================= 设计令牌 ================= */
+:root{
+  --paper:#F3EFE2;
+  --paper-2:#EAE3D1;
+  --card:#FCF9F0;
+  --card-2:#F5EFDF;
+  --ink:#23314C;
+  --ink-2:#46536F;
+  --ink-3:#707C94;
+  --seal:#B03A2E;
+  --seal-2:#8E2D24;
+  --ob:#2F6B5C;
+  --fb:#B03A2E;
+  --pm:#A97A2C;
+  --line:#DCD2BA;
+  --line-2:#C7BB9D;
+  --ok:#2F6B5C;
+  --warn:#B8862B;
+  --bad:#B03A2E;
+  --f-display:'Noto Serif SC','Songti SC','SimSun',serif;
+  --f-body:'Noto Sans SC','Microsoft YaHei','PingFang SC',sans-serif;
+  --shadow:0 1px 2px rgba(35,49,76,.06), 0 6px 20px rgba(35,49,76,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--f-body);
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 500px at 85% -10%, rgba(176,58,46,.06), transparent 60%),
+    radial-gradient(1000px 420px at -10% 0%, rgba(47,107,92,.06), transparent 55%),
+    var(--paper);
+  line-height:1.6;
+  min-width:1080px;
+}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+::selection{background:rgba(176,58,46,.18)}
+
+/* ================= 顶栏 ================= */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(243,239,226,.92);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-inner{
+  max-width:1240px;margin:0 auto;padding:12px 28px;
+  display:flex;align-items:center;gap:28px;
+}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--f-display)}
+.brand-mark{
+  width:38px;height:38px;border-radius:9px;
+  background:var(--ink);color:var(--paper);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:15px;letter-spacing:.5px;
+}
+.brand-name{font-weight:700;font-size:18px;letter-spacing:.5px}
+.brand-sub{font-size:11px;color:var(--ink-3);letter-spacing:2px;margin-top:1px}
+.nav{display:flex;gap:4px;margin-left:auto}
+.nav a{
+  padding:8px 14px;border-radius:8px;font-size:14px;color:var(--ink-2);
+  display:flex;align-items:center;gap:7px;transition:.15s;
+}
+.nav a:hover{background:var(--paper-2);color:var(--ink)}
+.nav a.active{background:var(--ink);color:var(--paper);font-weight:600}
+.nav .ico{width:16px;height:16px;flex:none}
+.menu-btn{display:none}
+
+/* ================= 布局 ================= */
+.wrap{max-width:1240px;margin:0 auto;padding:32px 28px 90px}
+.page{display:none}
+.page.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ================= 通用组件 ================= */
+h1.eyebrow{font-size:12px;letter-spacing:3px;color:var(--seal);font-weight:700;text-transform:uppercase}
+h1.title{font-family:var(--f-display);font-size:30px;font-weight:700;margin:8px 0 6px;letter-spacing:.5px}
+p.lede{color:var(--ink-2);max-width:760px;font-size:15px}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);padding:24px;
+}
+.card + .card{margin-top:20px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.sec-title{font-family:var(--f-display);font-size:19px;font-weight:700;display:flex;align-items:center;gap:10px}
+.sec-title .tag{font-size:11px;font-weight:600;color:var(--ink-3);border:1px solid var(--line-2);padding:2px 8px;border-radius:999px;letter-spacing:1px}
+.sec-sub{color:var(--ink-3);font-size:13px}
+.grid{display:grid;gap:20px}
+.g-2{grid-template-columns:1fr 1fr}
+.g-3{grid-template-columns:repeat(3,1fr)}
+.g-4{grid-template-columns:repeat(4,1fr)}
+.btn{
+  border:1px solid var(--line-2);background:var(--card);color:var(--ink);
+  padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;transition:.15s;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn:hover{border-color:var(--ink);transform:translateY(-1px)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.btn.primary:hover{background:#2c3b5c}
+.btn.seal{background:var(--seal);border-color:var(--seal);color:#fff}
+.btn.seal:hover{background:var(--seal-2)}
+.btn.ghost{background:transparent}
+.btn.sm{padding:6px 12px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+/* 道义算子徽章 */
+.op-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--f-display);font-weight:700;font-size:13px;
+  padding:3px 10px;border-radius:7px;border:1.5px solid;line-height:1.3;
+}
+.op-badge b{font-size:15px}
+.op-badge.O{color:var(--ob);border-color:var(--ob);background:rgba(47,107,92,.07)}
+.op-badge.F{color:var(--fb);border-color:var(--fb);background:rgba(176,58,46,.07)}
+.op-badge.P{color:var(--pm);border-color:var(--pm);background:rgba(169,122,44,.08)}
+
+.op-glyph{font-family:var(--f-display);font-weight:900;font-size:15px;width:20px;height:20px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;color:#fff}
+.op-glyph.O{background:var(--ob)}
+.op-glyph.F{background:var(--fb)}
+.op-glyph.P{background:var(--pm)}
+
+/* 印章 */
+.seal-stamp{
+  width:132px;height:132px;border-radius:50%;
+  border:3px solid var(--seal);position:relative;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--seal);font-family:var(--f-display);font-weight:700;
+  transform:rotate(-9deg);margin:4px auto;flex:none;
+}
+.seal-stamp::before{content:'';position:absolute;inset:7px;border:1px solid var(--seal);border-radius:50%}
+.seal-stamp .txt{writing-mode:vertical-rl;font-size:17px;letter-spacing:4px;line-height:1.25}
+.seal-stamp .sub{position:absolute;bottom:22px;font-size:9px;letter-spacing:1px}
+.seal-stamp.flat{width:auto;height:auto;border-radius:10px;border-width:2px;transform:rotate(-2deg);padding:10px 22px;display:inline-flex}
+.seal-stamp.flat .txt{writing-mode:initial;font-size:16px;letter-spacing:6px;padding:0}
+.seal-stamp.flat .sub{position:static;font-size:9px;margin-left:8px}
+
+/* 风险评分点 */
+.score-dots{display:inline-flex;gap:6px}
+.dot{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ink-3);border:1.5px solid var(--line-2);cursor:pointer;background:var(--card);transition:.12s}
+.dot.sel-l{background:rgba(47,107,92,.16);border-color:var(--ok);color:var(--ok)}
+.dot.sel-m{background:rgba(184,134,43,.18);border-color:var(--warn);color:var(--warn)}
+.dot.sel-h{background:rgba(176,58,46,.16);border-color:var(--bad);color:var(--bad)}
+
+/* 表格 */
+table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{font-size:12px;letter-spacing:1px;color:var(--ink-3);text-align:left;padding:10px 12px;border-bottom:2px solid var(--line-2);font-weight:600;white-space:nowrap}
+.tbl td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--card-2)}
+
+/* 徽章 */
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid}
+.pill.ink{color:var(--ink-2);border-color:var(--line-2);background:var(--card)}
+.pill.ok{color:var(--ok);border-color:rgba(47,107,92,.4);background:rgba(47,107,92,.08)}
+.pill.warn{color:var(--warn);border-color:rgba(184,134,43,.45);background:rgba(184,134,43,.1)}
+.pill.bad{color:var(--bad);border-color:rgba(176,58,46,.4);background:rgba(176,58,46,.08)}
+.pill.seal{color:var(--seal);border-color:rgba(176,58,46,.4);background:rgba(176,58,46,.07)}
+.pill.ob{color:var(--ob);border-color:rgba(47,107,92,.4);background:rgba(47,107,92,.07)}
+
+/* 状态条 */
+.statline{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink-2)}
+
+/* 输入 */
+label.f-label{display:block;font-size:12px;color:var(--ink-3);font-weight:600;letter-spacing:1px;margin-bottom:6px}
+select,input[type=number],input[type=text]{
+  width:100%;padding:10px 12px;border:1px solid var(--line-2);border-radius:10px;
+  background:var(--card);color:var(--ink);font-family:inherit;font-size:14px;outline:none;
+}
+select:focus,input:focus{border-color:var(--ink)}
+.range{width:100%;accent-color:var(--ink)}
+.hp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+/* ================= 首页 ================= */
+.hero{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#1f2c47 0%,#2a3a5c 58%,#34506b 100%);
+  color:#f3efe2;border-radius:18px;padding:44px 48px;
+  box-shadow:var(--shadow);
+}
+.hero::after{
+  content:'';position:absolute;right:-120px;top:-120px;width:420px;height:420px;border-radius:50%;
+  border:1px solid rgba(243,239,226,.14);box-shadow:0 0 0 36px rgba(243,239,226,.05),0 0 0 72px rgba(243,239,226,.03);
+}
+.hero .inner{position:relative;z-index:1}
+.hero .eyebrow{color:#e8b8a6;font-size:12px;letter-spacing:4px}
+.hero h1{font-family:var(--f-display);font-size:40px;font-weight:900;margin:12px 0 14px;line-height:1.25;letter-spacing:1px}
+.hero p{max-width:720px;color:rgba(243,239,226,.85);font-size:15px}
+.hero .formula{
+  margin-top:20px;font-family:var(--f-display);font-size:15px;color:#e7c8a2;
+  display:flex;gap:26px;flex-wrap:wrap;
+}
+.hero .formula span{background:rgba(243,239,226,.08);border:1px solid rgba(243,239,226,.2);padding:6px 12px;border-radius:8px}
+.hero .op-hero{display:flex;gap:10px;margin-top:22px}
+.op-hero .op-badge{background:rgba(243,239,226,.1);color:#f3efe2;border-color:rgba(243,239,226,.4)}
+.hero-meta{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.hero-meta .pill{background:rgba(243,239,226,.1);color:#f3efe2;border-color:rgba(243,239,226,.3)}
+
+.flow{display:grid;grid-template-columns:repeat(7,1fr);gap:0;margin-top:8px}
+.flow .step{text-align:center;padding:14px 6px;position:relative}
+.flow .step .num{
+  width:34px;height:34px;margin:0 auto 8px;border-radius:50%;
+  background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-display);font-weight:700;font-size:14px;
+}
+.flow .step .t{font-size:12.5px;font-weight:600}
+.flow .step .s{font-size:11px;color:var(--ink-3);margin-top:2px}
+.flow .step::after{content:'';position:absolute;top:31px;left:calc(50% + 20px);width:calc(100% - 40px);height:1px;background:var(--line-2)}
+.flow .step:last-child::after{display:none}
+
+.metric{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+.metric .k{font-size:12px;color:var(--ink-3);letter-spacing:1px;font-weight:600}
+.metric .v{font-family:var(--f-display);font-size:30px;font-weight:900;margin-top:4px;color:var(--ink)}
+.metric .d{font-size:12px;color:var(--ink-2);margin-top:3px}
+
+/* ================= 规则库 ================= */
+.filter-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.filter-btn{padding:7px 14px;border-radius:999px;border:1px solid var(--line-2);background:var(--card);font-size:13px;font-weight:600;color:var(--ink-2);transition:.12s}
+.filter-btn.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.rule-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);transition:.15s}
+.rule-card:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.rule-card .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rule-card .rid{font-family:var(--f-display);font-weight:700;color:var(--ink-3);font-size:12px;letter-spacing:1px}
+.rule-card .dim{font-size:11px;color:var(--ink-3);margin-left:auto}
+.rule-card .prop{font-family:var(--f-display);font-size:14.5px;font-weight:600;margin:10px 0 8px;line-height:1.55}
+.rule-card .src{font-size:12px;color:var(--ink-3);display:flex;gap:6px;align-items:flex-start}
+
+/* ================= 审查工作台 ================= */
+.workbench{display:grid;grid-template-columns:400px 1fr;gap:20px;align-items:start}
+.case-item{
+  border:1px solid var(--line);border-radius:12px;padding:13px 15px;cursor:pointer;background:var(--card);
+  transition:.13s;margin-bottom:10px;
+}
+.case-item:hover{border-color:var(--line-2)}
+.case-item.sel{border-color:var(--ink);box-shadow:0 0 0 2px rgba(35,49,76,.12)}
+.case-item .nm{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.case-item .ds{font-size:12.5px;color:var(--ink-2);margin-top:4px}
+.case-item .tg{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.score-line{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.score-line:last-child{border-bottom:none}
+.score-line .nm{width:104px;font-size:13px;font-weight:600;flex:none}
+.score-line .sub{font-size:11px;color:var(--ink-3);margin-left:auto;text-align:right}
+.verdict{display:flex;gap:22px;align-items:center;border:1.5px solid var(--line-2);border-radius:14px;padding:22px 24px;background:var(--card-2);margin-top:18px;position:relative}
+.verdict .main{flex:1}
+.verdict .vd-title{font-family:var(--f-display);font-size:20px;font-weight:900;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.verdict .proc{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+.verdict .reasons{margin-top:12px;font-size:13.5px;color:var(--ink-2)}
+.reason-item{display:flex;gap:8px;margin-top:6px;align-items:flex-start}
+.reason-item .op-glyph{margin-top:1px;flex:none}
+.reason-item .rule-link{color:var(--seal);font-weight:600;cursor:pointer}
+.qbar{height:8px;border-radius:99px;background:var(--paper-2);overflow:hidden;margin-top:8px}
+.qbar i{display:block;height:100%;background:var(--ink);border-radius:99px;transition:width .4s}
+.fb-box{border-top:1.5px dashed var(--line-2);margin-top:16px;padding-top:14px}
+.collap{display:none;margin-top:12px;border-left:3px solid var(--line-2);padding:4px 0 4px 16px}
+
+/* ================= 训练 ================= */
+.q-table{width:100%;border-collapse:separate;border-spacing:4px}
+.q-table th{font-size:12px;color:var(--ink-3);padding:6px 4px;text-align:center;letter-spacing:1px}
+.q-table td{text-align:center;font-family:var(--f-display);font-weight:700;font-size:13px;padding:10px 4px;border-radius:8px;color:#fff;min-width:74px}
+.q-cell{transition:.2s}
+.curve-wrap{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px}
+.axis-txt{fill:var(--ink-3);font-size:10px;font-family:var(--f-body)}
+.fb-log{max-height:280px;overflow:auto;font-size:13px}
+.fb-log .row{display:flex;gap:10px;padding:9px 2px;border-bottom:1px dashed var(--line);align-items:baseline}
+.fb-log .row:last-child{border-bottom:none}
+.fb-log .tag{flex:none}
+
+/* ================= 档案 ================= */
+.empty{text-align:center;color:var(--ink-3);padding:40px 20px;font-size:14px}
+.record-row .verdict-pill{font-family:var(--f-display);font-weight:700}
+
+/* ================= 页脚 ================= */
+.foot{max-width:1240px;margin:0 auto;padding:24px 28px 40px;color:var(--ink-3);font-size:12.5px;border-top:1px solid var(--line);display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+
+@media (max-width:1180px){
+  .workbench{grid-template-columns:1fr}
+  .g-4{grid-template-columns:repeat(2,1fr)}
+  .g-3{grid-template-columns:1fr 1fr}
+  .flow{grid-template-columns:repeat(4,1fr)}
+  .flow .step:nth-child(n+5){margin-top:18px}
+  .flow .step::after{display:none}
+}
+@media (max-width:760px){
+  body{min-width:0}
+  .wrap{padding:20px 16px 70px}
+  .nav{display:none;position:fixed;top:62px;left:0;right:0;background:var(--paper);border-bottom:1px solid var(--line);flex-direction:column;padding:10px 16px;gap:2px}
+  .nav.open{display:flex}
+  .menu-btn{display:block;background:none;border:none;padding:8px}
+  .menu-btn svg{width:22px;height:22px;stroke:var(--ink)}
+  .hero{padding:30px 24px}
+  .hero h1{font-size:28px}
+  .g-2,.g-3,.g-4{grid-template-columns:1fr}
+  .hp-grid{grid-template-columns:1fr}
+  .flow{grid-template-columns:repeat(2,1fr)}
+  .verdict{flex-direction:column;align-items:flex-start}
+  .seal-stamp{width:104px;height:104px}
+  .score-line .nm{width:92px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">道Q</div>
+      <div>
+        <div class="brand-name">道义·Q 伦理审查系统</div>
+        <div class="brand-sub">DEONTIC · Q-LEARNING REVIEW</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <a href="#/" data-nav="dashboard"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>总览</a>
+      <a href="#/rules" data-nav="rules"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M4 12h16M4 19h16"/></svg>道义规则库</a>
+      <a href="#/review" data-nav="review"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>审查工作台</a>
+      <a href="#/assess" data-nav="assess"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.5 5.5L20 9l-5.5 2.5L12 17l-2.5-5.5L4 9l5.5-1.5z"/><path d="M18 15l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z"/></svg>智能研判</a>
+      <a href="#/train" data-nav="train"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-8M22 20V7"/></svg>训练与反馈</a>
+      <a href="#/records" data-nav="records"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16H5zM9 8h6M9 12h6M9 16h4"/></svg>审查档案</a>
+    </nav>
+    <button class="menu-btn" id="menuBtn" aria-label="菜单"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ================= 总览 ================= -->
+  <section class="page" data-route="dashboard">
+    <div class="hero">
+      <div class="inner">
+        <div class="eyebrow">AI 科技伦理 · 强化学习审查平台</div>
+        <h1>道义逻辑 × Q-Learning<br>人工智能科技伦理审查可反馈系统</h1>
+        <p>以《人工智能科技伦理审查与服务办法（试行）》确立的六大审查维度为骨架，将第一轮训练语料（26 份国内外 AI 伦理政策法规）形式化为「应当 / 禁止 / 允许」道义规则库；由 Q-learning 智能体在风险状态与审查动作之间学习最优决策策略，并通过审查反馈闭环持续优化。</p>
+        <div class="formula">
+          <span>道义逻辑 <b>O</b>·应当 <b>F</b>·禁止 <b>P</b>·允许</span>
+          <span>Q(s,a) ← Q(s,a) + α[r + γ·max Q(s′,a′) − Q(s,a)]</span>
+        </div>
+        <div class="op-hero">
+          <span class="op-badge O"><b>O</b> 应当</span>
+          <span class="op-badge F"><b>F</b> 禁止</span>
+          <span class="op-badge P"><b>P</b> 允许</span>
+        </div>
+        <div class="hero-meta">
+          <span class="pill">状态空间 3 · 低/中/高风险</span>
+          <span class="pill">动作空间 5 · 审查决定</span>
+          <span class="pill">奖励信号 · 道义先验 + 用户反馈</span>
+          <span class="pill">第一轮训练 · 26 份语料</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g-4" style="margin-top:20px">
+      <div class="metric"><div class="k">道义规则</div><div class="v" id="mRules">0</div><div class="d">O/F/P 形式化规范</div></div>
+      <div class="metric"><div class="k">审查维度</div><div class="v">6</div><div class="d">审查办法 §15</div></div>
+      <div class="metric"><div class="k">训练回合</div><div class="v" id="mEpisodes">0</div><div class="d">Q 表已学习回合</div></div>
+      <div class="metric"><div class="k">反馈记录</div><div class="v" id="mFeedback">0</div><div class="d">用户反馈驱动奖励</div></div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="sec-head">
+        <div class="sec-title">审查工作流 <span class="tag">依据审查办法</span></div>
+        <div class="sec-sub">申请 → 受理 → 风险识别 → 道义判定 → 强化学习决策 → 反馈闭环</div>
+      </div>
+      <div class="flow">
+        <div class="step"><div class="num">1</div><div class="t">申请与受理</div><div class="s">提交方案与风险评估</div></div>
+        <div class="step"><div class="num">2</div><div class="t">风险识别</div><div class="s">六维风险画像</div></div>
+        <div class="step"><div class="num">3</div><div class="t">道义判定</div><div class="s">O / F / P 规则引擎</div></div>
+        <div class="step"><div class="num">4</div><div class="t">程序分流</div><div class="s">一般/简易/复核/应急</div></div>
+        <div class="step"><div class="num">5</div><div class="t">Q 决策</div><div class="s">风险状态 → 审查动作</div></div>
+        <div class="step"><div class="num">6</div><div class="t">审查决定</div><div class="s">出具审查意见书</div></div>
+        <div class="step"><div class="num">7</div><div class="t">反馈更新</div><div class="s">奖励信号回传 Q 表</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="sec-head">
+        <div class="sec-title">双引擎架构 <span class="tag">道义逻辑 + Q-Learning</span></div>
+      </div>
+      <div class="grid g-3">
+        <div style="border:1px solid var(--line);border-radius:12px;padding:18px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span class="op-glyph O">O</span><b style="font-family:var(--f-display)">道义逻辑层</b></div>
+          <p style="font-size:13px;color:var(--ink-2)">将政策法规中的规范语句形式化为 <b>O(应当)</b>、<b>F(禁止)</b>、<b>P(允许)</b> 三元算子，形成可计算的伦理规则库，作为审查依据与 Q 表先验知识。</p>
+          <div class="statline" style="margin-top:12px"><span class="pill ob">O 义务规则</span><span class="pill bad">F 禁令规则</span><span class="pill warn">P 许可规则</span></div>
+        </div>
+        <div style="border:1px solid var(--line);border-radius:12px;padding:18px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span class="op-glyph F">Q</span><b style="font-family:var(--f-display)">Q-Learning 决策层</b></div>
+          <p style="font-size:13px;color:var(--ink-2)">智能体以「风险状态」为观察、以「审查决定」为动作，通过 ε-greedy 探索与 TD 更新学习最优审查策略，输出带置信度的决策建议。</p>
+          <div class="statline" style="margin-top:12px"><span class="pill ink">Q 表热力图</span><span class="pill ink">学习曲线</span></div>
+        </div>
+        <div style="border:1px solid var(--line);border-radius:12px;padding:18px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span class="op-glyph P">R</span><b style="font-family:var(--f-display)">可反馈闭环</b></div>
+          <p style="font-size:13px;color:var(--ink-2)">审查决定产生后，用户可反馈「合理 / 不合理」，反馈转化为奖励信号回传 Q 表；系统策略随反馈持续演化，实现「审查—反馈—再学习」闭环。</p>
+          <div class="statline" style="margin-top:12px"><span class="pill ok">正向奖励</span><span class="pill bad">负向惩罚</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="sec-head">
+        <div class="sec-title">第一轮训练语料 <span class="tag">26 份文件</span></div>
+        <div class="sec-sub">张子苒整理 · word 版本（国内政策 / 行业标准 / 国际法规）</div>
+      </div>
+      <div id="corpusList" class="grid g-2"></div>
+    </div>
+  </section>
+
+  <!-- ================= 道义规则库 ================= -->
+  <section class="page" data-route="rules">
+    <h1 class="eyebrow">DEONTIC RULE BASE</h1>
+    <h1 class="title">道义逻辑规则库</h1>
+    <p class="lede">从第一轮训练语料中形式化提取的伦理规范，每个命题以「应当 O / 禁止 F / 允许 P」算子表达，并可溯源至具体法规条款。规则库是审查工作台道义判定的依据，也是 Q 表先验知识的来源。</p>
+
+    <div class="card" style="margin-top:20px">
+      <div class="filter-bar" id="ruleFilters">
+        <button class="filter-btn active" data-f="all">全部 <span id="cntAll"></span></button>
+        <button class="filter-btn" data-f="O">O · 应当 <span id="cntO"></span></button>
+        <button class="filter-btn" data-f="F">F · 禁止 <span id="cntF"></span></button>
+        <button class="filter-btn" data-f="P">P · 允许 <span id="cntP"></span></button>
+      </div>
+      <div id="ruleList" class="grid g-2"></div>
+    </div>
+  </section>
+
+  <!-- ================= 审查工作台 ================= -->
+  <section class="page" data-route="review">
+    <h1 class="eyebrow">REVIEW WORKBENCH</h1>
+    <h1 class="title">伦理审查工作台</h1>
+    <p class="lede">选择送审案例（或自定义风险画像），系统将运行「道义规则判定 + Q-learning 决策」，出具带程序分流与规则依据的审查意见书；随后可对决定进行反馈，驱动策略更新。</p>
+
+    <div class="workbench" style="margin-top:20px">
+      <div class="card" style="position:sticky;top:84px">
+        <div class="sec-head"><div class="sec-title">送审案例库</div></div>
+        <div id="caseList"></div>
+        <div class="btn-row" style="margin-top:6px">
+          <button class="btn sm" id="customCaseBtn">自定义风险画像</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" id="riskCard">
+          <div class="sec-head">
+            <div class="sec-title" id="caseTitle">选择左侧案例开始审查</div>
+            <div class="sec-sub" id="caseMeta"></div>
+          </div>
+          <div id="caseDesc"></div>
+          <div id="scorePanel" style="margin-top:14px"></div>
+          <div class="btn-row" style="margin-top:16px">
+            <button class="btn primary" id="runReviewBtn">运行道义判定与 Q 决策</button>
+            <span class="pill ink" id="tierPreview"></span>
+          </div>
+        </div>
+
+        <div class="verdict" id="verdictBox" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 智能风险研判 ================= -->
+  <section class="page" data-route="assess">
+    <h1 class="eyebrow">INTELLIGENT RISK ASSESSMENT</h1>
+    <h1 class="title">智能风险研判</h1>
+    <p class="lede">专家或使用者用自然语言描述送审项目，系统从三方面综合判断风险等级：<b>① 既往事例 / 训练数据比对</b>（与案例库相似度）、<b>② 语义风险特征识别</b>、<b>③ 伦理标准与政策规则</b>（道义逻辑 O / F / P 依据）。研判结果可一键送入审查工作台。</p>
+
+    <div class="grid g-2" style="margin-top:20px">
+      <div class="card" style="position:sticky;top:84px;align-self:start">
+        <div class="sec-head"><div class="sec-title">描述送审项目</div></div>
+        <label class="f-label">专家 / 使用者描述</label>
+        <textarea id="assessInput" rows="7" style="width:100%;padding:12px;border:1px solid var(--line-2);border-radius:10px;background:var(--card);color:var(--ink);font-family:inherit;font-size:14px;resize:vertical;outline:none">一款面向高校的智能考勤与课堂行为分析系统，通过摄像头采集学生面部与姿态数据，用于识别注意力与情绪，并将结果反馈给任课教师。涉及未成年人面部数据的收集与处理。</textarea>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn primary" id="assessBtn">开始风险研判</button>
+          <button class="btn sm ghost" id="assessClear">清空</button>
+        </div>
+        <div class="statline" style="margin-top:14px">
+          <span class="pill ob">① 既往事例/训练数据</span>
+          <span class="pill ink">② 语义特征</span>
+          <span class="pill seal">③ 伦理标准/政策</span>
+        </div>
+        <div style="margin-top:14px;font-size:12.5px;color:var(--ink-3);border-top:1px dashed var(--line);padding-top:12px">
+          提示：描述中可包含项目功能、应用领域、涉及的数据类型、目标人群、自主性水平、是否有缓解措施（如差分隐私、人工复核、应急预案）等。缓解措施会被识别为风险抑制因素。
+        </div>
+      </div>
+
+      <div id="assessResult">
+        <div class="card" style="text-align:center;padding:60px 30px;color:var(--ink-3)">
+          <div style="font-size:15px">填写左侧描述后点击「开始风险研判」。</div>
+          <div style="font-size:12.5px;margin-top:6px">系统将输出风险等级、六维画像、研判依据与可追溯的证据链。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 训练与反馈 ================= -->
+  <section class="page" data-route="train">
+    <h1 class="eyebrow">TRAINING &amp; FEEDBACK</h1>
+    <h1 class="title">Q-Learning 训练与可反馈闭环</h1>
+    <p class="lede">Q 表以道义规则先验初始化，随后通过审查反馈与批量训练持续更新。调节超参数观察策略演化；Q 表热力图与学习曲线实时呈现。</p>
+
+    <div class="grid g-3" style="margin-top:20px">
+      <div class="metric"><div class="k">训练回合</div><div class="v" id="tEpisodes">0</div><div class="d">已执行回合</div></div>
+      <div class="metric"><div class="k">平均回合奖励</div><div class="v" id="tAvgReward">0.0</div><div class="d">最近 50 回合均值</div></div>
+      <div class="metric"><div class="k">反馈次数</div><div class="v" id="tFeedback">0</div><div class="d">用户反馈回传</div></div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="sec-head">
+        <div class="sec-title">超参数 <span class="tag">α / γ / ε</span></div>
+        <div class="sec-sub">学习率、折扣因子、探索率</div>
+      </div>
+      <div class="hp-grid">
+        <div>
+          <label class="f-label">学习率 α <span id="valAlpha"></span></label>
+          <input class="range" type="range" id="hpAlpha" min="0.05" max="0.9" step="0.05" value="0.2">
+        </div>
+        <div>
+          <label class="f-label">折扣因子 γ <span id="valGamma"></span></label>
+          <input class="range" type="range" id="hpGamma" min="0" max="0.99" step="0.01" value="0.9">
+        </div>
+        <div>
+          <label class="f-label">探索率 ε <span id="valEps"></span></label>
+          <input class="range" type="range" id="hpEps" min="0" max="0.5" step="0.02" value="0.2">
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn" id="train50">训练 50 回合</button>
+        <button class="btn" id="train200">训练 200 回合</button>
+        <button class="btn ghost" id="resetQ">重置 Q 表</button>
+      </div>
+    </div>
+
+    <div class="grid g-2" style="margin-top:20px">
+      <div class="card">
+        <div class="sec-head"><div class="sec-title">Q 表热力图</div><div class="sec-sub">状态 × 动作 · 先验+学习</div></div>
+        <div id="qTableBox"></div>
+      </div>
+      <div class="card">
+        <div class="sec-head"><div class="sec-title">学习曲线</div><div class="sec-sub">每回合即时奖励</div></div>
+        <div id="curveBox"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="sec-head">
+        <div class="sec-title">反馈日志</div>
+        <div class="sec-sub">用户反馈如何回传奖励</div>
+      </div>
+      <div class="fb-log" id="fbLog"></div>
+    </div>
+  </section>
+
+  <!-- ================= 审查档案 ================= -->
+  <section class="page" data-route="records">
+    <h1 class="eyebrow">REVIEW ARCHIVE</h1>
+    <h1 class="title">审查档案</h1>
+    <p class="lede">历次审查的意见书摘要、风险画像、推荐决定与用户反馈记录（保存在本机浏览器）。</p>
+    <div class="card" style="margin-top:20px">
+      <div class="sec-head">
+        <div class="sec-title">审查记录 <span class="tag" id="recCount">0 条</span></div>
+        <button class="btn sm ghost" id="clearRecords">清空记录</button>
+      </div>
+      <div id="recordList"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <span>道义·Q — AI 科技伦理审查可反馈系统（演示原型）</span>
+  <span>道义规则依据：第一轮训练语料（张子苒整理 word 版本，26 份文件）</span>
+  <span>审查程序依据：人工智能科技伦理审查与服务办法（试行）</span>
+</footer>
+
+<script>
+/* =====================================================================
+   道义·Q — AI 科技伦理审查可反馈系统
+   引擎：道义逻辑规则库 × Q-Learning 决策 + 用户反馈闭环
+   ===================================================================== */
+
+/* ---------------- 审查维度（审查办法 §15） ---------------- */
+const DIMS = [
+  { id:'welfare',       name:'人类福祉',     short:'福祉', desc:'科学价值、社会价值与风险受益是否合理' },
+  { id:'fairness',      name:'公平公正',     short:'公平', desc:'防止偏见歧视、算法压榨，保障机会均等' },
+  { id:'control',       name:'可控可信',     short:'可控', desc:'鲁棒性、人类控制干预能力与应急预案' },
+  { id:'transparency',  name:'透明可解释',   short:'透明', desc:'披露用途/逻辑/风险，提升可解释性' },
+  { id:'accountability',name:'责任可追溯',   short:'责任', desc:'日志管理与全链路可追踪' },
+  { id:'privacy',       name:'隐私保护',     short:'隐私', desc:'数据收集存储加工使用的隐私保护' },
+];
+
+/* ---------------- 道义规则库（第一轮训练语料形式化） ---------------- */
+const RULES = [
+  { id:'R01', op:'O', dim:'welfare',       w:3, prop:'审查须评估科技活动的科学价值与社会价值，确保风险受益合理',           src:'人工智能科技伦理审查与服务办法（试行）', clause:'第十五条（一）' },
+  { id:'R02', op:'O', dim:'fairness',      w:3, prop:'须防止算法偏见歧视与算法压榨，保障资源分配、机会获取与决策的客观包容', src:'人工智能科技伦理审查与服务办法（试行）', clause:'第十五条（二）' },
+  { id:'R03', op:'O', dim:'control',       w:3, prop:'须保障系统鲁棒性，保障使用者控制、指导、干预，制定监测与应急预案',   src:'人工智能科技伦理审查与服务办法（试行）', clause:'第十五条（三）' },
+  { id:'R04', op:'O', dim:'transparency',  w:3, prop:'须合理披露算法用途、运行逻辑、交互方式与潜在风险，提升可解释性',     src:'人工智能科技伦理审查与服务办法（试行）', clause:'第十五条（四）' },
+  { id:'R05', op:'O', dim:'accountability',w:3, prop:'须具备日志管理，记录数据/算法/模型/系统各环节信息，全链路可追踪',     src:'人工智能科技伦理审查与服务办法（试行）', clause:'第十五条（五）' },
+  { id:'R06', op:'O', dim:'privacy',       w:3, prop:'数据收集、存储、加工、使用须采取充分措施保护隐私数据',                 src:'人工智能科技伦理审查与服务办法（试行）', clause:'第十五条（六）' },
+  { id:'R07', op:'O', dim:'control',       w:3, prop:'纳入复核清单的科技活动（人机融合/舆论动员算法/高度自主自动化决策）须专家复核', src:'人工智能科技伦理审查与服务办法（试行）', clause:'第二十一至二十五条' },
+  { id:'R08', op:'O', dim:'control',       w:2, prop:'突发公共事件等紧急状态须启动应急审查（72 小时内完成）',                src:'人工智能科技伦理审查与服务办法（试行）', clause:'第二十七条' },
+  { id:'R09', op:'O', dim:'control',       w:2, prop:'系统须设计控制点与缺省控制策略，支持外部控制切入与切出',              src:'人工智能 可信赖 通则', clause:'5.1 可控性' },
+  { id:'R10', op:'O', dim:'privacy',       w:2, prop:'数据全生命周期须遵循法律法规与行业标准，防止侵犯知识产权',            src:'人工智能 可信赖 通则', clause:'5.11 数据合规' },
+  { id:'R11', op:'F', dim:'privacy',       w:3, prop:'不得过度收集用户信息，仅收集实现功能所必需的最少数据',                src:'人工智能 可信赖 通则', clause:'5.12(a)' },
+  { id:'R12', op:'O', dim:'transparency',  w:2, prop:'须告知用户交互对象为人工智能系统，披露能力评测与安全保障措施',        src:'人工智能 可信赖 通则', clause:'5.14 透明性' },
+  { id:'R13', op:'O', dim:'control',       w:3, prop:'须保障人类充分自主决策权，用户有权随时退出交互、中止系统运行',        src:'新一代人工智能伦理规范', clause:'总则（四）' },
+  { id:'R14', op:'F', dim:'privacy',       w:3, prop:'不得以窃取、篡改、泄露等方式非法收集利用个人信息，不得侵害隐私权',    src:'新一代人工智能伦理规范', clause:'总则（三）' },
+  { id:'R15', op:'F', dim:'welfare',       w:3, prop:'禁止使用人工智能从事不法活动，严禁危害国家安全、公共安全与生产安全',  src:'新一代人工智能伦理规范', clause:'使用规范 第二十条' },
+  { id:'R16', op:'O', dim:'fairness',      w:2, prop:'数据采集与算法开发中须加强伦理审查，避免数据与算法偏见',              src:'新一代人工智能伦理规范', clause:'研发规范 第十三条' },
+  { id:'R17', op:'F', dim:'control',       w:3, prop:'不得以人工智能过度替代人类决策，关键环节须保留人类判断、监督与纠偏',  src:'人工智能应用伦理安全指引', clause:'6.1(d)' },
+  { id:'R18', op:'O', dim:'transparency',  w:2, prop:'应用前须预先评估应用目的及影响，保障国家安全、公共利益与个体权益',    src:'人工智能应用伦理安全指引', clause:'6.1(a)' },
+  { id:'R19', op:'F', dim:'control',       w:3, prop:'不得提供使用者无法便捷停止的人工智能服务',                            src:'人工智能应用伦理安全指引', clause:'6.3(d)' },
+  { id:'R20', op:'O', dim:'accountability',w:2, prop:'须设置事故信息追溯机制，保留风险事件必要信息以支撑责任追溯',          src:'人工智能应用伦理安全指引', clause:'6.2(g)' },
+  { id:'R21', op:'F', dim:'welfare',       w:3, prop:'不得生成煽动颠覆、危害国家安全、宣扬恐怖极端、民族仇恨歧视、暴力淫秽及虚假有害信息', src:'生成式人工智能服务管理暂行办法', clause:'第四条（一）' },
+  { id:'R22', op:'O', dim:'transparency',  w:2, prop:'对图片、视频等生成内容须按规定进行标识',                              src:'生成式人工智能服务管理暂行办法', clause:'第十二条' },
+  { id:'R23', op:'O', dim:'privacy',       w:2, prop:'不得收集非必要个人信息，不得非法留存或提供用户输入信息与使用记录',    src:'生成式人工智能服务管理暂行办法', clause:'第十一条' },
+  { id:'R24', op:'O', dim:'accountability',w:1, prop:'须建立投诉举报机制，设置便捷入口，及时受理处理并反馈',                src:'生成式人工智能服务管理暂行办法', clause:'第十五条' },
+  { id:'R25', op:'O', dim:'fairness',      w:2, prop:'须提供算法偏见检测方案与偏见结果复议机制、问题反馈渠道',              src:'人工智能 可信赖 通则', clause:'5.17 公平性' },
+  { id:'R26', op:'O', dim:'control',       w:2, prop:'高度自主操作能力引入时须同步建立熔断、一键管控与极端条件测试',        src:'人工智能安全治理框架 2.0', clause:'4.2 现实安全风险应对' },
+];
+const RULES_BY_ID = Object.fromEntries(RULES.map(r=>[r.id,r]));
+const DIM_RULES = {
+  welfare:['R01','R15','R21'],
+  fairness:['R02','R16','R25'],
+  control:['R03','R09','R13','R17','R19','R26'],
+  transparency:['R04','R12','R18','R22'],
+  accountability:['R05','R20','R24'],
+  privacy:['R06','R10','R11','R14','R23'],
+};
+
+/* ---------------- 状态与动作 ---------------- */
+const STATES = [
+  { id:'low',  name:'低风险', note:'风险不高于日常常规水平，适用简易/一般程序' },
+  { id:'med',  name:'中风险', note:'存在一般伦理风险，适用一般程序' },
+  { id:'high', name:'高风险', note:'涉及重大风险或复核清单，适用一般程序+专家复核' },
+];
+const ACTIONS = [
+  { id:'approve',  name:'批准',       proc:'简易 / 一般程序', desc:'予以批准' },
+  { id:'revise',   name:'修改后再审', proc:'一般程序',       desc:'要求补充修改后重新审查' },
+  { id:'reject',   name:'不予批准',   proc:'一般程序',       desc:'驳回送审申请' },
+  { id:'expert',   name:'专家复核',   proc:'专家复核程序',   desc:'报请专家复核' },
+  { id:'emergency',name:'应急程序',   proc:'应急审查',       desc:'应急审查（72 小时）' },
+];
+const ACT_BY_ID = Object.fromEntries(ACTIONS.map(a=>[a.id,a]));
+const ACT_INDEX = Object.fromEntries(ACTIONS.map((a,i)=>[a.id,i]));
+
+/* 道义先验 P0（0-20），由规则库语义推导 */
+const PRIOR = {
+  low:  { approve:17, revise:11, reject:3, expert:3, emergency:1 },
+  med:  { approve:8,  revise:16, reject:8, expert:11, emergency:2 },
+  high: { approve:2,  revise:11, reject:13, expert:17, emergency:7 },
+};
+
+/* ---------------- 送审案例库 ---------------- */
+const CASES = [
+  { id:'c1', name:'智能客服对话机器人', type:'对话系统 · 快消零售',
+    desc:'面向公众的智能客服，处理订单查询与售后答疑，不涉及敏感个人信息与自动化决策。',
+    scores:[0,0,0,1,1,1], flag:null,
+    note:'低风险典型：功能简单、无重大自主决策，适用简易程序。' },
+  { id:'c2', name:'人脸识别门禁考勤系统', type:'生物识别 · 企业管理',
+    desc:'基于人脸特征的身份识别与考勤，涉及生物特征信息的收集与存储。',
+    scores:[1,1,1,1,2,1], flag:null,
+    note:'中风险：生物识别属敏感个人信息，隐私与数据合规是审查重点（R11/R14/R23）。' },
+  { id:'c3', name:'医疗影像辅助诊断系统', type:'医疗健康 · 辅助决策',
+    desc:'基于 CT/病理影像的辅助诊断，为医生提供临床决策支持，涉及生命健康。',
+    scores:[2,1,2,1,2,2], flag:null,
+    note:'高风险：直接影响生命健康（R03/R06），须保障鲁棒性与人类干预，从严审查。' },
+  { id:'c4', name:'社交媒体内容推荐算法', type:'算法推荐 · 舆论场域',
+    desc:'面向海量用户的个性化内容推荐，具有舆论社会动员与社会意识引导能力。',
+    scores:[1,2,2,2,2,1], flag:'expert',
+    note:'命中复核清单「具有舆论社会动员能力和社会意识引导能力的算法系统」→ 专家复核（R07）。' },
+  { id:'c5', name:'心理情绪识别人机交互系统', type:'人机融合 · 心理干预',
+    desc:'通过多模态信号识别用户情绪并交互，对人类主观行为与心理情绪具有较强影响。',
+    scores:[2,1,2,2,2,2], flag:'expert',
+    note:'命中复核清单「对人类主观行为、心理情绪和生命健康具有较强影响的人机融合系统」→ 专家复核（R07）。' },
+  { id:'c6', name:'政务大模型公文生成助手', type:'政务领域 · 大模型应用',
+    desc:'辅助政务公文生成与校对，涉及公共服务与信息发布，需符合政务部署指引。',
+    scores:[1,1,1,2,2,1], flag:null,
+    note:'中风险：公共服务场景，重点核查内容标识（R22）与责任追溯（R05）。' },
+  { id:'c7', name:'儿童陪伴智能体', type:'拟人化交互 · 易受影响群体',
+    desc:'面向未成年人的拟人化陪伴对话，涉及未成年人保护与情感依赖风险。',
+    scores:[2,2,2,2,2,2], flag:null,
+    note:'高风险：未成年人属易受影响群体，须专门设计考量，从严审查（R17/R19）。' },
+  { id:'c8', name:'突发疫情舆情分析系统', type:'应急响应 · 公共卫生',
+    desc:'突发公共卫生事件下的舆情监测与研判，需在紧急状态下快速开展伦理审查。',
+    scores:[2,2,1,2,2,1], flag:'emergency',
+    note:'应急场景：按应急审查程序 72 小时内完成（R08）。' },
+];
+
+/* ---------------- Q-Learning 引擎 ---------------- */
+let hp = { alpha:0.2, gamma:0.9, eps:0.2 };
+let Q = {};
+let stats = { episodes:0, history:[], fbCount:0, avgReward:0 };
+
+function initQ(){
+  Q = {};
+  STATES.forEach(s=>{
+    Q[s.id] = {};
+    ACTIONS.forEach(a=>{ Q[s.id][a.id] = PRIOR[s.id][a.id]; });
+  });
+  stats = { episodes:0, history:[], fbCount:0, avgReward:0 };
+  persistStats();
+}
+function totalScore(scores){ return scores.reduce((a,b)=>a+b,0); }
+function riskTier(scores, flag){
+  if (flag==='expert' || flag==='emergency') return 'high';
+  const t = totalScore(scores);
+  if (t <= 4) return 'low';
+  if (t <= 8) return 'med';
+  return 'high';
+}
+function softmax(vals){
+  const mx = Math.max(...vals); const ex = vals.map(v=>Math.exp(v-mx));
+  const s = ex.reduce((a,b)=>a+b,0); return ex.map(v=>v/s);
+}
+function chooseAction(stateId){
+  if (Math.random() < hp.eps){
+    return ACTIONS[Math.floor(Math.random()*ACTIONS.length)].id;
+  }
+  const vals = ACTIONS.map(a=>Q[stateId][a.id]);
+  const mx = Math.max(...vals);
+  const best = ACTIONS.filter((_,i)=>vals[i]>=mx-1e-9);
+  return best[Math.floor(Math.random()*best.length)].id;
+}
+function nextState(){
+  // 从已审案例分布采样下一状态（标准 RL 的 s′）
+  const cases = CASES.map(c=>({c, f:c.flag})).concat(records.filter(r=>r.custom).map(r=>({c:{flag:r.flag}, f:r.flag})));
+  if (cases.length===0) return 'med';
+  const pick = cases[Math.floor(Math.random()*cases.length)];
+  const scr = pick.c.scores || [1,1,1,1,1,1];
+  return riskTier(scr, pick.f);
+}
+function computeReward(stateId, actionId, fb, better){
+  // 基准：道义先验拟合度（比例化）
+  let r = PRIOR[stateId][actionId]/20;
+  // 风险-动作匹配惩罚：高风险批 大罚；低风险过度审查 小罚
+  if (stateId==='high' && actionId==='approve') r -= 0.7;
+  if (stateId==='high' && actionId==='revise') r -= 0.1;
+  if (stateId==='low' && (actionId==='reject'||actionId==='emergency')) r -= 0.35;
+  if (stateId==='low' && actionId==='revise') r -= 0.15;
+  // 反馈信号
+  if (fb==='ok') r += 1.0;
+  if (fb==='no') r -= 1.0;
+  if (fb==='no' && better) r -= 0.2;
+  return r;
+}
+function learn(stateId, actionId, r){
+  const s2 = nextState();
+  const maxQ2 = Math.max(...ACTIONS.map(a=>Q[s2][a.id]));
+  Q[stateId][actionId] += hp.alpha * (r + hp.gamma*maxQ2 - Q[stateId][actionId]);
+  if (Q[stateId][actionId] < 0) Q[stateId][actionId] = 0;
+}
+
+/* ---------------- 反馈与记录 ---------------- */
+let records = [];
+function loadRecords(){
+  try{ records = JSON.parse(localStorage.getItem('dq_records')||'[]'); }catch(e){ records=[]; }
+}
+function persistStats(){
+  try{ localStorage.setItem('dq_stats', JSON.stringify({hp, Q, episodes:stats.episodes, history:stats.history.slice(-400), fbCount:stats.fbCount, avgReward:stats.avgReward})); }catch(e){}
+}
+function loadStats(){
+  try{
+    const d = JSON.parse(localStorage.getItem('dq_stats'));
+    if (d && d.Q && d.hp){ hp = d.hp; Q = d.Q; stats.episodes=d.episodes||0; stats.history=d.history||[]; stats.fbCount=d.fbCount||0; stats.avgReward=d.avgReward||0; return; }
+  }catch(e){}
+  initQ();
+}
+function addRecord(rec){
+  records.unshift(rec);
+  try{ localStorage.setItem('dq_records', JSON.stringify(records.slice(0,300))); }catch(e){}
+}
+function addFeedbackLog(entry){
+  stats.fbCount++;
+  persistStats();
+}
+
+/* ---------------- 道义判定 + 决策 ---------------- */
+function runReview(caseObj, scores, flag){
+  const stateId = riskTier(scores, flag);
+  const actionId = chooseAction(stateId);
+  // 道义规则证据链
+  const triggered = [];
+  DIMS.forEach((dim,i)=>{
+    const lv = scores[i];
+    if (lv >= 1){
+      (DIM_RULES[dim.id]||[]).forEach(rid=>{
+        const r = RULES_BY_ID[rid];
+        triggered.push({ rule:r, level:lv, dim:dim.name, severity: r.w * lv });
+      });
+    }
+  });
+  if (flag==='expert') triggered.push({ rule:RULES_BY_ID.R07, level:2, dim:'程序', severity:6 });
+  if (flag==='emergency') triggered.push({ rule:RULES_BY_ID.R08, level:2, dim:'程序', severity:4 });
+  triggered.sort((a,b)=>b.severity-a.severity);
+  const compliance = Math.max(0, Math.min(1, 1 - totalScore(scores)/12));
+  const qvals = ACTIONS.map(a=>Q[stateId][a.id]);
+  const probs = softmax(qvals);
+  const idx = ACT_INDEX[actionId];
+  const confidence = probs[idx];
+  const proc = flag==='emergency' ? '应急审查' :
+               (actionId==='expert' ? '专家复核程序' :
+               (stateId==='low' && actionId==='approve' ? '简易程序' : '一般程序'));
+  // 理由
+  const reasons = [];
+  const tierNote = STATES.find(s=>s.id===stateId).note;
+  reasons.push({t:'风险画像', text:`综合六维评分为 ${totalScore(scores)}/12，定级为「${STATES.find(s=>s.id===stateId).name}」：${tierNote}。`});
+  const top = triggered.slice(0,4);
+  if (top.length){
+    top.forEach(tr=>{
+      const opName = tr.rule.op==='O' ? '应当' : (tr.rule.op==='F' ? '禁止' : '允许');
+      reasons.push({t:'规则证据', text:`「${tr.rule.id}」${opName} ${tr.rule.prop}（来源：${tr.rule.src} · ${tr.rule.clause}）。`, ruleId:tr.rule.id, level:tr.level});
+    });
+    if (triggered.length>4) reasons.push({t:'规则证据', text:`另有 ${triggered.length-4} 条相关规则命中，详见道义判定明细。`});
+  } else {
+    reasons.push({t:'规则证据', text:'六维风险评分均为低，未触发显著道义义务或禁令，整体合规。'});
+  }
+  reasons.push({t:'决策依据', text:`Q-learning 依据状态「${STATES.find(s=>s.id===stateId).name}」的 Q 值分布选择动作「${ACT_BY_ID[actionId].name}」，置信度 ${(confidence*100).toFixed(0)}%（ε-greedy，ε=${hp.eps}）。`});
+  return {
+    caseId: caseObj.id, caseName: caseObj.name, caseType: caseObj.type, scores, flag,
+    stateId, actionId, qvals, probs, confidence, proc, compliance,
+    triggered, reasons, tierNote,
+    deonticSummary: triggered.slice(0,6).map(t=>t.rule.id).join('、') || '无',
+  };
+}
+
+/* ================= 渲染 ================= */
+const $ = s=>document.querySelector(s);
+const el = (tag, cls, html)=>{ const e=document.createElement(tag); if(cls)e.className=cls; if(html!==undefined)e.innerHTML=html; return e; };
+
+const OP_NAME = {O:'应当', F:'禁止', P:'允许'};
+function opBadge(op){
+  return `<span class="op-badge ${op}"><b>${op}</b> ${OP_NAME[op]}</span>`;
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* ---- 路由 ---- */
+let currentRoute = 'dashboard';
+function route(){
+  const h = location.hash.replace(/^#\//,'') || 'dashboard';
+  const r = ['dashboard','rules','review','assess','train','records'].includes(h) ? h : 'dashboard';
+  currentRoute = r;
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active', p.dataset.route===r));
+  document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('active', a.dataset.nav===r));
+  document.getElementById('nav').classList.remove('open');
+  if (r==='dashboard') renderDashboard();
+  if (r==='rules') renderRules();
+  if (r==='review') renderReview();
+  if (r==='assess') renderAssess();
+  if (r==='train') renderTrain();
+  if (r==='records') renderRecords();
+}
+window.addEventListener('hashchange', route);
+
+/* ---- 总览 ---- */
+function renderDashboard(){
+  $('#mRules').textContent = RULES.length;
+  $('#mEpisodes').textContent = stats.episodes;
+  $('#mFeedback').textContent = stats.fbCount;
+  const srcs = [
+    ['人工智能科技伦理审查与服务办法（试行）','工信部 · 2026-03','六大维度 · 四种程序'],
+    ['人工智能 可信赖 通则','市场监管总局/国标委 · 2026-04','20 项可信赖要素'],
+    ['新一代人工智能伦理规范','科技部 · 2021-09','管理/研发/供应/使用规范'],
+    ['人工智能应用伦理安全指引','全国网安标委会 · 2026-05','伦理安全原则与指引'],
+    ['生成式人工智能服务管理暂行办法','网信办等七部门 · 2023-07','生成式 AI 服务规范'],
+    ['人工智能安全治理框架 2.0','网信办/国标委 · 2025-09','风险分级与应对'],
+    ['互联网信息服务算法推荐管理规定','网信办等 · 2022-03','算法推荐治理'],
+    ['智能体规范应用与创新发展实施意见','2026 · 行业规范','智能体治理'],
+  ];
+  const box = $('#corpusList');
+  box.innerHTML = srcs.map(s=>`
+    <div style="display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--card-2)">
+      <div style="flex:none;width:34px;height:34px;border-radius:8px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:700;font-size:13px">文</div>
+      <div>
+        <div style="font-weight:600;font-size:14px">${esc(s[0])}</div>
+        <div style="font-size:12px;color:var(--ink-3);margin-top:2px">${esc(s[1])}</div>
+        <div style="font-size:12px;color:var(--ink-2);margin-top:3px">${esc(s[2])}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ---- 规则库 ---- */
+let ruleFilter = 'all';
+function renderRules(){
+  const list = $('#ruleList');
+  $('#cntAll').textContent = RULES.length;
+  $('#cntO').textContent = RULES.filter(r=>r.op==='O').length;
+  $('#cntF').textContent = RULES.filter(r=>r.op==='F').length;
+  $('#cntP').textContent = RULES.filter(r=>r.op==='P').length;
+  const filtered = RULES.filter(r=>ruleFilter==='all'||r.op===ruleFilter);
+  list.innerHTML = filtered.map(r=>{
+    const dim = DIMS.find(d=>d.id===r.dim);
+    return `
+    <div class="rule-card">
+      <div class="head">
+        <span class="rid">${r.id}</span>
+        ${opBadge(r.op)}
+        <span class="pill ink" style="font-size:11px">${esc(dim?dim.name:'—')}</span>
+        <span class="dim">严重度 · ${r.w}</span>
+      </div>
+      <div class="prop">${esc(r.prop)}</div>
+      <div class="src">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex:none;margin-top:2px"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/></svg>
+        <span>${esc(r.src)} · ${esc(r.clause)}</span>
+      </div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('#ruleFilters .filter-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.f===ruleFilter);
+  });
+}
+$('#ruleFilters').addEventListener('click', e=>{
+  const b = e.target.closest('.filter-btn'); if(!b) return;
+  ruleFilter = b.dataset.f; renderRules();
+});
+
+/* ---- 审查工作台 ---- */
+let selCase = CASES[0];
+let customMode = false;
+let customScores = [1,1,1,1,1,1];
+let customFlag = null;
+let lastDecision = null;
+
+function renderReview(){
+  const list = $('#caseList');
+  list.innerHTML = CASES.map(c=>{
+    const tier = riskTier(c.scores, c.flag);
+    return `
+    <div class="case-item ${!customMode&&selCase.id===c.id?'sel':''}" data-id="${c.id}">
+      <div class="nm">${esc(c.name)}<span class="pill ${tier==='high'?'bad':(tier==='med'?'warn':'ok')}" style="font-size:11px">${tier==='high'?'高风险':(tier==='med'?'中风险':'低风险')}</span>
+        ${c.flag==='expert'?'<span class="pill seal" style="font-size:11px">复核清单</span>':''}
+        ${c.flag==='emergency'?'<span class="pill warn" style="font-size:11px">应急</span>':''}
+      </div>
+      <div class="ds">${esc(c.type)}</div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.case-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      customMode = false;
+      selCase = CASES.find(c=>c.id===item.dataset.id);
+      renderReview();
+      renderScorePanel();
+    });
+  });
+  $('#customCaseBtn').onclick = ()=>{
+    customMode = true;
+    customScores = [1,1,1,1,1,1];
+    customFlag = null;
+    renderReview(); renderScorePanel();
+  };
+  renderScorePanel();
+  $('#runReviewBtn').onclick = doRunReview;
+}
+
+function renderScorePanel(){
+  const c = customMode ? { name:'自定义送审项目', type:'自定义 · 手动画像', desc:'拖动六个维度风险评分（0 低 / 1 中 / 2 高），生成自定义风险画像。', flag:null } : selCase;
+  $('#caseTitle').textContent = c.name;
+  $('#caseMeta').textContent = c.type;
+  $('#caseDesc').innerHTML = `<div style="font-size:13.5px;color:var(--ink-2)">${esc(c.desc)}</div>`;
+  const flag = customMode ? customFlag : c.flag;
+  const scores = customMode ? customScores : c.scores;
+  const panel = $('#scorePanel');
+  panel.innerHTML = DIMS.map((dim,i)=>{
+    const lv = scores[i];
+    return `
+    <div class="score-line">
+      <div class="nm">${dim.name}</div>
+      <div class="score-dots" data-i="${i}">
+        ${[0,1,2].map(v=>`<span class="dot ${lv===v?('sel-'+['l','m','h'][v]):''}" data-v="${v}">${['低','中','高'][v]}</span>`).join('')}
+      </div>
+      <div class="sub">${esc(dim.desc)}</div>
+    </div>`;
+  }).join('');
+  panel.querySelectorAll('.dot').forEach(d=>{
+    d.addEventListener('click', ()=>{
+      if(!customMode){ customMode=true; customScores=[...scores]; }
+      const i = +d.parentNode.dataset.i; const v = +d.dataset.v;
+      customScores[i] = v;
+      renderScorePanel();
+    });
+  });
+  if (flag){
+    const fl = flag==='expert'
+      ? '<span class="pill seal">命中复核清单 → 专家复核</span>'
+      : '<span class="pill warn">应急场景 → 应急审查</span>';
+    $('#caseMeta').innerHTML += ' ' + fl;
+  }
+  updateTierPreview(scores, flag);
+}
+
+function updateTierPreview(scores, flag){
+  const t = riskTier(scores, flag);
+  const tier = STATES.find(s=>s.id===t);
+  const pill = $('#tierPreview');
+  pill.className = 'pill ' + (t==='high'?'bad':(t==='med'?'warn':'ok'));
+  pill.textContent = `预估定级：${tier.name}`;
+}
+
+function doRunReview(){
+  const c = customMode
+    ? { id:'custom', name:'自定义送审项目', type:'自定义 · 手动画像', scores:customScores, flag:customFlag }
+    : selCase;
+  lastDecision = runReview(c, c.scores, c.flag);
+  renderVerdict(lastDecision, c);
+}
+
+function renderVerdict(d, c){
+  const box = $('#verdictBox');
+  box.style.display = 'flex';
+  const act = ACT_BY_ID[d.actionId];
+  const tier = STATES.find(s=>s.id===d.stateId);
+  const topRules = d.triggered.slice(0,4);
+  box.innerHTML = `
+    <div class="seal-stamp"><span class="txt">${act.name}</span><span class="sub">${d.proc}</span></div>
+    <div class="main">
+      <div class="vd-title">
+        <span>审查决定 · ${esc(c.name)}</span>
+        <span class="pill ${d.actionId==='approve'?'ok':(d.actionId==='reject'||d.actionId==='emergency'?'bad':'warn')}">${esc(act.name)}</span>
+        <span class="pill ink">${esc(d.proc)}</span>
+      </div>
+      <div class="proc">
+        <span class="pill ${d.stateId==='high'?'bad':(d.stateId==='med'?'warn':'ok')}">风险定级 · ${tier.name}</span>
+        <span class="pill ob">道义合规度 ${Math.round(d.compliance*100)}%</span>
+        <span class="pill ink">置信度 ${Math.round(d.confidence*100)}%</span>
+      </div>
+      <div class="reasons">
+        ${d.reasons.map(r=>{
+          if (r.ruleId){
+            const rr = RULES_BY_ID[r.ruleId];
+            return `<div class="reason-item"><span class="op-glyph ${rr.op}">${rr.op}</span><div><b>${esc(r.t)}</b> · ${esc(r.text)}</div></div>`;
+          }
+          return `<div class="reason-item"><span class="op-glyph ${d.actionId==='approve'?'O':'F'}" style="opacity:.55">·</span><div>${esc(r.text)}</div></div>`;
+        }).join('')}
+      </div>
+      <div class="fb-box">
+        <div style="font-weight:600;font-size:13px;margin-bottom:8px">本次决定是否符合你的判断？反馈将作为奖励信号回传 Q 表。</div>
+        <div class="btn-row">
+          <button class="btn sm primary" id="fbOk">合理 · 正向奖励</button>
+          <button class="btn sm" id="fbNo">不合理 · 负向惩罚</button>
+          <span class="pill ink" style="font-size:12px">若不合理，可指定更佳决定：</span>
+          <select id="fbBetter" style="width:auto">
+            <option value="">不指定</option>
+            ${ACTIONS.filter(a=>a.id!==d.actionId).map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="statline" style="margin-top:10px">
+          <span class="pill ob">命中规则：${esc(d.deonticSummary||'无')}</span>
+        </div>
+      </div>
+    </div>`;
+  $('#fbOk').onclick = ()=>applyFeedback(d, c, 'ok', null);
+  $('#fbNo').onclick = ()=>{
+    const better = $('#fbBetter').value || null;
+    applyFeedback(d, c, 'no', better);
+  };
+}
+
+function applyFeedback(d, c, fb, better){
+  const r = computeReward(d.stateId, d.actionId, fb, better);
+  learn(d.stateId, d.actionId, r);
+  if (fb==='no' && better){
+    Q[d.stateId][better] += 4; // 用户指定更佳动作的引导
+  }
+  const rec = {
+    ts: new Date().toISOString(),
+    caseName: c.name, caseType: c.type, flag: c.flag||null, custom: c.id==='custom',
+    scores: c.scores,
+    state: d.stateId, action: d.actionId, proc: d.proc, compliance: d.compliance,
+    fb, better, reward: r,
+  };
+  addRecord(rec);
+  stats.episodes++;
+  stats.history.push(r);
+  stats.fbCount++;
+  const n = stats.history.length;
+  const win = stats.history.slice(Math.max(0,n-50));
+  stats.avgReward = win.reduce((a,b)=>a+b,0)/win.length;
+  persistStats();
+  addFeedbackLog(rec);
+  renderVerdict(d, c); // refresh stat line
+  route(); // 重新渲染以刷新指标
+  location.hash = '#/records';
+  // 提示
+  const fbMsg = fb==='ok' ? '+1.0 正向奖励' : '−1.0 负向惩罚';
+  const guideMsg = better ? '，并向「' + (ACT_BY_ID[better] ? ACT_BY_ID[better].name : better) + '」引导 +4' : '';
+  alert('反馈已回传：' + fbMsg + guideMsg + '。Q 表已更新（第 ' + stats.episodes + ' 回合）。');
+}
+
+/* =====================================================================
+   智能风险研判引擎
+   三路依据：① 既往事例/训练数据比对（案例相似度）
+             ② 语义风险特征识别（信号词库）
+             ③ 伦理标准/政策规则（道义逻辑 O/F/P）
+   ===================================================================== */
+const SIGNALS = [
+  { kw:['人脸','生物识别','指纹','虹膜','步态','声纹','面部'], label:'生物识别信息', dims:{privacy:2,fairness:1}, rules:['R11','R14','R23'], note:'处理敏感生物特征信息，须遵循最小必要与知情同意' },
+  { kw:['医疗','诊断','影像','手术','健康','疾病','治疗','临床','体检','康复'], label:'生命健康领域', dims:{welfare:2,control:2,privacy:1}, rules:['R03','R06','R26'], note:'直接涉及生命健康与人身安全，从严审查' },
+  { kw:['推荐','算法推荐','舆论','舆情','内容分发','信息流','资讯','榜单','种草','动员','引导','发布'], label:'舆论与社会动员', dims:{fairness:2,transparency:2,welfare:1}, rules:['R02','R21'], flag:'expert', note:'可能具有舆论社会动员能力' },
+  { kw:['未成年人','儿童','青少年','老人','老年','残障','弱势','学生','幼'], label:'易受影响群体', dims:{fairness:2,control:1}, rules:['R02','R17','R19'], note:'涉及未成年人/老年人/残障人士等易受影响群体' },
+  { kw:['自动','自主','机器人','自动化','自动化决策'], label:'自主/自动化系统', dims:{control:2,accountability:1}, rules:['R03','R09','R17','R26'], note:'包含自主或自动化处理环节，须评估人类控制能力' },
+  { kw:['情绪','心理','情感','陪伴','拟人','成瘾','沉迷','精神','性格','人格','行为分析'], label:'心理情绪影响', dims:{welfare:2,control:2}, rules:['R13','R17','R19'], flag:'expert', note:'对人类主观行为与心理情绪具有影响' },
+  { kw:['政务','公共服务','政府','政策','社会治理','公共管理','司法'], label:'政务/公共服务', dims:{transparency:2,accountability:2}, rules:['R04','R22','R05','R24'], note:'公共服务场景，须保障程序正当与可追溯' },
+  { kw:['金融','贷款','信贷','投资','保险','交易','支付','授信','风控','征信','理财','股票','基金'], label:'金融活动', dims:{fairness:1,accountability:2,privacy:1}, rules:['R02','R05','R20','R23'], note:'金融稳健审慎，影响个人财产权益' },
+  { kw:['招聘','求职','雇佣','就业','薪酬','晋升','裁员','解雇','简历'], label:'劳动就业', dims:{fairness:2}, rules:['R02','R16','R25'], note:'涉及劳动就业权益，须防歧视' },
+  { kw:['个人信息','隐私','数据','采集','收集','用户数据','画像','跟踪','监控','摄像头','采集数据'], label:'个人数据与隐私', dims:{privacy:2}, rules:['R06','R11','R14','R23'], note:'涉及个人信息收集与处理' },
+  { kw:['深度伪造','换脸','AI生成','内容生成','生成式','文生','图生','数字人','克隆','伪造','合成内容','生成内容','语音合成','图像生成','文本生成','视频生成','公文生成','创作','文案生成','代码生成','虚拟人'], label:'内容生成与标识', dims:{transparency:2,welfare:1}, rules:['R21','R22'], note:'生成/合成内容须标识并防虚假有害' },
+  { kw:['军事','国防','武器','弹药','导弹','炸弹','核武器','核设施','核材料','生化武器','生化试剂','危险品','无人机打击'], label:'高危用途', dims:{welfare:3,control:3}, rules:['R15','R21','R26'], note:'可能涉及国家安全与高危用途' },
+  { kw:['应急','突发','灾难','疫情','公共卫生事件','紧急','洪灾','地震'], label:'应急场景', dims:{control:2}, rules:['R08'], flag:'emergency', note:'突发公共事件等紧急状态，适用应急审查' },
+  { kw:['大模型','基础模型','预训练','微调','语料','标注','开源模型','训练数据','参数'], label:'大模型训练', dims:{privacy:1,transparency:1,fairness:1}, rules:['R10','R16','R23','R22'], note:'训练数据质量、来源与标注规范' },
+  { kw:['评级','打分','评分','授信','风控','征信','录取','准入','筛选','拒绝','排序','资格','自动决策'], label:'自动化决策影响权益', dims:{fairness:2,accountability:1}, rules:['R02','R17','R25'], note:'影响个人权利义务与公共资源分配' },
+  { kw:['教育','课堂','校园','考试','学习','教学','教师','学生'], label:'教育领域', dims:{fairness:1,transparency:1,privacy:1}, rules:['R02','R04','R11'], note:'教育场景，涉及学生权益与公平' },
+];
+const MITIGATIONS = [
+  { kw:['差分隐私','匿名化','去标识','脱敏','加密','联邦学习','多方安全计算','可信执行环境','合成数据','公开数据'], label:'隐私保护技术', dims:{privacy:-1}, rules:['R06','R11'], note:'已采取技术性隐私保护措施' },
+  { kw:['人工复核','人工监督','人类介入','人工干预','应急预案','熔断','一键停机','停止机制','人类控制','退出机制'], label:'人工控制保障', dims:{control:-1}, rules:['R03','R09','R17'], note:'具备人类控制与应急干预机制' },
+  { kw:['合规评估','伦理审查','备案','安全评估','审计','日志','可追溯','透明报告','测试','评测','责任主体','合规'], label:'合规治理措施', dims:{transparency:-1,accountability:-1}, rules:['R05','R18','R24'], note:'具备合规、可追溯与责任安排' },
+  { kw:['不涉及个人信息','不收集','不采集','仅内部','匿名','最小化','最小必要','本地处理'], label:'数据最小化', dims:{privacy:-1}, rules:['R10','R11','R23'], note:'遵循数据最小化原则' },
+];
+/* 复核清单精确信号集（对应《审查办法》附件：专家复核清单三类情形） */
+const REVIEW_LIST = [
+  { label:'人机融合 / 强心理影响', kw:['脑机','人机融合','情绪识别','心理识别','情感识别','神经','心理干预','情绪操控','认知干预','行为控制','意识','思维'] },
+  { label:'舆论动员 / 社会意识引导', kw:['舆论动员','社会动员','引导舆论','操控舆论','意识形态引导','价值观引导','影响公众','社会意识','动员能力','舆论引导','传播力'] },
+  { label:'高度自主自动化决策', kw:['无人驾驶','自动驾驶','无人车','无人机','无人系统','自主武器','高度自主','完全自主','全自动','无人工干预','独立决策','自动判罚','自动处罚','自动扣分','自动罚款','开罚单','抓拍判定','自动化决策系统'] },
+];
+function reviewListHit(t){
+  return REVIEW_LIST.some(rl=>rl.kw.some(k=>k && t.includes(k)));
+}
+let assessState = null;
+
+/* 否定语境感知：从关键词向前回溯最多 4 字，遇到否定词即视为否定；遇到标点/空白则视为小句边界 */
+const NEG_CHARS = '不未无非避免止拒杜禁';
+function negatedAt(t, idx){
+  let i = idx - 1;
+  for (let k=0; k<4 && i>=0; k++, i--){
+    const ch = t[i];
+    if (/[，。；、,.!?！？；:：\s]/.test(ch)) break;
+    if (NEG_CHARS.indexOf(ch) >= 0) return true;
+  }
+  return false;
+}
+function countKws(t, kws){
+  let c = 0;
+  for (const kw of kws){
+    if (!kw) continue;
+    let from = 0;
+    while (true){
+      const idx = t.indexOf(kw, from);
+      if (idx < 0) break;
+      if (!negatedAt(t, idx)) c++;
+      from = idx + kw.length;
+    }
+  }
+  return c;
+}
+function textToSignalVec(txt){
+  const t = txt.toLowerCase();
+  return SIGNALS.map(sg=>countKws(t, sg.kw));
+}
+function textToMitVec(txt){
+  const t = txt.toLowerCase();
+  return MITIGATIONS.map(mg=>countKws(t, mg.kw));
+}
+function cosine(a,b){
+  let dot=0, na=0, nb=0;
+  for (let i=0;i<a.length;i++){ dot+=a[i]*b[i]; na+=a[i]*a[i]; nb+=b[i]*b[i]; }
+  if (!na || !nb) return 0;
+  return dot/(Math.sqrt(na)*Math.sqrt(nb));
+}
+const CASE_VECTORS = CASES.map(c=>({
+  c,
+  vec: textToSignalVec((c.name + ' ' + c.type + ' ' + c.desc + ' ' + c.note).toLowerCase()),
+}));
+function tierOf(scores, flag){ return riskTier(scores, flag); }
+
+function runAssess(text){
+  const t = text.trim();
+  if (t.length < 6){ return { error:'描述过短，请补充项目功能、应用领域、数据类型与目标人群等信息。' }; }
+  // ① 信号特征
+  const svec = textToSignalVec(t);
+  const mvec = textToMitVec(t);
+  const matchedSignals = [];
+  SIGNALS.forEach((sg,i)=>{ if (svec[i]>0) matchedSignals.push({sg, hits:svec[i]}); });
+  const matchedMits = [];
+  MITIGATIONS.forEach((mg,i)=>{ if (mvec[i]>0) matchedMits.push({mg, hits:mvec[i]}); });
+  // 风险画像
+  const scores = [0,0,0,0,0,0];
+  const dimIdx = {welfare:0, fairness:1, control:2, transparency:3, accountability:4, privacy:5};
+  matchedSignals.forEach(m=>{
+    Object.keys(m.sg.dims).forEach(d=>{ scores[dimIdx[d]] += m.sg.dims[d]*Math.min(m.hits,2); });
+  });
+  matchedMits.forEach(m=>{
+    Object.keys(m.mg.dims).forEach(d=>{ scores[dimIdx[d]] += m.mg.dims[d]*m.hits; });
+  });
+  scores.forEach((v,i)=>{ scores[i] = Math.max(0, Math.min(2, Math.round(v))); });
+  // 旗标：应急 > 复核清单（专家复核）> 无
+  let flag = null;
+  if (matchedSignals.some(m=>m.sg.flag==='emergency')) flag = 'emergency';
+  else if (matchedSignals.some(m=>m.sg.flag==='expert')) flag = 'expert';
+  else if (reviewListHit(t.toLowerCase())) flag = 'expert';
+  // ① 既往事例比对
+  const sims = CASE_VECTORS.map(cv=>({ cv, sim: cosine(svec, cv.vec) })).sort((a,b)=>b.sim-a.sim);
+  const topSim = sims[0];
+  const dataTier = topSim.sim >= 0.12 ? tierOf(topSim.cv.c.scores, topSim.cv.c.flag) : null;
+  // ③ 伦理标准/政策规则
+  const ruleSet = {};
+  matchedSignals.forEach(m=>m.sg.rules.forEach(rid=>{ ruleSet[rid]=(ruleSet[rid]||0)+1; }));
+  matchedMits.forEach(m=>m.mg.rules.forEach(rid=>{ if(ruleSet[rid]) ruleSet[rid]--; }));
+  const rules = Object.keys(ruleSet).map(rid=>({ rule:RULES_BY_ID[rid], w:ruleSet[rid] })).filter(x=>x.w>0);
+  rules.sort((a,b)=>b.rule.w-a.rule.w);
+  // 定级
+  const tier = riskTier(scores, flag);
+  // 置信度
+  const nSig = matchedSignals.length;
+  let conf = 0.38 + 0.24*Math.min(topSim.sim,1) + 0.22*Math.min(nSig/4,1) + 0.10*(t.length>25?1:0);
+  conf = Math.max(0.15, Math.min(0.97, conf));
+  // 推理摘要
+  const narrative = [];
+  narrative.push(`识别到 ${nSig} 类风险特征信号` + (matchedSignals.length ? '：' + matchedSignals.slice(0,5).map(m=>m.sg.label).join('、') + (matchedSignals.length>5?' 等':'') : '') + '；' +
+    (matchedMits.length ? `并识别到 ${matchedMits.length} 类缓解因素：${matchedMits.map(m=>m.mg.label).join('、')}。` : '未识别到显著缓解因素。'));
+  if (dataTier){
+    narrative.push(`与既往案例「${topSim.cv.c.name}」相似度最高（${(topSim.sim*100).toFixed(0)}%），该案例定级为「${STATES.find(s=>s.id===dataTier).name}」，可作为训练数据参照。`);
+  } else {
+    narrative.push('描述与既往案例库相似度较低，主要依据语义特征与政策规则进行研判。');
+  }
+  if (rules.length){
+    narrative.push(`命中 ${rules.length} 条伦理规范/政策规则，其中核心依据：${rules.slice(0,3).map(r=>r.rule.id).join('、')}（详见规则依据）。`);
+  }
+  narrative.push(`综合语义特征、既往事例与政策依据，判定本项目为「${STATES.find(s=>s.id===tier).name}」${flag==='expert'?'，且命中专家复核清单':(flag==='emergency'?'，适用应急审查程序':'')}。`);
+  return { scores, flag, tier, conf, matchedSignals, matchedMits, sims, topSim, dataTier, rules, narrative };
+}
+
+function renderAssess(){
+  const box = $('#assessResult');
+  if (!assessState){ box.innerHTML = '<div class="card" style="text-align:center;padding:60px 30px;color:var(--ink-3)"><div style="font-size:15px">填写左侧描述后点击「开始风险研判」。</div><div style="font-size:12.5px;margin-top:6px">系统将输出风险等级、六维画像、研判依据与可追溯的证据链。</div></div>'; return; }
+  const s = assessState;
+  const tier = STATES.find(x=>x.id===s.tier);
+  const tierClass = s.tier==='high'?'bad':(s.tier==='med'?'warn':'ok');
+  // 六维画像
+  let bars = DIMS.map((dim,i)=>{
+    const v = s.scores[i];
+    const pct = v/2*100;
+    const col = v===0?'#2F6B5C':(v===1?'#B8862B':'#B03A2E');
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px"><span style="font-weight:600">${dim.name}</span><span style="color:var(--ink-3)">${v===0?'低':(v===1?'中':'高')}</span></div>
+      <div class="qbar"><i style="width:${pct}%;background:${col}"></i></div>
+    </div>`;
+  }).join('');
+  // 匹配信号
+  const sigHtml = s.matchedSignals.length ? s.matchedSignals.slice(0,8).map(m=>`
+    <div class="reason-item"><span class="op-glyph F" style="background:var(--pm)">!</span>
+      <div><b>${m.sg.label}</b><span style="color:var(--ink-3)">（命中 ${m.hits} 处）</span> · ${m.sg.note}</div></div>`).join('')
+    : '<div class="reason-item"><span class="op-glyph O">·</span><div>未识别到显著风险信号，语义特征整体平稳。</div></div>';
+  const mitHtml = s.matchedMits.length ? s.matchedMits.map(m=>`
+    <div class="reason-item"><span class="op-glyph O">↓</span><div><b>${m.mg.label}</b><span style="color:var(--ink-3)">（风险抑制）</span> · ${m.mg.note}</div></div>`).join('') : '';
+  // 既往案例
+  const caseHtml = s.sims.slice(0,3).map(x=>{
+    const tc = tierOf(x.cv.c.scores, x.cv.c.flag);
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px">
+      <div style="flex:1"><b style="font-size:13px">${x.cv.c.name}</b><div style="font-size:11.5px;color:var(--ink-3)">${x.cv.c.type}</div></div>
+      <span class="pill ${tc==='high'?'bad':(tc==='med'?'warn':'ok')}" style="font-size:11px">${STATES.find(st=>st.id===tc).name}</span>
+      <span style="font-family:var(--f-display);font-weight:700;font-size:13px;color:var(--ink-2)">${(x.sim*100).toFixed(0)}%</span>
+    </div>`;
+  }).join('');
+  // 政策规则
+  const ruleHtml = s.rules.length ? s.rules.slice(0,8).map(r=>`
+    <div class="reason-item"><span class="op-glyph ${r.rule.op}">${r.rule.op}</span>
+      <div><b>${r.rule.id}</b> ${OP_NAME[r.rule.op]} ${r.rule.prop}<div style="font-size:11px;color:var(--ink-3)">${r.rule.src} · ${r.rule.clause}</div></div></div>`).join('')
+    : '<div class="reason-item"><span class="op-glyph O">·</span><div>未触发显著禁令或义务，整体符合基本伦理要求。</div></div>';
+  box.innerHTML = `
+    <div class="verdict" style="margin-top:0;border-color:${s.tier==='high'?'var(--bad)':(s.tier==='med'?'var(--warn)':'var(--ok)')}">
+      <div class="seal-stamp" style="${s.tier==='low'?'border-color:var(--ok);color:var(--ok);':''}${s.tier==='med'?'border-color:var(--warn);color:var(--warn);':''}"><span class="txt">${tier.name}</span><span class="sub">风险等级</span></div>
+      <div class="main">
+        <div class="vd-title"><span>风险研判 · ${tier.name}</span>
+          <span class="pill ${tierClass}">置信度 ${(s.conf*100).toFixed(0)}%</span>
+          ${s.flag==='expert'?'<span class="pill seal">命中复核清单</span>':''}
+          ${s.flag==='emergency'?'<span class="pill warn">应急场景</span>':''}
+        </div>
+        <div class="proc"><span class="pill ink">六维总分 ${s.scores.reduce((a,b)=>a+b,0)}/12</span>
+          <span class="pill ob">依据：语义特征 + 既往案例 + 政策规则</span></div>
+        <div class="reasons">${s.narrative.map(n=>`<div class="reason-item"><span class="op-glyph O" style="opacity:.55">·</span><div>${n}</div></div>`).join('')}</div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn primary sm" id="sendToReview">以此画像一键送审</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="sec-head"><div class="sec-title">六维风险画像</div><div class="sec-sub">各维度 0 低 / 1 中 / 2 高</div></div>
+      ${bars}
+    </div>
+
+    <div class="grid g-3" style="margin-top:20px">
+      <div class="card" style="padding:18px">
+        <div class="sec-title" style="font-size:15px;margin-bottom:10px">② 语义风险特征</div>
+        ${sigHtml}${mitHtml}
+      </div>
+      <div class="card" style="padding:18px">
+        <div class="sec-title" style="font-size:15px;margin-bottom:10px">① 既往事例 / 训练数据比对</div>
+        ${caseHtml}
+        <div style="font-size:12px;color:var(--ink-3);margin-top:8px">描述与案例库信号的余弦相似度排序；最相似案例的定级作为训练数据参照。</div>
+      </div>
+      <div class="card" style="padding:18px">
+        <div class="sec-title" style="font-size:15px;margin-bottom:10px">③ 伦理标准与政策规则</div>
+        ${ruleHtml}
+        <div style="font-size:12px;color:var(--ink-3);margin-top:8px">依据：人工智能科技伦理审查与服务办法、可信赖通则、伦理规范、伦理安全指引、生成式AI管理办法等（第一轮训练语料）。</div>
+      </div>
+    </div>`;
+  $('#sendToReview').onclick = ()=>{
+    customMode = true;
+    customScores = [...s.scores];
+    customFlag = s.flag;
+    selCase = { id:'assessed', name:'智能研判送审项目', scores:s.scores, flag:s.flag };
+    location.hash = '#/review';
+  };
+}
+
+/* ---- 训练页 ---- */
+function renderTrain(){
+  $('#tEpisodes').textContent = stats.episodes;
+  $('#tAvgReward').textContent = stats.avgReward.toFixed(2);
+  $('#tFeedback').textContent = stats.fbCount;
+  $('#valAlpha').textContent = hp.alpha.toFixed(2);
+  $('#valGamma').textContent = hp.gamma.toFixed(2);
+  $('#valEps').textContent = hp.eps.toFixed(2);
+  renderQTable();
+  renderCurve();
+  renderFbLog();
+}
+
+function renderQTable(){
+  const qvals = STATES.map(s=>ACTIONS.map(a=>Q[s.id][a.id]));
+  const all = qvals.flat();
+  const min = Math.min(...all), max = Math.max(...all);
+  const box = $('#qTableBox');
+  let html = '<table class="q-table"><tr><th></th>'+ACTIONS.map(a=>`<th>${a.name}</th>`).join('')+'</tr>';
+  STATES.forEach((s,ri)=>{
+    html += `<tr><th style="text-align:right;padding-right:8px">${s.name}</th>`;
+    ACTIONS.forEach((a,ci)=>{
+      const v = Q[s.id][a.id];
+      const t = (v-min)/(max-min||1);
+      const col = `hsl(${205 - t*160} 45% ${38 + t*26}%)`;
+      html += `<td class="q-cell" style="background:${col}" title="${s.name} × ${a.name} = ${v.toFixed(1)}">${v.toFixed(1)}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</table>';
+  box.innerHTML = html;
+}
+
+function renderCurve(){
+  const box = $('#curveBox');
+  const W=560,H=220,padL=44,padB=30,padT=14,padR=14;
+  const h = stats.history.slice(-120);
+  if (h.length<2){
+    box.innerHTML = '<div class="empty">尚无训练数据。运行审查并反馈，或点击「训练」按钮开始学习。</div>';
+    return;
+  }
+  const n=h.length;
+  const min=Math.min(...h)-0.1, max=Math.max(...h)+0.1;
+  const X=i=>padL+(W-padL-padR)*(i/(n-1));
+  const Y=v=>padT+(H-padT-padB)*(1-(v-min)/(max-min));
+  let pts = h.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="学习曲线">
+    ${[0,0.25,0.5,0.75,1].map(f=>{const y=padT+(H-padT-padB)*f;const v=min+(max-min)*(1-f);return `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#DCD2BA" stroke-width="1"/><text class="axis-txt" x="${padL-6}" y="${y+3}" text-anchor="end">${v.toFixed(1)}</text>`;}).join('')}
+    <polyline points="${pts}" fill="none" stroke="#23314C" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${X(n-1).toFixed(1)}" cy="${Y(h[n-1]).toFixed(1)}" r="3.4" fill="#B03A2E"/>
+    <text class="axis-txt" x="${W-padR}" y="${H-6}" text-anchor="end">回合 ${n} · 均值 ${stats.avgReward.toFixed(2)}</text>
+  </svg>`;
+  box.innerHTML = svg;
+}
+
+function renderFbLog(){
+  const box = $('#fbLog');
+  const rows = records.slice(0,30);
+  if (!rows.length){ box.innerHTML = '<div class="empty">暂无反馈记录。去审查工作台对某次决定给出评价。</div>'; return; }
+  box.innerHTML = rows.map(r=>{
+    const d = new Date(r.ts);
+    const tag = r.fb==='ok'?'<span class="pill ok">合理 +1.0</span>':'<span class="pill bad">不合理 −1.0</span>';
+    const better = r.better?`→ 引导「${ACT_BY_ID[r.better]?ACT_BY_ID[r.better].name:r.better}」`:'';
+    return `<div class="row"><span class="tag">${tag}</span><span style="font-weight:600">${esc(r.caseName)}</span><span style="color:var(--ink-3);font-size:12px">${esc(ACT_BY_ID[r.action].name)} · ${esc(ACT_BY_ID[r.action].proc)} · 奖励 ${r.reward.toFixed(2)} ${better}</span><span style="margin-left:auto;color:var(--ink-3);font-size:11px">${d.toLocaleString('zh-CN')}</span></div>`;
+  }).join('');
+}
+
+/* 批量训练 */
+function batchTrain(n){
+  for (let k=0;k<n;k++){
+    const c = CASES[Math.floor(Math.random()*CASES.length)];
+    const s = riskTier(c.scores, c.flag);
+    const a = chooseAction(s);
+    let r = PRIOR[s][a]/20;
+    if (s==='high' && a==='approve') r -= 0.7;
+    if (s==='low' && (a==='reject'||a==='emergency')) r -= 0.35;
+    if (s==='low' && a==='revise') r -= 0.15;
+    r += (Math.random()-0.5)*0.06;
+    learn(s, a, r);
+    stats.episodes++;
+    stats.history.push(r);
+  }
+  const n2 = stats.history.length;
+  const win = stats.history.slice(Math.max(0,n2-50));
+  stats.avgReward = win.reduce((a,b)=>a+b,0)/win.length;
+  persistStats();
+  renderTrain();
+}
+
+/* ---- 档案 ---- */
+function renderRecords(){
+  $('#recCount').textContent = records.length + ' 条';
+  const box = $('#recordList');
+  if (!records.length){
+    box.innerHTML = '<div class="empty">尚无审查记录。前往审查工作台完成一次审查并反馈，记录将显示在这里。</div>';
+    return;
+  }
+  let html = `<table class="tbl"><thead><tr><th>时间</th><th>送审项目</th><th>风险</th><th>审查决定</th><th>程序</th><th>反馈</th><th>奖励</th></tr></thead><tbody>`;
+  records.slice(0,100).forEach(r=>{
+    const d = new Date(r.ts);
+    const tier = STATES.find(s=>s.id===r.state);
+    html += `<tr class="record-row">
+      <td style="white-space:nowrap;color:var(--ink-3);font-size:12px">${d.toLocaleString('zh-CN')}</td>
+      <td><b>${esc(r.caseName)}</b><div style="font-size:11px;color:var(--ink-3)">${esc(r.caseType||'')}${r.flag==='expert'?' · 复核清单':(r.flag==='emergency'?' · 应急':'')}</div></td>
+      <td><span class="pill ${r.state==='high'?'bad':(r.state==='med'?'warn':'ok')}">${tier.name}</span><div style="font-size:11px;color:var(--ink-3);margin-top:2px">评分 ${r.scores?r.scores.reduce((a,b)=>a+b,0):'—'}/12</div></td>
+      <td><span class="verdict-pill">${esc(ACT_BY_ID[r.action]?ACT_BY_ID[r.action].name:r.action)}</span></td>
+      <td style="font-size:12px;color:var(--ink-2)">${esc(r.proc||'')}</td>
+      <td>${r.fb==='ok'?'<span class="pill ok">合理</span>':'<span class="pill bad">不合理</span>'}</td>
+      <td style="font-family:var(--f-display);font-weight:700">${r.reward.toFixed(2)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  box.innerHTML = html;
+}
+
+/* ---- 事件绑定（训练页） ---- */
+$('#assessBtn').addEventListener('click', ()=>{
+  const text = $('#assessInput').value;
+  const result = runAssess(text);
+  if (result.error){ assessState = null; $('#assessResult').innerHTML = '<div class="card" style="text-align:center;padding:50px 30px;color:var(--seal)"><div style="font-size:15px">' + esc(result.error) + '</div></div>'; return; }
+  assessState = result;
+  renderAssess();
+});
+$('#assessClear').addEventListener('click', ()=>{
+  assessState = null;
+  $('#assessInput').value = '';
+  renderAssess();
+});
+$('#hpAlpha').addEventListener('input', e=>{hp.alpha=+e.target.value; renderTrain();});
+$('#hpGamma').addEventListener('input', e=>{hp.gamma=+e.target.value; renderTrain();});
+$('#hpEps').addEventListener('input', e=>{hp.eps=+e.target.value; renderTrain();});
+$('#train50').addEventListener('click', ()=>batchTrain(50));
+$('#train200').addEventListener('click', ()=>batchTrain(200));
+$('#resetQ').addEventListener('click', ()=>{
+  initQ(); persistStats(); renderTrain();
+});
+$('#clearRecords').addEventListener('click', ()=>{
+  records = [];
+  try{ localStorage.removeItem('dq_records'); }catch(e){}
+  renderRecords();
+});
+$('#menuBtn').addEventListener('click', ()=>{
+  document.getElementById('nav').classList.toggle('open');
+});
+
+/* ---- 启动 ---- */
+loadRecords();
+loadStats();
+route();
+</script>
+</body>
+</html>

@@ -281,6 +281,22 @@ select:focus,input:focus{border-color:var(--ink)}
 /* ================= 页脚 ================= */
 .foot{max-width:1240px;margin:0 auto;padding:24px 28px 40px;color:var(--ink-3);font-size:12.5px;border-top:1px solid var(--line);display:flex;gap:16px;flex-wrap:wrap;align-items:center}
 
+
+/* ================= 标签页 / 规范边 / 法条 ================= */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.tab{padding:9px 16px;font-size:13.5px;font-weight:600;color:var(--ink-3);border:none;border-bottom:2px solid transparent;background:none}
+.tab.active{color:var(--ink);border-bottom-color:var(--seal)}
+.tab:hover{color:var(--ink)}
+.edge-card{border:1px solid var(--line);border-radius:11px;padding:13px 15px;background:var(--card);transition:.14s}
+.edge-card:hover{border-color:var(--line-2)}
+.edge-card .pair{display:flex;align-items:center;gap:7px;font-family:var(--f-display);font-weight:700;font-size:14px;flex-wrap:wrap}
+.edge-card .pair .arrow{color:var(--seal);font-weight:900}
+.edge-card .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.edge-card .cond{font-size:12.5px;color:var(--ink-2);margin-top:8px;line-height:1.55}
+.clause-item{border-left:3px solid var(--line-2);padding:8px 0 8px 14px;margin-bottom:10px}
+.clause-item .a{font-family:var(--f-display);font-weight:700;font-size:12.5px;color:var(--seal);letter-spacing:.5px}
+.clause-item .t{font-size:12.5px;color:var(--ink-2);line-height:1.65;margin-top:3px}
+
 @media (max-width:1180px){
   .workbench{grid-template-columns:1fr}
   .g-4{grid-template-columns:repeat(2,1fr)}
@@ -325,6 +341,7 @@ select:focus,input:focus{border-color:var(--ink)}
       <a href="#/assess" data-nav="assess"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.5 5.5L20 9l-5.5 2.5L12 17l-2.5-5.5L4 9l5.5-1.5z"/><path d="M18 15l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z"/></svg>智能研判</a>
       <a href="#/train" data-nav="train"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-8M22 20V7"/></svg>训练与反馈</a>
       <a href="#/records" data-nav="records"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16H5zM9 8h6M9 12h6M9 16h4"/></svg>审查档案</a>
+      <a href="#/markov" data-nav="markov"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="5" r="2.2"/><circle cx="12" cy="19" r="2.2"/><circle cx="19" cy="12" r="2.2"/><path d="M7 11l3-4M7 13l3 4M14 6.5l3 4M14 17.5l3-4"/></svg>流程推演</a>
     </nav>
     <button class="menu-btn" id="menuBtn" aria-label="菜单"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
@@ -353,6 +370,8 @@ select:focus,input:focus{border-color:var(--ink)}
           <span class="pill">动作空间 5 · 审查决定</span>
           <span class="pill">奖励信号 · 道义先验 + 用户反馈</span>
           <span class="pill">第一轮训练 · 26 份语料</span>
+          <span class="pill">流程推演 · 吸收马尔可夫链</span>
+          <span class="pill">标注语料 · 3767 条 + 200 规范边</span>
         </div>
       </div>
     </div>
@@ -410,6 +429,23 @@ select:focus,input:focus{border-color:var(--ink)}
       </div>
       <div id="corpusList" class="grid g-2"></div>
     </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="sec-head">
+        <div class="sec-title">标注数据资产 <span class="tag">第二轮训练语料</span></div>
+        <div class="sec-sub">三人独立审核 · 双评审 + 裁决者</div>
+      </div>
+      <div class="grid g-4">
+        <div class="metric"><div class="k">外部道德语料</div><div class="v" id="dExt"></div><div class="d" id="dExtSub"></div></div>
+        <div class="metric"><div class="k">路由标注</div><div class="v" id="dRoute"></div><div class="d" id="dRouteSub"></div></div>
+        <div class="metric"><div class="k">规范边</div><div class="v" id="dEdge"></div><div class="d" id="dEdgeSub"></div></div>
+        <div class="metric"><div class="k">安全重写语料</div><div class="v" id="dSafe"></div><div class="d" id="dSafeSub"></div></div>
+      </div>
+      <div style="font-size:12.5px;color:var(--ink-3);margin-top:14px;line-height:1.7">
+        规范边（normative edge）是「在条件 C 下，价值 V⁺ 优先于 V⁻」的形式化记录，附带法域、利益相关方、依据与置信度；
+        其中可通过专家裁决者标记为硬约束的部分，用于 Q 表的初始先验与审查证据链；其余只能以「可推翻的推定」形式参与推理。
+      </div>
+    </div>
   </section>
 
   <!-- ================= 道义规则库 ================= -->
@@ -419,13 +455,41 @@ select:focus,input:focus{border-color:var(--ink)}
     <p class="lede">从第一轮训练语料中形式化提取的伦理规范，每个命题以「应当 O / 禁止 F / 允许 P」算子表达，并可溯源至具体法规条款。规则库是审查工作台道义判定的依据，也是 Q 表先验知识的来源。</p>
 
     <div class="card" style="margin-top:20px">
-      <div class="filter-bar" id="ruleFilters">
-        <button class="filter-btn active" data-f="all">全部 <span id="cntAll"></span></button>
-        <button class="filter-btn" data-f="O">O · 应当 <span id="cntO"></span></button>
-        <button class="filter-btn" data-f="F">F · 禁止 <span id="cntF"></span></button>
-        <button class="filter-btn" data-f="P">P · 允许 <span id="cntP"></span></button>
+      <div class="tabs" id="ruleTabs">
+        <button class="tab active" data-tab="rules">道义规则 <span id="tabCntRules"></span></button>
+        <button class="tab" data-tab="edges">规范边 <span id="tabCntEdges"></span></button>
+        <button class="tab" data-tab="clauses">法条原文</button>
       </div>
-      <div id="ruleList" class="grid g-2"></div>
+
+      <div id="panel-rules">
+        <div class="filter-bar" id="ruleFilters">
+          <button class="filter-btn active" data-f="all">全部 <span id="cntAll"></span></button>
+          <button class="filter-btn" data-f="O">O · 应当 <span id="cntO"></span></button>
+          <button class="filter-btn" data-f="F">F · 禁止 <span id="cntF"></span></button>
+          <button class="filter-btn" data-f="P">P · 允许 <span id="cntP"></span></button>
+        </div>
+        <div id="ruleList" class="grid g-2"></div>
+      </div>
+
+      <div id="panel-edges" style="display:none">
+        <div class="filter-bar">
+          <input type="text" id="edgeSearch" placeholder="检索价值对 / 条件 / 法域…" style="max-width:320px">
+          <button class="filter-btn active" data-ef="all">全部</button>
+          <button class="filter-btn" data-ef="hard">硬约束</button>
+          <button class="filter-btn" data-ef="soft">仅软约束</button>
+          <button class="filter-btn" data-ef="rev">含反向边</button>
+        </div>
+        <div class="statline" id="edgeStat" style="margin-bottom:14px"></div>
+        <div id="edgeList" class="grid g-2"></div>
+      </div>
+
+      <div id="panel-clauses" style="display:none">
+        <div class="filter-bar">
+          <select id="clauseDoc" style="max-width:420px"></select>
+          <input type="text" id="clauseSearch" placeholder="条款内检索…" style="max-width:260px">
+        </div>
+        <div id="clauseList" style="max-height:640px;overflow:auto"></div>
+      </div>
     </div>
   </section>
 
@@ -569,12 +633,38 @@ select:focus,input:focus{border-color:var(--ink)}
     </div>
   </section>
 
+  <!-- ================= 流程推演 ================= -->
+  <section class="page" data-route="markov">
+    <h1 class="eyebrow">MARKOV CHAIN PROJECTION</h1>
+    <h1 class="title">审查流程推演</h1>
+    <p class="lede">把一次审查从受理到决议的全过程建模为<b>吸收马尔可夫链</b>：瞬态节点可停留、可回退，吸收态为最终决议。转移核由三源合成——<b>法定程序结构</b>（复核清单强制专家复核）、<b>Q 策略</b>（π(a|s) 决定常规审查出口）、<b>语料先验</b>（3767 条外部语料的裁决分布）。据此可推算：各决议的吸收概率、期望审查步数、流程收敛性，以及评审噪声对决议的放大效应。</p>
+
+    <div class="card" style="margin-top:20px">
+      <div class="sec-head"><div class="sec-title">推演对象</div><div class="sec-sub">选择案例后自动重算</div></div>
+      <div class="btn-row" id="mcCaseBar"></div>
+    </div>
+
+    <div class="card" style="margin-top:20px;background:var(--card-2);border-style:dashed">
+      <div class="sec-title" style="font-size:15px;margin-bottom:8px">模型假定与适用边界</div>
+      <div style="font-size:12.5px;color:var(--ink-2);line-height:1.75">
+        ① <b>状态空间</b>为 7 个瞬态加 4 个吸收态，对应《人工智能科技伦理审查与服务办法（试行）》确立的受理—审查—复核—决议程序；<br>
+        ② <b>转移概率</b>由三源合成：法定程序结构（复核清单与应急情形的强制走向）、Q 策略 π(a|s)（以温度 τ=4 对 Q 值作 softmax，避免退化为 argmax）、以及 3767 条外部语料的裁决分布（以 0.3 的权重对专家复核与应急通道的出口做线性校准）；<br>
+        ③ 转移参数是<b>结构性先验</b>，不是对某一机构历史数据的拟合。真实部署时应以本单位审查台账替换出口分布，并用实测频率重新标定；<br>
+        ④ 吸收概率反映的是「在当前程序与策略下，此类案件最可能走到哪个决议」，<b>不构成对个案结论的预测</b>，也不能替代专家判断。
+      </div>
+    </div>
+
+    <div id="mcRoot" style="margin-top:20px"></div>
+  </section>
+
 </main>
 
 <footer class="foot">
-  <span>道义·Q — AI 科技伦理审查可反馈系统（演示原型）</span>
+  <span>道义·Q — AI 科技伦理审查可反馈系统（v2 · 演示原型）</span>
   <span>道义规则依据：第一轮训练语料（张子苒整理 word 版本，26 份文件）</span>
+  <span>标注数据：外部道德语料 3767 条 / 规范边 200 条 / 路由标注 1336 条 / 安全重写 240 条</span>
   <span>审查程序依据：人工智能科技伦理审查与服务办法（试行）</span>
+  <span>流程推演：7 瞬态 + 4 吸收态的吸收马尔可夫链</span>
 </footer>
 
 <script>
@@ -623,6 +713,9 @@ const RULES = [
   { id:'R26', op:'O', dim:'control',       w:2, prop:'高度自主操作能力引入时须同步建立熔断、一键管控与极端条件测试',        src:'人工智能安全治理框架 2.0', clause:'4.2 现实安全风险应对' },
 ];
 const RULES_BY_ID = Object.fromEntries(RULES.map(r=>[r.id,r]));
+
+/* ===== 第二轮训练语料（离线内嵌） ===== */
+const ETHOS = {"stats":{"corpus":{"total":3767,"decision":{"exclude":1820,"retain":853,"repair":596,"reauthor":498},"domain":{"family_parenting":960,"friendship_social":531,"workplace_business":509,"romantic_relations":489,"everyday_conduct":364,"education_academic":303,"medical_care":178,"property_money":157,"public_safety":96,"animals_environment":83,"law_government":52,"speech_media":37,"technology_ai":8},"sensitivity":{"low":2813,"medium":555,"high":263,"critical":136},"partition":{"external":1540,"raw_condition":1418,"stress":659,"pluralism":150},"source":{"moralchoice":1367,"moral_stories":1200,"scruples_dilemmas":1200},"agree_raw":0.8391292805946376},"route":{"total":1336,"gold":{"priority":536,"harmful":433,"ordinary":323,"ambiguous":44},"stream":{"harmful":433,"benign":323,"dilemma":296,"conflict":240,"ambiguous":44},"lang":{"zh":570,"en":497,"ru":135,"ja":134},"agree_raw":0.8892215568862275},"safety":{"total":240,"decision":{"accept":222,"revise":18},"action":{"refuse":137,"safe_redirect":103},"overrefusal":8},"edge":{"total":200,"decision":{"accept_hard_candidate":100,"accept_soft_only":59,"reject_non_value_nodes":23,"needs_better_source":10,"split_by_condition":3,"reject_unsupported":3,"reverse":2},"confidence":{"high":111,"medium":74,"low":15},"reverse":30,"hard":104,"jurisdiction":{"CN-mainland":30,"cross-jurisdictional":18,"international-research-ethics":8,"CN-mainland;EU":6,"philosophical-tradition:kantian-deontology":6,"professional-ethics-code:marxist-value-theory":5,"philosophical-tradition:marxist-ethics":5,"professional-ethics-code:public-administration-ethics":5,"CN-mainland;philosophical-tradition:socialist-collectivism":5,"international-humanitarian":5,"CN-mainland;international-research-ethics":5,"philosophical-tradition:utilitarianism":4}}},"edges":[{"id":"nedge-1d174ca5467cb30c6c11","vh":"隐私权","vl":"公共安全监控权","cond":"routine_operation","scope":"condition_specific","jur":"CN-mainland;EU","dec":"accept_hard_candidate","conf":"high","rev":true,"hard":true,"txt":"非紧急常规运营状态下的自动化监控（人脸识别、轨迹追踪）","dlg":"评审2主张仅为推定性优先；裁决保留：该优先以比例原则审查为前提，非绝对。"},{"id":"nedge-dfb22c419cb6cc1f2148","vh":"公共安全监控权","vl":"隐私权","cond":"counter_terrorism_suspicion","scope":"condition_specific","jur":"CN-mainland;EU","dec":"accept_soft_only","conf":"medium","rev":true,"hard":false,"txt":"存在具体、可信的恐怖主义线索时的实时视频分析与身份比对","dlg":"CJEU在C-203/15中对普遍留存持否定立场，与“监控权优位”的表述存在张力；保留为限定性例外而非法益位阶。"},{"id":"nedge-2f32b50de8abd932f108","vh":"言论自由","vl":"名誉权","cond":"public_figure_criticism","scope":"condition_specific","jur":"cross-jurisdictional 不只是这几条法规提到","dec":"accept_soft_only","conf":"medium","rev":true,"hard":false,"txt":"对公职人员及公众人物的批评性言论","dlg":"美国法（Sullivan）与欧洲人权法（Lingens）对名誉保护的权衡强度不同；保留法域间分歧。"},{"id":"nedge-f421af9299f95b0c2ff7","vh":"名誉权","vl":"言论自由","cond":"private_individual_defamation","scope":"condition_specific","jur":"cross-jurisdictional同上，依照情况","dec":"accept_soft_only","conf":"low","rev":true,"hard":false,"txt":"针对普通私人个体的捏造事实诽谤","dlg":"旧引注存在事实性错误（Lingens案不支持该方向），裁决予以纠正；规范分歧不显著。"},{"id":"nedge-75c5a5787a5cf1e43a8a","vh":"言论自由","vl":"名誉权","cond":"public_interest_disclosure","scope":"condition_specific","jur":"cross-jurisdictional 同上","dec":"accept_soft_only","conf":"medium","rev":true,"hard":false,"txt":"涉及公共利益的重大事项披露（如公职人员腐败）","dlg":"无实质规范分歧；各法域对“善意+真实性”要件的宽严略有差异，保留。"},{"id":"nedge-45eb8a85e479c1d0b9d8","vh":"言论自由","vl":"名誉权","cond":"public_interest_journalism","scope":"condition_specific","jur":"cross-jurisdictional 同上","dec":"accept_soft_only","conf":"medium","rev":true,"hard":false,"txt":"AI辅助生成且涉及公共事务批评的新闻报道","dlg":"无实质分歧；AI生成新闻场景下编辑责任（c1所涉）如何分配尚存讨论空间，记录为开放问题。"},{"id":"nedge-ad169d834e8d7a3e689c","vh":"个体行动自由","vl":"公共卫生安全","cond":"常规公共卫生管理阶段","scope":"condition_specific","jur":"CN-mainland","dec":"accept_soft_only","conf":"medium","rev":true,"hard":false,"txt":"常规公共卫生管理（非紧急）状态下的个体行动自由","dlg":"无实质分歧；权利推定优先的强度（强优先vs可推翻的推定）两评审表述不同，保留为推定性优先。"},{"id":"nedge-0388c73f04e01aa2f584","vh":"公共卫生安全","vl":"个体行动自由","cond":"甲类传染病暴发响应状态","scope":"condition_specific","jur":"CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":true,"hard":true,"txt":"甲类传染病暴发响应状态下依法采取的隔离等防控措施","dlg":"评审2认为应表述为“依法定授权+比例原则的限定性优先”而非位阶；已在final_condition_text中保留该限定。"},{"id":"nedge-73ba926831e74fc703a4","vh":"社会价值","vl":"自我价值","cond":"marxist_value_theory","scope":"condition_specific","jur":"professional-ethics-code:marxist-value-theory","dec":"accept_soft_only","conf":"high","rev":true,"hard":false,"txt":"马克思主义价值论框架下人生价值的评价与排序","dlg":"两评审一致：该优先级是马克思主义价值论体系内的规范性主张，不应普遍化为跨体系共识。"},{"id":"nedge-dddb37d412436611aa01","vh":"社会价值","vl":"自我价值","cond":"marxist_social_practice_context","scope":"condition_specific","jur":"professional-ethics-code:marxist-value-theory","dec":"accept_soft_only","conf":"high","rev":true,"hard":false,"txt":"马克思主义社会实践语境下人生价值根本评价标准","dlg":"无实质分歧；注意与#9高度同源，建议合并或互引。"},{"id":"nedge-15358de22aa479a46eba","vh":"自我价值","vl":"社会价值","cond":"individual_development_context","scope":"condition_specific","jur":"professional-ethics-code:marxist-value-theory","dec":"needs_better_source","conf":"low","rev":true,"hard":false,"txt":"个体成长初期或特殊发展阶段（教育期、康复期）","dlg":"评审1认为方向在体系内缺乏支持（同源文本反而支持反向），评审2认为可作为工具性优先保留；分歧实质，保留。"},{"id":"nedge-d11776295149700404be","vh":"社会价值","vl":"自我价值","cond":"social_crisis_context","scope":"condition_specific","jur":"professional-ethics-code:marxist-value-theory","dec":"accept_soft_only","conf":"medium","rev":true,"hard":false,"txt":"重大社会危机（传染病暴发、战争状态）下个体对集体生存的贡献","dlg":"旧引注存在事实性错误（罗尔斯主张自由优先性而非公共善优先），裁决纠正为马克思主义价值论与危机伦理依据。"},{"id":"nedge-8dc48acac4eed35921df","vh":"社会道德","vl":"个体道德","cond":"social_stability_context","scope":"condition_specific","jur":"CN-mainland；professional-ethics-code:marxist-value-theory","dec":"accept_soft_only","conf":"medium","rev":true,"hard":false,"txt":"社会秩序整合与价值共识维系的关键阶段（制度转型期/价值多元冲突期）","dlg":"“功能优先”与“位阶优先”之辨保留；评审2强调不得据此否定个体道德。"},{"id":"nedge-0af32790affc211217cb","vh":"个体道德","vl":"社会道德","cond":"moral_innovation_context","scope":"condition_specific","jur":"philosophical-tradition:discourse-ethics","dec":"needs_better_source","conf":"low","rev":true,"hard":false,"txt":"社会道德面临历史性更新需求（技术伦理挑战、新型人际关系涌现）时","dlg":"发生学优先与位阶优先之辨未决；两评审对是否可保留为soft边存在真实分歧，保留。"},{"id":"nedge-e0ffe2f2c428370f3f17","vh":"动机","vl":"效果","cond":"kantian_framework","scope":"condition_specific","jur":"philosophical-tradition:kantian-deontology","dec":"accept_hard_candidate","conf":"high","rev":true,"hard":true,"txt":"康德义务论框架内的道德价值评价","dlg":"none"},{"id":"nedge-2c187637d805fb79cc18","vh":"效果","vl":"动机","cond":"utilitarian_framework","scope":"condition_specific","jur":"philosophical-tradition:utilitarianism","dec":"accept_hard_candidate","conf":"high","rev":true,"hard":true,"txt":"功利主义框架内的道德正当性评价","dlg":"none"},{"id":"nedge-87e19c1d0f5acbe4f537","vh":"动机的纯粹性","vl":"行为效果","cond":"kantian_deontology_context","scope":"condition_specific","jur":"philosophical-tradition:kantian-deontology","dec":"split_by_condition","conf":"high","rev":true,"hard":true,"txt":"康德义务论语境下道德价值的首要判准","dlg":"none"},{"id":"nedge-a153d9f269a60191db92","vh":"行为效果","vl":"动机的纯粹性","cond":"utilitarianism_context","scope":"condition_specific","jur":"philosophical-tradition:utilitarianism","dec":"split_by_condition","conf":"high","rev":true,"hard":true,"txt":"功利主义伦理学语境下道德价值的首要判准","dlg":"none"},{"id":"nedge-762f5041e53f4340381f","vh":"主观动机的道德决定性","vl":"行为结果的道德可评价性","cond":"motivation_theory_context","scope":"condition_specific","jur":"philosophical-tradition:kantian-deontology","dec":"accept_hard_candidate","conf":"high","rev":true,"hard":true,"txt":"动机论（康德义务论）理论语境下的道德评价根本依据","dlg":"节点形式（理论谓词而非价值名词）是否合格，两评审有分歧；保留并建议数据侧合并#15/#17/#19。"},{"id":"nedge-4ed9c685139c4f680572","vh":"行为结果的道德可评价性","vl":"主观动机的道德决定性","cond":"consequentialist_context","scope":"condition_specific","jur":"philosophical-tradition:utilitarianism","dec":"accept_hard_candidate","conf":"high","rev":true,"hard":true,"txt":"后果主义（功利主义）语境下对行为本身的道德评价","dlg":"none"},{"id":"nedge-cb09e84734761a95d49a","vh":"道德选择的自由","vl":"道德选择的责任","cond":"moral_development_context","scope":"condition_specific","jur":"philosophical-tradition:german-classical-philosophy","dec":"accept_soft_only","conf":"medium","rev":true,"hard":false,"txt":"道德发展语境下自由对责任的逻辑奠基关系","dlg":"none；两评审一致注明该“优先”为逻辑前提义而非位阶义。"},{"id":"nedge-c809eb616f0b74a6ec79","vh":"道德选择的责任","vl":"道德选择的自由","cond":"social_accountability_context","scope":"condition_specific","jur":"philosophical-tradition:marxist-ethics","dec":"accept_soft_only","conf":"medium","rev":true,"hard":false,"txt":"社会问责语境下责任对自由的实质校准","dlg":"none；保留限定：责任优先不否定自由的前提地位（与#21在不同语义层面并存）。"},{"id":"nedge-8d3db9590b25bd10a577","vh":"Individual Rights","vl":"Collective Welfare","cond":"liberal_democratic_context","scope":"condition_specific","jur":"philosophical-tradition:liberal-egalitarianism","dec":"accept_hard_candidate","conf":"high","rev":true,"hard":true,"txt":"自由民主政体法权秩序中个体权利对集体福利的程序性优先","dlg":"none"},{"id":"nedge-20df8276199784a8ba97","vh":"Collective Welfare","vl":"Individual Rights","cond":"public_health_emergency","scope":"condition_specific","jur":"CN-mainland;international-health-regulations","dec":"accept_hard_candidate","conf":"high","rev":true,"hard":true,"txt":"公共卫生紧急状态（传染病暴发）下的隔离、强制检测等措施","dlg":"none；与#8建议合并或互引。"},{"id":"nedge-dcb306f955699bfc606b","vh":"工具理性","vl":"价值理性","cond":"bureaucratic_modernization","scope":"condition_specific","jur":"cross-jurisdictional该主张被认为是社会通用法则之一","dec":"reject_unsupported","conf":"high","rev":true,"hard":false,"txt":"韦伯式官僚制现代化进程中的理性结构（描述性命题，非规范主张）","dlg":"评审2主张以“描述性趋势”形式保留；裁决：图谱收录规范边，描述性命题不应进入，分歧记录于此。"},{"id":"nedge-f4ab567abb24864eb31b","vh":"价值理性","vl":"工具理性","cond":"governance_legitimacy_crisis","scope":"condition_specific","jur":"professional-ethics-code:public-administration-ethics","dec":"accept_soft_only","conf":"medium","rev":true,"hard":false,"txt":"治理合法性危机情境下制度设计的价值基准","dlg":"none；证据强度有限，建议补充批判理论或行政伦理直接文本。"},{"id":"nedge-d28dd2947582aecae1e0","vh":"婚姻神圣性","vl":"性自主权","cond":"traditional_moral_framework","scope":"condition_specific","jur":"religious-tradition:christian-thomism;philosophical-tradition:confucian-ethics","dec":"accept_hard_candidate","conf":"high","rev":true,"hard":true,"txt":"传统道德观（基督教圣事伦理/儒家夫妇伦理）框架下的婚外性选择","dlg":"none；注意与#28构成框架对置，不得相互删除。"},{"id":"nedge-e4f1e2627597eb7520da","vh":"性自主权","vl":"婚姻神圣性","cond":"sexual_liberalism_framework","scope":"condition_specific","jur":"philosophical-tradition:liberalism","dec":"accept_hard_candidate","conf":"high","rev":true,"hard":true,"txt":"性自由主义框架下自愿、知情、非伤害的性行为评价","dlg":"none；与#27互为框架对置。"},{"id":"nedge-4c378ca7aa618399d382","vh":"道德主体性","vl":"道德规范性","cond":"historical_practice_context","scope":"condition_specific","jur":"philosophical-tradition:marxist-ethics","dec":"accept_soft_only","conf":"medium","rev":true,"hard":false,"txt":"道德历史发生过程中先进群体的主体性探索","dlg":"none；明示该优先为发生学义。"},{"id":"nedge-441bfb7998b6f9cbbd04","vh":"道德规范性","vl":"道德主体性","cond":"social_order_context","scope":"condition_specific","jur":"philosophical-tradition:discourse-ethics","dec":"accept_soft_only","conf":"medium","rev":true,"hard":false,"txt":"保障基本社会秩序与行为约束的现实需求下","dlg":"none；功能优先义已注明。"},{"id":"nedge-bb19466c931914ed68b0","vh":"人民利益","vl":"个人利益","cond":"value_choice_context","scope":"condition_specific","jur":"CN-mainland;philosophical-tradition:socialist-collectivism","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"价值选择情境中人民利益对个人利益的规范性优先","dlg":"none；c5的价值排序相对性提示已记录为背景。"},{"id":"nedge-a3f7d7b2e067ae7b9827","vh":"儿童利益最大化","vl":"科学研究效用","cond":"vulnerable_population_context","scope":"condition_specific","jur":"international-humanitarian","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"儿童临床试验等涉及未成年受试者的研究场景","dlg":"none"},{"id":"nedge-7a082f45d04a1dd1ad7d","vh":"集体利益","vl":"个人利益","cond":"socialist_system","scope":"condition_specific","jur":"CN-mainland;philosophical-tradition:socialist-collectivism","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"社会主义制度语境下集体利益与个人利益冲突时的排序","dlg":"none"},{"id":"nedge-2c28f50b8fc0ff1d3e97","vh":"道德价值","vl":"事物价值","cond":"non_instrumental_context","scope":"condition_specific","jur":"philosophical-tradition:kantian-deontology","dec":"accept_hard_candidate","conf":"medium","rev":false,"hard":true,"txt":"非工具性语境下的价值分类与排序","dlg":"评审2强调马克思主义价值论的反立场；保留：该优先为康德式非工具论语境内命题。"},{"id":"nedge-6fe7389a7468fbb4d455","vh":"集体利益","vl":"个人利益","cond":"collectivist_context","scope":"condition_specific","jur":"CN-mainland;philosophical-tradition:socialist-collectivism","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"集体主义语境（社会主义道德建设）下利益冲突的排序","dlg":"none；与#33/#37近重复，建议图谱侧合并。"},{"id":"nedge-d57a5044290d8e4a034c","vh":"人的自由全面发展","vl":"生殖目的","cond":"marxist_ethics","scope":"condition_specific","jur":"philosophical-tradition:marxist-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"马克思主义伦理思想下性行为目的层级的评价（含生殖妨碍个体发展情形）","dlg":"none"},{"id":"nedge-3ade27a364ad441c1445","vh":"集体主义","vl":"个人利益","cond":"socialist_system_context","scope":"condition_specific","jur":"CN-mainland;philosophical-tradition:socialist-collectivism","dec":"accept_soft_only","conf":"high","rev":false,"hard":true,"txt":"社会主义制度语境下职业道德中个人利益与集体利益的协调","dlg":"节点规范化建议未决（保留分歧）；实质排序两评审一致。"},{"id":"nedge-41e5a795a6ce8f3d94dd","vh":"善良意志","vl":"行为效果","cond":"kantian_framework","scope":"condition_specific","jur":"philosophical-tradition:kantian-deontology","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"康德义务论框架下行为道德价值的根据","dlg":"none；与#15/#17/#19同族，建议合并。"},{"id":"nedge-4674477d1429ce6426aa","vh":"道德价值","vl":"社会政治价值","cond":"non_coercive_context","scope":"condition_specific","jur":"philosophical-tradition:discourse-ethics","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"非强制语境下道德价值对社会整合的作用方式","dlg":"none；“优先”解释为非强制性与根基性义。"},{"id":"nedge-467aa09b94d50427cd71","vh":"人民利益","vl":"个体主观愿望","cond":"socialist_core_values_context","scope":"condition_specific","jur":"CN-mainland;philosophical-tradition:marxist-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"社会主义核心价值观语境下价值目标确立的客观尺度","dlg":"节点“个体主观愿望”的价值资格存疑，记录分歧。"},{"id":"nedge-abf91b9b2a65e31c4b87","vh":"道德自律","vl":"他律性服从","cond":"kantian_moral_framework","scope":"condition_specific","jur":"philosophical-tradition:kantian-deontology","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"康德道德哲学框架下行动道德价值的来源","dlg":"none"},{"id":"nedge-8c63d27baf02e60ac923","vh":"个人与社会整体之间的道德关系","vl":"个体自主性","cond":"social_stability_context","scope":"condition_specific","jur":"philosophical-tradition:durkheimian-sociology","dec":"reject_non_value_nodes","conf":"high","rev":false,"hard":false,"txt":"维护社会整合与秩序稳定的现实语境","dlg":"评审2主张改述后保留；裁决：改述建议转交图谱构建方，本边按现节点拒绝。"},{"id":"nedge-c88f448ca281d3f30262","vh":"人民福祉","vl":"个体道德品质发展水平","cond":"socialist_revolution_context","scope":"condition_specific","jur":"CN-mainland;philosophical-tradition:marxist-ethics","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"社会主义革命与建设语境下道德选择三重尺度的排序","dlg":"none"},{"id":"nedge-731f2ab645c5d30b9e38","vh":"义","vl":"利","cond":"moral_decision_making","scope":"condition_specific","jur":"philosophical-tradition:confucian-ethics","dec":"accept_hard_candidate","conf":"medium","rev":false,"hard":true,"txt":"道德抉择情境中道德正当性对功利得失的优先","dlg":"经典书籍可见，常规道德可用"},{"id":"nedge-31a1b0795ee61867d7d2","vh":"道德责任感","vl":"个人情感舒适度","cond":"moral_conflict_scenario","scope":"condition_specific","jur":"philosophical-tradition:confucian-daoist-cultivation;CN-textbook-ethics","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"道德冲突情境中义务感对主观情感安适的克制要求","dlg":"none"},{"id":"nedge-bfb944956a5195b45c2e","vh":"公共利益导向","vl":"部门本位主义","cond":"public_administration_decision_making","scope":"condition_specific","jur":"CN-mainland;professional-ethics-code:public-administration-ethics","dec":"reject_non_value_nodes","conf":"medium","rev":false,"hard":false,"txt":"公共行政决策场景中公共利益对部门局部理性的优先","dlg":"评审2主张改写后接受；裁决：现节点为贬义实践标签，按节点规则拒绝，改写建议移交图谱侧。"},{"id":"nedge-a1596deca935ed1a32d8","vh":"社会整体利益","vl":"个体功利计算","cond":"moral_judgment_context","scope":"condition_specific","jur":"CN-mainland;philosophical-tradition:marxist-ethics","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"道德判断语境下社会整体利益对个体功利考量的统摄","dlg":"节点规范化建议记录。"},{"id":"nedge-6d46f71a0df63248310a","vh":"道德自主性","vl":"神圣命令绝对性","cond":"secular_modern_context","scope":"condition_specific","jur":"philosophical-tradition:enlightenment;philosophical-tradition:marxist-ethics","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"现代世俗化语境中道德证成的基础（理性反思 vs 神意服从）","dlg":"none；明示仅限世俗现代语境。"},{"id":"nedge-3ffc20e7d604bf5a90c6","vh":"human dignity","vl":"technological innovation","cond":"high_risk_ai_deployment","scope":"condition_specific","jur":"EU;CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"高风险AI系统部署场景","dlg":"none"},{"id":"nedge-a24e3f61e249ffaef7ff","vh":"天命之性","vl":"气质之性","cond":"moral_ontology","scope":"condition_specific","jur":"philosophical-tradition:neo-confucianism","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"宋明理学道德本体论内部的价值序列","dlg":"c2显示唯物论对先验善性的否定；保留为框架限定证据。"},{"id":"nedge-b8227129fbd7f033ac04","vh":"道德选择的自由","vl":"行为结果的功利性","cond":"moral_choice_context","scope":"condition_specific","jur":"CN-mainland;philosophical-tradition:marxist-ethics","dec":"accept_soft_only","conf":"low","rev":false,"hard":false,"txt":"道德选择语境中自由意志对事后功利评价的前提性","dlg":"旧引注（毛泽东“好心必须顾及效果”）与单向优先存在张力，裁决记录该事实性问题并保留弱化表述。"},{"id":"nedge-5ea12d7cfacedeba78e7","vh":"程序正义","vl":"结果平等","cond":"rosterian_justice_context","scope":"condition_specific","jur":"philosophical-tradition:rawlsian-liberalism","dec":"accept_soft_only","conf":"high","rev":false,"hard":false,"txt":"罗尔斯正义论语境中正义原则（含程序性保障）对分配结果的优先","dlg":"节点表述精确化建议未决；实质优先性两评审一致。"},{"id":"nedge-f289b04b9ed235000884","vh":"个体道德自觉","vl":"外部规范强制","cond":"socialist_moral_development_context","scope":"condition_specific","jur":"CN-mainland;philosophical-tradition:kantian-deontology","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"社会主义道德发展语境中规范内化的有效性条件","dlg":"《纲要》实为自律他律并重；该边仅保留“内化优先”的有限解读，分歧记录。"},{"id":"nedge-1607efa455ff08881217","vh":"生命自我肯定","vl":"禁欲主义道德","cond":"post_theistic_condition","scope":"condition_specific","jur":"philosophical-tradition:nietzsche","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"“上帝之死”历史诊断下的道德重估（尼采框架）","dlg":"none"},{"id":"nedge-e22d790b918876c34093","vh":"公共利益","vl":"私人利益","cond":"public_administration_context","scope":"condition_specific","jur":"professional-ethics-code:public-administration-ethics;CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"公共行政角色冲突中公共利益对私人利益的优先","dlg":"none"},{"id":"nedge-b86e7bb1f5d5d0ce9eb1","vh":"人的道德完善","vl":"道德知识积累","cond":"practical_philosophy_context","scope":"condition_specific","jur":"philosophical-tradition:aristotelian-practical-philosophy;philosophical-tradition:marxist-ethics","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"实践哲学语境下伦理学的根本旨归（成人vs知德）","dlg":"none；记录检索未命中直接文本，建议补料。"},{"id":"nedge-a0c155027e93ffa6ec5c","vh":"公共利益","vl":"个人利益","cond":"public_service_role","scope":"condition_specific","jur":"professional-ethics-code:public-administration-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"公共行政人员履行职务时的公私利益冲突","dlg":"none；与#55近重复，建议合并。"},{"id":"nedge-cf669cf3308ad45aef5e","vh":"生命权","vl":"AI决策自主性","cond":"algorithmic_force_recommendation","scope":"condition_specific","jur":"international-humanitarian","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"自动化武力/高风险决策建议场景的人类最终判断要求","dlg":"none；节点规范化建议记录。"},{"id":"nedge-5345d6b115f625e46869","vh":"人的尊严","vl":"生育自主权","cond":"reproductive_cloning_context","scope":"condition_specific","jur":"international-humanitarian","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"生殖性克隆技术场景","dlg":"c2所示“克隆道德系于动机”的辩护立场作为少数观点保留。"},{"id":"nedge-cbc1c47dd601327be53e","vh":"公共利益至上","vl":"组织忠诚","cond":"role_conflict_in_bureaucracy","scope":"condition_specific","jur":"professional-ethics-code:public-administration-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"官僚制角色冲突中对公民的终极责任与对上级例行义务之排序","dlg":"none"},{"id":"nedge-d24a5639ef585bc7a46b","vh":"仁","vl":"利","cond":"feudal_moral_practice","scope":"condition_specific","jur":"philosophical-tradition:confucian-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"儒家伦理传统中道德实践的价值排序","dlg":"condition命名（feudal_）是否恰当有分歧；记录并建议更名。"},{"id":"nedge-c221b6e315ca761cf828","vh":"儿童受试者安全","vl":"科学研究效率","cond":"clinical_trial_with_children","scope":"condition_specific","jur":"CN-mainland;international-research-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"儿童临床试验中的风险—受益权衡","dlg":"none；与#32/#65/#68/#77/#129/#159/#188/#189同族，建议图谱侧聚类。"},{"id":"nedge-1219271211f1f8d6a69a","vh":"最大多数人的最大幸福","vl":"行为动机","cond":"utilitarian_framework","scope":"condition_specific","jur":"philosophical-tradition:utilitarianism","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"功利主义框架下行为道德正当性的终极判准","dlg":"none；与#16/#18/#20近重复，建议合并。"},{"id":"nedge-3729a2219bd1bbd1f9ee","vh":"生态内在价值","vl":"人类工具性利用权","cond":"ecological_ethics","scope":"condition_specific","jur":"philosophical-tradition:ecocentrism","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"生态伦理框架下对自然价值的评价结构","dlg":"none"},{"id":"nedge-a9c2d9c6f1e8d747302a","vh":"儿童最大利益优先","vl":"科学研究自由","cond":"child_clinical_trial","scope":"condition_specific","jur":"CN-mainland;international-human-rights","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"儿童临床试验语境下科研自由受儿童最大利益约束","dlg":"none；建议与#32/#62/#68合并聚类。"},{"id":"nedge-eb5f472664040607e9cd","vh":"公共利益","vl":"部门利益","cond":"organizational_self_interest","scope":"condition_specific","jur":"professional-ethics-code:public-administration-ethics;CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"组织自利情境中公共利益对部门利益的超越","dlg":"none"},{"id":"nedge-708b0a627f25e712d424","vh":"生态正义","vl":"人类中心主义发展权","cond":"ecological_collapse","scope":"condition_specific","jur":"philosophical-tradition:ecocentrism","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"生态崩溃风险下发展权的生态限度","dlg":"温和人类中心主义（c3）与生态中心主义的分歧为真实理论分歧，保留为分布。"},{"id":"nedge-c3eaca54e30ab1c4fa44","vh":"儿童最大利益原则","vl":"科学研究自主性","cond":"pediatric_research_context","scope":"condition_specific","jur":"CN-mainland;international-human-rights","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"儿童研究中科学设计对儿童福祉的从属","dlg":"none；建议与同族边合并。"},{"id":"nedge-afe98e4a62c1b3f4f4dc","vh":"道德选择的自由","vl":"外在强制","cond":"coercion_present","scope":"condition_specific","jur":"philosophical-tradition:german-classical-philosophy","dec":"reject_non_value_nodes","conf":"medium","rev":false,"hard":false,"txt":"存在外在强制时道德选择与归责的成立条件","dlg":"评审2的改述保留建议记录；裁决：现节点违反价值节点要求。"},{"id":"nedge-8835adb0fe193c1ef80f","vh":"共产主义道德","vl":"社会主义基本道德要求","cond":"socialist_primary_stage","scope":"condition_specific","jur":"CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"社会主义初级阶段道德规范体系的层级结构","dlg":"none"},{"id":"nedge-097968b52e9ac50b9f90","vh":"对公众与宪法秩序的责任","vl":"对直接上级指令的服从","cond":"administrative_authority_conflict","scope":"condition_specific","jur":"professional-ethics-code:public-administration-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"行政权威冲突中根本委托关系对层级服从的优先","dlg":"none；与#60近重复，建议合并。"},{"id":"nedge-5d170a42c34cd0243b75","vh":"集体利益","vl":"个人正当利益","cond":"collective_conflict_scenario","scope":"condition_specific","jur":"CN-mainland;philosophical-tradition:socialist-collectivism","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"集体利益与个人正当利益发生冲突时的排序","dlg":"none；建议与#33/#35/#37合并。"},{"id":"nedge-b34f2920439591a91824","vh":"科技向善","vl":"科研效率","cond":"high_risk_technology_development","scope":"condition_specific","jur":"cross-jurisdictional 科技向善目前已经是国际通用标准","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"高风险科技活动的前置伦理审查与刚性约束","dlg":"none"},{"id":"nedge-950e2bc0a30790aac537","vh":"不伤害","vl":"行善","cond":"moral_minimum_context","scope":"condition_specific","jur":"cross-jurisdictional 不伤害为应用伦理最基本原则","dec":"accept_hard_candidate","conf":"medium","rev":false,"hard":true,"txt":"道德底线语境下消极义务对积极义务的严格性","dlg":"通过绝大部分应用伦理学者/一般民众的跨国域通识伦理观。"},{"id":"nedge-5e9fbb39286af9b87fa8","vh":"善良动机","vl":"行为客观效果","cond":"moral_evaluation_context","scope":"condition_specific","jur":"CN-textbook-ethics;philosophical-tradition:kantian-deontology","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"道德定性评价中动机对效果的先在性（动机论语境）","dlg":"马克思主义传统（统一论）与动机论解读之间的张力保留；范围已限定。"},{"id":"nedge-41a8a2228c0f56f6a69b","vh":"人工智能决策免于操纵权","vl":"自动化信源风险评分","cond":"ai_source_risk_assessment","scope":"condition_specific","jur":"CN-mainland;international-AI-governance","dec":"reject_non_value_nodes","conf":"medium","rev":false,"hard":false,"txt":"算法对信息源进行可信度建模的场景（新闻保密/信源保护）","dlg":"评审2改述建议记录；裁决：现边按节点规则拒绝。"},{"id":"nedge-cf2243851db9b808dd62","vh":"儿童最大利益原则","vl":"科学研究效用","cond":"clinical_research_with_children","scope":"condition_specific","jur":"CN-mainland;international-human-rights","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"涉及儿童的临床研究中研究目的的儿童指向性要求","dlg":"none；与#32/#62/#65/#68同族，建议合并。"},{"id":"nedge-f67b12252e20c52c2059","vh":"未成年人网络保护","vl":"平台商业利益","cond":"minor_protection_scenario","scope":"condition_specific","jur":"CN-mainland;EU","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"算法推荐与平台服务场景中的未成年人保护","dlg":"none"},{"id":"nedge-29bc1aea34cb41671d5d","vh":"道德人格完善","vl":"工具性行为效率","cond":"moral_development_context","scope":"condition_specific","jur":"philosophical-tradition:virtue-ethics;CN-textbook-ethics","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"道德发展语境中人格完善目标对功利效率的超越","dlg":"none；建议补麦金太尔直接文本。"},{"id":"nedge-d283cd02eb48d1f62e17","vh":"个体自由意志","vl":"外在强制性规范","cond":"moral_autonomy_context","scope":"condition_specific","jur":"CN-textbook-ethics;philosophical-tradition:kantian-deontology","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"道德自主性语境中自觉自愿对规范效力的奠基","dlg":"none；与#53建议合并。"},{"id":"nedge-06fcdb38e9631a47d033","vh":"道德共识","vl":"技术迭代速度","cond":"emerging_technology_governance","scope":"condition_specific","jur":"cross-jurisdictional 类似于“科技向善”，道德管控优先于技术发展","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"颠覆性技术（AI、神经技术）治理中的底线伦理共识建构","dlg":"程序性优先与实质压制的界限保留为注记。"},{"id":"nedge-4e18a091fab3ce5986e3","vh":"知情权","vl":"算法黑箱权","cond":"high_risk_ai_application","scope":"condition_specific","jur":"cross-jurisdictional似乎是一个正在被推崇的道德要求","dec":"reject_non_value_nodes","conf":"medium","rev":false,"hard":false,"txt":"高风险AI应用中用户知情权对提供方不公开抗辩的优先","dlg":"评审2主张改述接受；裁决：按现节点拒绝，改述后重审（与#200实质同族）。"},{"id":"nedge-66fdb5ce3555c53b0a22","vh":"人工智能创新发展权","vl":"个体隐私权","cond":"risk_controlled_context","scope":"condition_specific","jur":"outdated-guidlines","dec":"reverse","conf":"high","rev":false,"hard":false,"txt":"风险可控前提下AI研发中的数据利用（合成数据/差分隐私）","dlg":"none；两评审一致认为证据支持反方向（隐私为底线约束）。"},{"id":"nedge-b3d014f9ad3611de11f3","vh":"人类驾驶员控制权","vl":"系统自动化效率","cond":"advanced_driver_assistance_stage","scope":"condition_specific","jur":"CN-mainland;international-standards","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"L0–L2先进驾驶辅助阶段的人类监控与接管责任","dlg":"none"},{"id":"nedge-398f018fa92ff3acf883","vh":"道德责任","vl":"外在强制","cond":"nan","scope":"claimed_general","jur":"philosophical-tradition:aristotelian-practical-philosophy","dec":"reject_non_value_nodes","conf":"medium","rev":false,"hard":false,"txt":"（原缺）建议改为：道德归责语境中责任的内在性","dlg":"评审2改述建议记录；另注意condition缺失违反具体性要求。"},{"id":"nedge-9e6ec37aa829a6695a4f","vh":"种际正义","vl":"人类单边利益最大化","cond":"nan","scope":"claimed_general","jur":"philosophical-tradition:ecocentrism;philosophical-tradition:animal-ethics","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"生态伦理框架下人类实践对非人类生命的尊重义务","dlg":"普遍化主张与框架限定主张之间的张力保留；condition已补正。"},{"id":"nedge-8ec37b556b75f892f5cb","vh":"德性完善","vl":"感官快乐","cond":"nan","scope":"claimed_general","jur":"philosophical-tradition:aristotelian-virtue-ethics","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"德性伦理框架下幸福结构中德性与快乐的关系","dlg":"功利主义美德工具论（c3）与德性伦理的内在价值论为真实分歧，保留。"},{"id":"nedge-04d4832993a9d1650cdb","vh":"儿童人格权益","vl":"平台数据商业化利用权","cond":"nan","scope":"claimed_general","jur":"cross-jurisdictional 世界范围对未成年的保护","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"未成年人个人信息网络处理与商业化利用场景","dlg":"none"},{"id":"nedge-f0d0d890ffd130c44d1b","vh":"对上帝之爱","vl":"世俗德性实践","cond":"augustinian_theology","scope":"condition_specific","jur":"religious-tradition:augustinian-christianity","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"奥古斯丁神学框架内德性层级的终极根据","dlg":"none；与世俗传统的对立保留于contradicting列表。"},{"id":"nedge-daf6134a5593a2ad4262","vh":"医者仁心义务","vl":"Legal Compliance","cond":"conscientious_objection","scope":"condition_specific","jur":"international-medical-ethics;jurisdiction-dependent","dec":"accept_soft_only","conf":"low","rev":false,"hard":false,"txt":"安乐死/医助自杀合法化法域中医生的良心拒予","dlg":"“伦理优先于法律”与“法律内良心拒予”两种定性并存；保留。"},{"id":"nedge-2307d7f5eb2cd3bd7433","vh":"妇女身体自主权","vl":"胎儿潜在权利","cond":"legal_personhood_debatable","scope":"condition_specific","jur":"CN-mainland;international-human-rights","dec":"accept_soft_only","conf":"low","rev":false,"hard":false,"txt":"胎儿法律人格未确立的法域中的人工流产决定","dlg":"实质规范分歧重大：生命价值原则与自主原则的优先性在全球范围无共识；本边仅以CN法域与CEDAW框架的有限形式成立。"},{"id":"nedge-75939a1c8454fb811f08","vh":"被追诉人辩护权","vl":"侦查秘密原则","cond":"pre_trial_disclosure_phase","scope":"condition_specific","jur":"CN-mainland","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"审查起诉前辩护方对电子证据与算法逻辑的知悉","dlg":"节点性质（程序原则vs价值）有轻微分歧，记录。"},{"id":"nedge-0691b102be988ffcfe9a","vh":"人类自主性","vl":"算法效率","cond":"high_risk_ai_application","scope":"condition_specific","jur":"cross-jurisdictional 一个在AI时代被推崇的道德原则：面对AI的人本主义","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"高风险AI应用中人类监督与最终控制权","dlg":"none；与#58/#148/#178同族，建议聚类。"},{"id":"nedge-79f40406416d91524212","vh":"正当","vl":"善","cond":"nan","scope":"claimed_general","jur":"philosophical-tradition:kantian-deontology;philosophical-tradition:rawlsian-liberalism","dec":"accept_soft_only","conf":"high","rev":false,"hard":true,"txt":"义务论与契约论框架内正当对善的优先性","dlg":"none；condition已补正为框架限定。"},{"id":"nedge-dcec9fa4ea5389378897","vh":"一个中国原则","vl":"美国对台军事承诺","cond":"cold_war_triangularity","scope":"condition_specific","jur":"international-relations","dec":"reject_non_value_nodes","conf":"high","rev":false,"hard":false,"txt":"（不适用——节点非价值）","dlg":"none"},{"id":"nedge-1d84de75e11f80dabfb7","vh":"道德主体性","vl":"外部强制","cond":"nan","scope":"claimed_general","jur":"philosophical-tradition:kantian-deontology;CN-textbook-ethics","dec":"reject_non_value_nodes","conf":"medium","rev":false,"hard":false,"txt":"（原缺）道德评价中主体性的前提地位","dlg":"评审2改述合并建议记录。"},{"id":"nedge-cb02268506d0be54eebc","vh":"残障者平等保护权","vl":"AI-based Threat Classification Threshold","cond":"civilian_population_context","scope":"condition_specific","jur":"international-human-rights;EU;US","dec":"reject_non_value_nodes","conf":"medium","rev":false,"hard":false,"txt":"AI威胁识别场景下残障者免于算法歧视的保护","dlg":"改述后即具升级潜力，记录。"},{"id":"nedge-063c69e3d736f8c661be","vh":"共同体的良善生活","vl":"个体道德偏好自由","cond":"communitarian_context","scope":"condition_specific","jur":"philosophical-tradition:communitarianism","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"社群主义语境下共同体善对个体偏好的规约","dlg":"社群主义与自主主义的范式分歧保留（c4）。"},{"id":"nedge-29f6c875653641452f3e","vh":"增进人类福祉","vl":"科研自由","cond":"nan","scope":"claimed_general","jur":"CN-mainland;international-research-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"涉及人的生物医学研究（含基因组编辑）的目的限定","dlg":"none；condition已补正。"},{"id":"nedge-12a20ef2b0a6d73c7196","vh":"不伤害原则","vl":"道德主义原则","cond":"nan","scope":"claimed_general","jur":"philosophical-tradition:liberalism;common-law-jurisprudence","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"法律与道德干预个人自由的证成门槛","dlg":"none；condition补正为法理证成结构。"},{"id":"nedge-53ae2f76defc74cc82d9","vh":"科研自由","vl":"学术数据调取配合义务","cond":"university_research_data","scope":"condition_specific","jur":"CN-mainland;DE","dec":"reject_non_value_nodes","conf":"low","rev":false,"hard":false,"txt":"高校非涉密科研数据的强制调取争议","dlg":"引注准确性待查（BVerfG案号与条文适配性），记录为事实性存疑。"},{"id":"nedge-e14fabdaf612eec55eed","vh":"禁欲主义","vl":"Wealth accumulation","cond":"medieval_church_doctrine","scope":"condition_specific","jur":"religious-tradition:medieval-christianity","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"中世纪教会道德等级秩序中的财富观","dlg":"“谴责财富积累”与“谴责贪婪”的表述差异保留（韦伯的修正）。"},{"id":"nedge-8ed7699187139594b21a","vh":"科研伦理权","vl":"临床试验入组效率","cond":"innovative_therapy_trial","scope":"condition_specific","jur":"CN-mainland;international-research-ethics","dec":"reject_non_value_nodes","conf":"medium","rev":false,"hard":false,"txt":"创新疗法试验（异种器官移植）中终末期患者的知情同意","dlg":"改述合并建议记录。"},{"id":"nedge-a83a9f5b481ee27d1fa1","vh":"公共利益","vl":"组织忠诚","cond":"public_administration_context","scope":"condition_specific","jur":"professional-ethics-code:public-administration-ethics;CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"行政人员组织忠诚与公民福祉冲突时的最终依归","dlg":"none；与#60/#71合并建议。"},{"id":"nedge-7d3ea598571272383e9f","vh":"道义正当性","vl":"功利最大化","cond":"confucian_or_kantian_context","scope":"condition_specific","jur":"philosophical-tradition:confucian-ethics;philosophical-tradition:kantian-deontology","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"儒家或康德式义务论语境下行为评价标准的位阶","dlg":"none"},{"id":"nedge-d5fe661b5c6b64eae175","vh":"增进人类福祉","vl":"科研自由","cond":"high_risk_research_context","scope":"condition_specific","jur":"CN-mainland;international-research-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"高风险科技活动（涉及人、动物、生态）的伦理约束","dlg":"none；与#99合并建议。"},{"id":"nedge-2cb5b9befe688fa0a1a0","vh":"宗教信仰自由","vl":"禁毒法律秩序","cond":"when_involving_controlled_substances_in_ritual_use","scope":"condition_specific","jur":"CN-mainland","dec":"reject_unsupported","conf":"high","rev":false,"hard":false,"txt":"宗教仪式使用管制物质的合法性边界","dlg":"none"},{"id":"nedge-6fab216454fa4cd620a8","vh":"根本价值目标","vl":"具体目标和阶段目标","cond":"nan","scope":"claimed_general","jur":"CN-textbook-ethics","dec":"accept_soft_only","conf":"high","rev":false,"hard":false,"txt":"人生价值目标体系内部根本目标对阶段目标的统摄","dlg":"none；注明非冲突关系。"},{"id":"nedge-f7dbe4bbdc9fb594eef4","vh":"人格尊严","vl":"言论自由","cond":"emergency_public_health","scope":"condition_specific","jur":"CN-mainland","dec":"accept_soft_only","conf":"low","rev":false,"hard":false,"txt":"突发公共卫生事件中针对深度伪造信息的言论限制","dlg":"引注文献名存疑（事实性问题）记录；节点精确化建议记录。"},{"id":"nedge-d2ecf48ccbfc193b6a39","vh":"劳动作为人的本质力量对象化与自我实现","vl":"劳动的工具性财富产出功能","cond":"alienation_critique","scope":"condition_specific","jur":"philosophical-tradition:marxist-ethics","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"马克思主义异化劳动批判语境下劳动价值的二重结构","dlg":"马克思对雇佣劳动历史合理性的承认（c1）与异化批判并存，保留该辩证张力。"},{"id":"nedge-fe063ff45114d9fca1a6","vh":"人工智能发展权","vl":"训练数据来源合法性审查义务","cond":"national_AI_strategic_initiative","scope":"condition_specific","jur":"CN-mainland","dec":"reject_unsupported","conf":"high","rev":false,"hard":false,"txt":"国家AI攻关项目的训练数据合法性（实为：合法性义务不因项目级别免除）","dlg":"none"},{"id":"nedge-6bc6a45031122e6c0e0c","vh":"数据隐私权","vl":"AI-Powered Risk Profiling Efficiency","cond":"algorithmic_screening_deployed","scope":"condition_specific","jur":"EU;CN-mainland;US","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"自动化风险评分/画像部署场景（缺乏透明度与人工复核即违法）","dlg":"none"},{"id":"nedge-e56747f79e9ad850affb","vh":"程序正义","vl":"响应时效性","cond":"automated_incident_response_activation","scope":"condition_specific","jur":"CN-mainland;EU","dec":"accept_soft_only","conf":"low","rev":false,"hard":false,"txt":"AI驱动的事件自动响应（工控安全）中的程序保障","dlg":"法源类比松散的事实性问题记录；实质方向保留。"},{"id":"nedge-61fc797f070aba92a1e7","vh":"隐私权","vl":"实时位置监控必要性","cond":"non_safety_critical_monitoring","scope":"condition_specific","jur":"CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"非紧急救援/交通安全必需场景中的常态化位置追踪","dlg":"none；节点改述建议记录。"},{"id":"nedge-bb339b3c8c91668b10ad","vh":"道德价值","vl":"社会政治价值","cond":"nan","scope":"claimed_general","jur":"philosophy-tradition","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"价值分类学语境下道德价值对社会政治价值的优先（人格整全维度）","dlg":"none；与#39合并建议。"},{"id":"nedge-ba50460b192ab6816686","vh":"人的实质自由","vl":"经济增长","cond":"nan","scope":"claimed_general","jur":"international-humanitarian","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"发展评价中实质自由对增长指标的目的性优先","dlg":"none"},{"id":"nedge-3c777571067819526590","vh":"动物感知痛苦能力所衍生的道德地位","vl":"传统农业文化实践惯性","cond":"scientific_consensus_on_sentience_confirmed","scope":"condition_specific","jur":"philosophical-tradition:animal-ethics","dec":"reject_non_value_nodes","conf":"medium","rev":false,"hard":false,"txt":"动物感知痛苦能力获科学共识后的道德地位重估","dlg":"改述后接受的路径记录为评审2意见。"},{"id":"nedge-4fc59d61ddcbf332167c","vh":"人类监督权","vl":"算法效率优先","cond":"high_risk_ai_deployment","scope":"condition_specific","jur":"EU;CN-mainland;international-standards","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"高风险AI部署中的人工干预、逆转与忽略权","dlg":"引注条号准确性存疑，记录待核。"},{"id":"nedge-fab0155f37c62410aa76","vh":"天理","vl":"人欲","cond":"song_ming_confucianism","scope":"condition_specific","jur":"philosophical-tradition:neo-confucianism","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"宋明理学道德修养论中的天理人欲之辨","dlg":"“灭人欲”的诠释学限定（去私欲而非禁欲主义）记录。"},{"id":"nedge-0b697314dd013311d03d","vh":"人类尊严","vl":"科研自由","cond":"embryo_research","scope":"condition_specific","jur":"international-bioethics;CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"涉及人类胚胎的研究（干细胞、克隆、基因干预）","dlg":"none"},{"id":"nedge-8be6b3e7de6e506f6f87","vh":"新闻真实义务","vl":"言论自由","cond":"professional_journalism_context","scope":"condition_specific","jur":"CN-mainland;EU-ECtHR","dec":"accept_soft_only","conf":"low","rev":false,"hard":false,"txt":"职业新闻机构公共议题报道的真实性要求","dlg":"旧引注方向错误（Steel and Morris案支持表达方）记录并纠正；节点表述改述建议保留。"},{"id":"nedge-d215fb63f23b71347db0","vh":"性别平等权","vl":"激素水平匹配优化","cond":"nan","scope":"claimed_general","jur":"international-humanitarian","dec":"reject_non_value_nodes","conf":"medium","rev":false,"hard":false,"txt":"器官分配算法中的隐性性别偏见审计","dlg":"改述建议记录。"},{"id":"nedge-eed5d138d987320a8f56","vh":"尊重人类自主性","vl":"算法效率优化","cond":"ai_deployment_in_high_risk_contexts","scope":"condition_specific","jur":"EU;CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"高风险AI应用中人类自主决策的保障机制","dlg":"none；与#93/#118合并建议。"},{"id":"nedge-ca9fd7f77d17c6c116c9","vh":"社会的正义秩序","vl":"个体道德直觉","cond":"nan","scope":"claimed_general","jur":"philosophical-tradition:rawlsian-liberalism;CN-textbook-ethics","dec":"accept_soft_only","conf":"low","rev":false,"hard":false,"txt":"制度伦理设计中反思平衡的程序优先","dlg":"对罗尔斯的解读分歧（反思平衡中直觉的地位）保留。"},{"id":"nedge-cc83ba7fa66b3dd7c404","vh":"势力均衡原则所保障的国家生存权","vl":"单一大国霸权扩张权","cond":"multipolar_system","scope":"condition_specific","jur":"international-relations","dec":"reject_non_value_nodes","conf":"high","rev":false,"hard":false,"txt":"（不适用）","dlg":"none"},{"id":"nedge-92cc1a906a73a3868148","vh":"道德价值","vl":"学术价值","cond":"nan","scope":"claimed_general","jur":"CN-textbook-ethics","dec":"accept_hard_candidate","conf":"medium","rev":false,"hard":true,"txt":"价值分类学语境下道德价值的实践性特征","dlg":"none；注明非冲突关系。"},{"id":"nedge-d3683ec5e66c8101635e","vh":"Environmental Sustainability","vl":"Computational Efficiency","cond":"green_ai_policy_context","scope":"condition_specific","jur":"EU;US;CN-mainland;international-AI-governance","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"绿色AI政策语境下AI系统全生命周期环境影响评估","dlg":"none"},{"id":"nedge-9c0a6e35b45b3dd0e4a4","vh":"社会进步","vl":"阶级立场","cond":"class_society","scope":"condition_specific","jur":"philosophical-tradition:marxist-ethics","dec":"accept_hard_candidate","conf":"low","rev":false,"hard":true,"txt":"马克思主义伦理学中道德评价的历史尺度","dlg":"none"},{"id":"nedge-e7d63d80688814facf7d","vh":"儿童受试者安全","vl":"试验数据科学可靠性","cond":"pediatric_trial","scope":"condition_specific","jur":"international-research-ethics;CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"儿科人群药物临床试验中的安全—数据权衡","dlg":"none；同族合并建议。"},{"id":"nedge-99207302ba818f46c400","vh":"受试者安全","vl":"研究科学价值","cond":"risk_benefit_imbalance","scope":"condition_specific","jur":"international-research-ethics;CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"风险受益比不可接受时的研究中止/不批准","dlg":"none"},{"id":"nedge-b8176727d64bfeabd6af","vh":"科学事实尊重权","vl":"言论表达自由","cond":"misinformation_harm","scope":"condition_specific","jur":"CN-mainland","dec":"reject_non_value_nodes","conf":"medium","rev":false,"hard":false,"txt":"系统性歪曲科学共识并造成现实危害的言论场景","dlg":"改述建议记录。"},{"id":"nedge-9a2361d64a9df5817b9a","vh":"宗教信仰自由","vl":"讽刺表达自由","cond":"religious_representation","scope":"condition_specific","jur":"EU-ECtHR;CN-mainland","dec":"accept_soft_only","conf":"low","rev":false,"hard":false,"txt":"深度伪造宗教人士发表违背教义言论的场景","dlg":"E.S. v. Austria（欧）与美国第一修正案传统的对立为真实法域分歧，保留。"},{"id":"nedge-0b430406e8437b99a34a","vh":"程序正义","vl":"调查效率","cond":"research_misconduct_investigation","scope":"condition_specific","jur":"CN-mainland;international-research-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"科研不端调查中的程序权利保障","dlg":"none"},{"id":"nedge-ee071573579ead483961","vh":"主观责任","vl":"客观责任","cond":"moral_conscience_supremacy","scope":"condition_specific","jur":"professional-ethics-code:public-administration-ethics","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"组织指令明显违背基本道德时的良心抗辩","dlg":"例外性限定保留。"},{"id":"nedge-ab8c8579a8fab8ed7394","vh":"女性主体性与权利自觉","vl":"传统家庭伦理角色履行","cond":"modern_state_building","scope":"condition_specific","jur":"CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"现代国家建构中女性平等权利对传统性别角色规训的超越","dlg":"none"},{"id":"nedge-d38470a5433af4def441","vh":"群体公正","vl":"科研效率","cond":"group_vulnerability_context","scope":"condition_specific","jur":"international-research-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"可能引发群体污名化的遗传学/流行病学研究","dlg":"none"},{"id":"nedge-5ff82a67dd02745780a9","vh":"宗教信仰自由","vl":"教育与宗教相分离原则","cond":"school_education_context","scope":"condition_specific","jur":"CN-mainland","dec":"reverse","conf":"high","rev":false,"hard":false,"txt":"中小学教育场景中的教育与宗教相分离","dlg":"none"},{"id":"nedge-416e0fbbe8dc831ca3ff","vh":"Highest_Value_Goal","vl":"Natural_Needs","cond":"nan","scope":"claimed_general","jur":"professional-ethics-code:marxist-value-theory","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"人生观语境中最高价值目标对自然需要的统摄","dlg":"节点命名规范化建议记录。"},{"id":"nedge-be9bd178a2eacc638a9b","vh":"名誉权","vl":"艺术表达自由","cond":"election_campaign","scope":"condition_specific","jur":"CN-mainland;EU","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"选举期间针对候选人的深度伪造内容","dlg":"引注条款适配性（DSA 26(3) vs AI Act 50）记录为事实性修正。"},{"id":"nedge-6d54e08a3d21d8ac3958","vh":"数据可携权","vl":"平台数据垄断","cond":"public_health_platform_interoperability","scope":"condition_specific","jur":"CN-mainland","dec":"reject_non_value_nodes","conf":"medium","rev":false,"hard":false,"txt":"跨区域健康数据共享平台建设中的数据流通","dlg":"改述建议记录。"},{"id":"nedge-9141702ddc2227c1149b","vh":"Legal Compliance","vl":"Ethical Flexibility","cond":"ai_system_operating_under_binding_regulation","scope":"condition_specific","jur":"EU;CN-mainland","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"AI系统处于具有约束力的监管框架下时合规与伦理裁量的关系","dlg":"“合规底线”与“超法律伦理空间”的张力为实质分歧，保留。"},{"id":"nedge-522ff9e5a9ebd5d44ad1","vh":"法律合规","vl":"技术创新自由","cond":"high_risk_ai_deployment","scope":"condition_specific","jur":"EU;CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"高风险AI系统研发的合规前置结构","dlg":"none"},{"id":"nedge-6dd2ead56672dfdf386c","vh":"人类安全","vl":"技术创新效率","cond":"risk_critical_context","scope":"condition_specific","jur":"CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"重大伦理风险场景（高风险AI研发）中的安全底线","dlg":"引注条号待核记录。"},{"id":"nedge-f2671b9493279b50f332","vh":"生命权","vl":"平台数据垄断权","cond":"regulatory_mandate","scope":"condition_specific","jur":"CN-mainland;EU","dec":"reject_non_value_nodes","conf":"high","rev":false,"hard":false,"txt":"建议重构为：生命权≻车企数据控制利益（强制共享脱敏事故数据），方向仍可成立","dlg":"无实质分歧"},{"id":"nedge-87025806307d70941084","vh":"个体理性","vl":"情感直觉","cond":"nan","scope":"claimed_general","jur":"philosophical-tradition:contractualism","dec":"needs_better_source","conf":"medium","rev":false,"hard":false,"txt":"契约论对道德情感主义的优先性是可辩护的哲学主张，但现有候选无一直接建立该优先；建议补《利维坦》第13-15章或康德《奠基》相应段落，并将节点规范化为“理性立法≻道德情感”。","dlg":"reviewer2：节点为元伦理学立场（理性主义vs情感主义）而非价值本身"},{"id":"nedge-44cb2be9dbb0f9319ff8","vh":"个体理性","vl":"传统权威","cond":"nan","scope":"claimed_general","jur":"philosophical-tradition:enlightenment-rationalism","dec":"needs_better_source","conf":"medium","rev":false,"hard":false,"txt":"方向在启蒙传统内成立（康德《什么是启蒙》、理性批判权威），但检索未命中直接文本；补《什么是启蒙》或《纯粹理性批判》相关段落后可升级为hard。","dlg":"无实质分歧"},{"id":"nedge-ed36a83f8df03a91ca78","vh":"生命权","vl":"人身自由权","cond":"nan","scope":"claimed_general","jur":"cross-jurisdictional","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"暴力危及生命的紧急状态下，执法者暂时剥夺行为人人身自由（制服、使用械具）可被生命权正当化；阿奎那论适度自卫与“为保护无辜者而杀人”论证均建立生命对自由的优先。序位以紧急性为条件，非绝对。","dlg":"adjudicator：引注卷页存疑，但不影响实体判断（《人民警察法》第10条使用武器条款可独立支撑）"},{"id":"nedge-67f31872baeb6656d812","vh":"尊重人类自主性","vl":"效率优先","cond":"ai_system_deployment","scope":"condition_specific","jur":"EU","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"高风险AI部署中，尊重人类自主性（人工监督、可干预、可退出）在规范位阶上高于部署效率：可信AI准则将尊重自主性列为基本原则，中国标准化指南要求监督机构审查与申诉机制。效率目标不得架空人的最终决定权。","dlg":"无实质分歧"},{"id":"nedge-727e64f1ce079278037f","vh":"真实情欲","vl":"禁欲式天理","cond":"nan","scope":"claimed_general","jur":"philosophical-tradition:confucianism","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"戴震《孟子字义疏证》区分自然与必然，主张理在欲中、以理杀人之禁欲化天理丧失正当性，方向成立；但候选文本仅提供“承认欲望正当性同时要求节制”的温和版本，未见戴震原文，作soft接受。","dlg":"reviewer1：节点“禁欲式天理”含贬义限定，建议规范化为“僵化天理教条”"},{"id":"nedge-012291d3dea5fc242619","vh":"患者自主权","vl":"医务人员专业判断权","cond":"clinical_decision_making_with_capacity","scope":"condition_specific","jur":"cross-jurisdictional","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"患者具备决策能力时，其自主选择优先于医务人员专业判断：尊重自主原则要求如实告知并尊重患者决定（知情同意），“尊重”本身即承认患者自我决定能力的价值。医方专业意见仅具建议地位。","dlg":"无实质分歧"},{"id":"nedge-3119a010074b4c6a18cf","vh":"职业伦理自主性","vl":"司法命令服从义务","cond":"non_emergency_journalistic_investigation","scope":"condition_specific","jur":"cross-jurisdictional","dec":"needs_better_source","conf":"low","rev":false,"hard":false,"txt":"非紧急调查中记者对信源的保密承诺构成职业自治核心，部分法域（加拿大National Post案）承认基于个案权衡的有限拒证特权，方向作为职业伦理立场可辩护；但不具普遍性（中国大陆无此法定特权），且检索未命中直接文本，作soft接受并严格限缩法域。","dlg":"reviewer2：在中国大陆法域，司法命令服从义务压倒职业伦理承诺；该边仅能在承认qualified reporter privilege之法域成立"},{"id":"nedge-b60074319ef8f30a6309","vh":"静默权（acoustic_environment_right）","vl":"infrastructure_construction_schedule","cond":"protected_wilderness_area_noise_pollution","scope":"condition_specific","jur":"international-environmental-law","dec":"needs_better_source","conf":"medium","rev":false,"hard":false,"txt":"荒野声景作为生物多样性与心理福祉载体、应优先于施工进度的主张在生态伦理上可辩护，但候选文本完全未命中（仅c4提供生态资源保护的人类中心理由作语境）；“静默权”之权利化证成需IUCN指南等直接文本，标记需更好来源。","dlg":"reviewer1：引注IUCN声景指南存在但未被检索命中"},{"id":"nedge-bebe450be27a916db99c","vh":"Human dignity","vl":"Technological efficiency","cond":"high_risk_ai_deployment","scope":"condition_specific","jur":"EU","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"高风险AI部署中人的尊严优先于技术效率：可信AI准则确立尊重人类自主性、预防伤害、公平、可解释四原则并要求特别关注弱势群体（c2）；中国AI应用伦理安全指引要求AI始终服务于增进人类共同福祉、安全优先（c5）。效率优化不得以削弱自主性为代价。","dlg":"无实质分歧"},{"id":"nedge-33fe0a07f889d4177f78","vh":"代际正义","vl":"当代人效用最大化","cond":"nan","scope":"claimed_general","jur":"cross-jurisdictional","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"代际正义要求发展决策不得牺牲未来世代基本生存发展条件，从而优先于当代效用最大化：罗尔斯正义储存原则、《我们共同的未来》可持续发展理念均支持该排序。但候选文本均未直接建立代际优先关系（c1正义限制善观念、c2应用伦理核心价值、c3功利主义论公正均为间接语境），作soft接受。","dlg":"无实质分歧"},{"id":"nedge-254ded4a6c6f208a4848","vh":"中华民族共同体意识","vl":"单一民族本位的文化叙事","cond":"curriculum_design","scope":"condition_specific","jur":"CN-mainland","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"义务教育历史课程以铸牢中华民族共同体意识为主线、超越“蛮夷戎狄”旧史观，系2022年版课标明确要求，方向成立；候选仅提供民族使命观念（c2）与知识的社会位置性（c4）之间接语境，未命中课标原文，作soft接受。","dlg":"reviewer1：节点“单一民族本位的文化叙事”为被否定对象，表述可作价值节点处理（整体史观vs本位主义史观）"},{"id":"nedge-b7d4d8e1e55ea63f62f0","vh":"环境健康权（免受有毒遗留物危害）","vl":"武器研发成本控制权","cond":"post_conflict_reconstruction","scope":"condition_specific","jur":"international-humanitarian-law","dec":"accept_hard_candidate","conf":"medium","rev":false,"hard":true,"txt":"武装冲突中使用造成长期生态损害武器（白磷、贫铀）受《环境改造公约》与AP I第35(3)条约束，战后环境健康权优先于武器研发成本控制成立；c4确立生态伦理基本原则与可持续发展的优先性，c3污染者付费框架作语境。方向为硬约束，但武装冲突专门文本未直接命中，置信中等。","dlg":"reviewer2：建议补充ENMOD/API原文，现有支持文本为一般生态伦理"},{"id":"nedge-e6fe083eaf3805087a88","vh":"比例原则（攻击后果评估）","vl":"Predictive Accuracy of AI Targeting Model","cond":"armed_conflict_international","scope":"condition_specific","jur":"international-humanitarian-law","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"攻击比例性评估要求情境化的价值权衡，AI模型输出概率分布无法承担“附带损害是否过度”的规范判断：c5要求高风险AI部署中由具备能力的人员实施人类监督，c1风险分级管理思路作语境。规范裁量必须保留在人手中。","dlg":"无实质分歧"},{"id":"nedge-ecc19c7cdf101e98cce1","vh":"法院援引‘受害人过错’减轻精神损害赔偿金额","vl":"自己责任原则","cond":"nan","scope":"claimed_general","jur":"CN-mainland","dec":"reject_non_value_nodes","conf":"high","rev":false,"hard":false,"txt":"价值高端节点系法院裁判技术的描述性语句（援引受害人过错减轻精神损害赔偿），不是可参与价值排序的规范价值；底层真实冲突应为“自己责任/过失相抵≻完全救济”，建议以该价值对重新入库。","dlg":"无实质分歧"},{"id":"nedge-f3309274caba4813d60e","vh":"儿童受试者特别保护权","vl":"研究效率","cond":"pediatric_clinical_trial","scope":"condition_specific","jur":"international-research-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"儿童临床试验中受试者特别保护优先于研究效率：重庆标准要求试验科学价值首先体现于儿童权利利益保护且须证明只能以儿童为受试者（c1）；CIOMS准则要求对儿童青少年特别关注、无适当支持不得开展（c2）。该优先为绝对性底线，不因进度压力让渡。","dlg":"无实质分歧"},{"id":"nedge-47d213a57e80de306852","vh":"受试者自主权","vl":"科研效率","cond":"human_subjects_research","scope":"condition_specific","jur":"international-research-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"涉及人的研究中受试者自主权优先于科研效率：科技伦理审查办法（试行）第21条将“研究参与者权利得到尊重”“知情同意规范有效”列为伦理审查批准的基本标准（c2）；CIOMS准则要求研究具科学社会价值并以受试者保护为前提（c1语境）。效率不得压缩知情同意程序。","dlg":"无实质分歧"},{"id":"nedge-3b40af1183e8417b4ca5","vh":"妇女政治参与权与国家建设主体地位","vl":"传统性别分工惯性","cond":"wartime_mobilization","scope":"condition_specific","jur":"cross-jurisdictional 整体话语的指向逐渐成长壮大，暂且被国际认作共识","dec":"accept_hard_candidate","conf":"medium","rev":false,"hard":true,"txt":"战时动员条件下妇女政治参与与国家建设主体地位优先于传统性别分工：传统家庭性别结构使女性无法实现平等（c2）、性别角色信念既是压迫之因亦是其果（c3），支持对“男主外女主内”自然主义分工观的突破；但1937/1940文献原文未检索命中，作soft接受并限缩于历史条件。","dlg":"无实质分歧"},{"id":"nedge-1056155b48611e0dbace","vh":"价值倾向","vl":"Situational impulsivity","cond":"long_term_socialization_context","scope":"condition_specific","jur":"cross-jurisdictional","dec":"reject_non_value_nodes","conf":"high","rev":false,"hard":false,"txt":"低端节点“情境冲动”为心理状态而非价值节点；且“稳定价值倾向抑制即时冲动”是关于道德行为的描述性因果主张（社会学习理论），不构成价值间的规范优先排序，不满足边的规范性要求。","dlg":"无实质分歧"},{"id":"nedge-1a2af3d30d5900672dcf","vh":"科学真理性","vl":"资助方合同约定利益","cond":"public_funded_research","scope":"condition_specific","jur":"international-research-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"公共财政资助研究中科学真理性优先于资助方合同利益：ALLEA欧洲科研诚信准则要求科学共同体维护研究质量可靠性与稳健性（c1）；CIOMS明确科学价值要求适用于所有研究、无论资金来源（c2）。资助协议不得限制负面结果发表与数据共享。","dlg":"无实质分歧"},{"id":"nedge-c0345b052ea035146f71","vh":"公共利益","vl":"组织目标","cond":"policy_implementation","scope":"condition_specific","jur":"CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"政策执行中公共利益优先于组织目标：行政伦理学公利原则规定维护和增进公共利益是行政主体最基本最重要的责任（c2）；人工智能应用伦理安全指引要求社会治理与公共服务场景坚持公共利益优先、程序正当（c5）。组织本位不得凌驾公共福祉。","dlg":"无实质分歧"},{"id":"nedge-7300f536aca21ed5f9af","vh":"女性照护责任的社会化承担","vl":"劳动力市场无照护负担标准工作者模型","cond":"gender_equity_policy_context","scope":"condition_specific","jur":"cross-jurisdictional","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"照护责任社会化优先于市场对无照护负担“标准工作者”的要求：传统家庭性别结构使女性无法实现平等（c1），以市场规范处置再生产劳动将女性由应受尊重的主体降格（c2）。妇女权益保障法与ILO第156号建议书同向。该边确立了制度重构的规范方向。","dlg":"无实质分歧"},{"id":"nedge-0eccb26b88a810febd5c","vh":"研究成果的可及性","vl":"知识产权保护","cond":"low_resource_context","scope":"condition_specific","jur":"international-research-ethics","dec":"accept_hard_candidate","conf":"medium","rev":false,"hard":true,"txt":"低资源环境中研究成果可及性优先于商业性知识产权主张：CIOMS准则要求为低资源人群创造当地社会价值、确保公平获益、防止过度利用（c3）。合理定价与研究后使用计划为其实现机制。该优先以防剥削为条件，并非一般性否定知识产权。","dlg":"adjudicator：注意该优先为条件性（低资源环境+研究后使用计划），非否定知识产权本身"},{"id":"nedge-da65d28dc4c48a434427","vh":"宗教信仰自由","vl":"AIGC宗教符号戏仿权","cond":"sacred_symbol_generation","scope":"condition_specific","jur":"CN-mainland","dec":"needs_better_source","conf":"medium","rev":false,"hard":false,"txt":"AIGC解构性戏仿核心宗教符号造成信众精神伤害时，信仰尊严优先于戏仿自由：该方向在中国法（宗教事务条例第4条）与ECtHR的Otto-Preminger判例下可辩护，但所引Eweida案不切题，且候选文本均未涉及宗教符号与表达自由冲突，证据缺失，标记需更好来源。","dlg":"adjudicator：引注Eweida v. UK不切题，ECtHR相关判例应为Otto-Preminger-Institut v. Austria"},{"id":"nedge-8d1a5e683b7ed246a965","vh":"道德选择的自由","vl":"绝对主观自由","cond":"nan","scope":"claimed_general","jur":"philosophical-tradition:marxism","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"马克思主义伦理学框架内，道德选择的自由优先于并限缩绝对主观自由：道德选择以意志自由为前提、以道德责任为结果，主体选择对象的同时选择了责任（c1）；脱离客观规律与社会条件的任意妄为被明确否定。该优先为传统内教义，限缩于其框架。","dlg":"无实质分歧"},{"id":"nedge-28b64a48d4f5b78e01e2","vh":"历史真实性","vl":"艺术表现自由","cond":"war_film_production","scope":"condition_specific","jur":"CN-mainland","dec":"needs_better_source","conf":"medium","rev":false,"hard":false,"txt":"战争题材创作中历史真实性优先于艺术表现自由（不得歪曲贬损英烈）：《英雄烈士保护法》第22条禁止歪曲、丑化、亵渎、否定英雄烈士事迹和精神，方向于法有据；但所引《电影产业促进法》第31条不切题，候选文本亦未命中（仅c1纪念功能作弱语境），标记需更好来源。","dlg":"adjudicator：引注条款存疑，《电影产业促进法》第31条不涉及英烈内容规制，应补《英雄烈士保护法》第22条"},{"id":"nedge-0cb11af23e4114a3c729","vh":"工作自主权","vl":"算法效率优化目标","cond":"nan","scope":"claimed_general","jur":"cross-jurisdictional","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"算法管理中工作自主权优先于效率优化：数字劳动研究要求重新审视劳工主体性、实现控制与自主平衡（c1）；平台算法将劳动降格为纯粹任务、与人的需求价值脱节（c3）；《互联网信息服务算法推荐管理规定》要求向劳动者提供调度服务时保护报酬、休息休假等权益（c4）。效率目标不得消解劳动过程自主性。","dlg":"adjudicator：所引ECJ C-684/18与算法管理之关联待核"},{"id":"nedge-5e073b8717a1445497c4","vh":"科技活动透明度","vl":"科研过程效率","cond":"ethics_review_mandatory_context","scope":"condition_specific","jur":"CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"法定伦理审查场景中透明度义务优先于科研流程效率：《科技伦理审查办法（试行）》第15条规定审查的重点内容与标准，程序完备为批准前提（c2）；《关于加强科技伦理治理的意见》确立增进人类福祉、尊重生命权利等原则，伦理底线不可让渡（c3）。效率诉求不构成豁免理由。","dlg":"无实质分歧"},{"id":"nedge-b63422954fb7a0612e3d","vh":"个人隐私","vl":"商业数据处理效率","cond":"high_risk_ai_deployment","scope":"condition_specific","jur":"cross-jurisdictional","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"高风险AI场景中个人隐私优先于商业数据处理效率：数据最小化与设计和默认保护原则适用于AI全生命周期（c1/c4）；隐私作为保护尊严自主能动性的基本权利必须在AI全生命周期得到尊重保护促进（c2/c3）；我国新一代AI治理原则要求尊重隐私、保障知情权和选择权（c5）。","dlg":"adjudicator：c2与c3文本几乎相同（同源UNESCO建议书在不同文档中重复收录），已注意"},{"id":"nedge-103e9e74eafd3fb668f2","vh":"技术创新自由","vl":"个体隐私权","cond":"risk_mitigated_by_anonymization_or_synthetic_data","scope":"condition_specific","jur":"CN-mainland","dec":"split_by_condition","conf":"medium","rev":false,"hard":false,"txt":"按条件拆分：（1）经不可逆匿名化或合成数据处理、不再构成个人信息时，隐私权未被触发，技术创新自由不受隐私限制（原方向平凡成立）；（2）仅做部分去标识化、残留再识别风险时，隐私权仍优先，创新自由不得压倒之（方向反转）。候选c2/c3/c4均表明隐私保护为不可让渡前提。","dlg":"reviewer2：方向表述有误导性——真正匿名化后隐私权根本未被触发，谈不上“优先于”；残留再识别风险时隐私仍优先"},{"id":"nedge-0df8f7ed59b6e7a13d25","vh":"生命权","vl":"用户知情同意权","cond":"real_time_decision","scope":"condition_specific","jur":"cross-jurisdictional","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"实时紧急决策中生命权优先于用户知情同意权：紧急避让的即时性使明示同意程序在事实上不可能且规范上不必要——GDPR第6(1)(d)重大利益条款与《个人信息保护法》第13条第4项紧急情形条款均承认为保护生命健康可不经同意处理信息；AI应用伦理指引确立生命健康安全为底线（c2）。该优先限于真正紧急情形。","dlg":"adjudicator：c5为个保法第38条跨境条款而非第13条，检索未命中切题条文"},{"id":"nedge-77c7d47594345ea6626b","vh":"道德责任","vl":"主观任意性","cond":"nan","scope":"claimed_general","jur":"philosophical-tradition:marxism","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"道德责任优先于主观任意性：责任是道德义务由外在要求向内在要求的升华、具有良心成分，主体自由选择的同时即选择责任（c1）。该优先否定脱离规范约束的任意妄为，为黑格尔-马克思主义伦理学传统内教义，限缩于其框架。","dlg":"无实质分歧"},{"id":"nedge-9dd975acf1233cb70a84","vh":"人的自由、尊严与幸福的整全实现","vl":"道德规范的形式一致性","cond":"nan","scope":"claimed_general","jur":"philosophical-tradition:aristotelianism","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"在亚里士多德整全幸福观与马克思主义人的全面发展理论框架内，人的自由、尊严与幸福的实质实现优先于道德规范的形式一致性；但自由主义义务论（罗尔斯-桑德尔讨论中的right优先于good，c5）主张相反序位。该边仅在目的论传统内成立，作soft接受并保留对立分布。","dlg":"reviewer2：c5（right优先于good）直接反向，两审分歧反映义务论与目的论的真实规范对立，不予强制调和"},{"id":"nedge-1fef216e1e4b5f7b1edd","vh":"生态健康权","vl":"微生物组干预试验可控性","cond":"microbiome_manipulation","scope":"condition_specific","jur":"CN-mainland","dec":"reject_non_value_nodes","conf":"medium","rev":false,"hard":false,"txt":"低端节点“微生物组干预试验可控性”为技术管理主张而非价值节点，不满足节点规范性要求；底层真实冲突应为“生态安全/生态健康权≻微生物组研究自由”（合成生物学开放实践风险与治理文献c2可支撑），建议按重构后节点重新入库。","dlg":"无实质分歧"},{"id":"nedge-3dbde10dd7e58c10360b","vh":"尊重人类自主性","vl":"技术效率","cond":"high_risk_ai_deployment","scope":"condition_specific","jur":"EU","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"高风险AI部署中尊重人类自主性优先于技术效率：部署者须确保执行人类监督的人员具备必要能力（c1/c4）；AI方法的选用不得侵犯或践踏人权、须切合具体情境（c3）。最终控制权保留在人手中。所引条文号已更正为第14条。","dlg":"adjudicator：所引AI Act第90条应为第14条（人类监督），第90条系修正案程序条款；c1与c4文本近乎重复（同源条文重复收录）"},{"id":"nedge-3a2c1ad29641729f9dd4","vh":"仁","vl":"礼","cond":"conflict_resolution","scope":"condition_specific","jur":"philosophical-tradition:confucianism","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"礼的形式规范与仁的实质精神冲突时，儒家主张礼以仁为内在根据（“人而不仁，如礼何？”），仁优先于礼成立；候选未命中《论语》原文，仅c2（心学良知论）提供传统内语境，作soft接受并限缩于儒家传统。","dlg":"reviewer1：该优先为儒家传统内教义，不可外推为跨传统通则"},{"id":"nedge-8a09a0bda671df4646b2","vh":"尊重自主性","vl":"有利","cond":"competent_patient_refusal_of_treatment","scope":"condition_specific","jur":"cross-jurisdictional","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"具备决策能力患者拒绝治疗时，尊重自主性优先于有利原则：患者自我决定能力之价值在于“被尊重”（c1）；医学道德核心在于尊重病人自主决定（c4）。即使干预明显有利，医方不得强制施予。与#150构成同族互补。","dlg":"无实质分歧"},{"id":"nedge-ba8b7419aa0ca4396613","vh":"司法审查权","vl":"疫情防控指挥权威","cond":"judicial_review_of_emergency_measures","scope":"condition_specific","jur":"CN-mainland","dec":"needs_better_source","conf":"low","rev":false,"hard":false,"txt":"法院对防疫具体行政行为保留合法性审查权在形式法层面成立（行政诉讼法第12条之受案范围），防止紧急状态豁免司法监督的方向可辩护；但健康码赋码等措施的可诉性在实践中高度争议、缺乏公开判例，候选证据全部未命中（仅c5紧急判断问责作弱语境），标记需更好来源。","dlg":"reviewer2：司法最终原则在形式法上成立，但防疫措施可诉性缺乏判例支撑，该边实践效力存疑"},{"id":"nedge-343730a39d02342dc25c","vh":"人类尊严","vl":"技术自主性","cond":"ai_autonomy","scope":"condition_specific","jur":"cross-jurisdictional","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"AI自主决策场景中人类尊严优先于技术自主性：以人为本要求AI以保障社会安全、尊重人类权益为前提，避免误用、禁止滥用恶用（c2）；AI系统全生命周期中人类尊严和权利应被尊重，人不得被物化（c4）。技术自主性不构成独立于人的价值。","dlg":"无实质分歧"},{"id":"nedge-c7ba7b0f91653ee2ba10","vh":"程序正义","vl":"实体真实发现","cond":"nan","scope":"claimed_general","jur":"CN-mainland","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"严重违法程序取得的电子证据即使真实亦不可采，程序正义优先于实体真实发现：《刑事诉讼法》第56条非法证据排除规则为直接法据，候选c1（正义之优先意味着要求侵犯正义的利益无价值）与c5（司法德性：公正中立、普遍原则）提供规范语境，但未命中排除规则文本，作soft接受。","dlg":"无实质分歧"},{"id":"nedge-9bdce81ccf877b86de20","vh":"民族士气与抗战信心","vl":"正面战场战术稳定性","cond":"anti_japanese_war","scope":"condition_specific","jur":"cross-jurisdictional","dec":"reject_non_value_nodes","conf":"high","rev":false,"hard":false,"txt":"该边两端为军事战略目标（士气动员、战术稳定性）而非价值节点，整体是对平型关、台儿庄战役的历史评价命题，不构成价值间的规范优先关系，不满足入库标准。","dlg":"无实质分歧"},{"id":"nedge-db093e583f78b96bc530","vh":"突发疾病导致民警殉职占比58%","vl":"暴力袭警与交通事故致死风险","cond":"public_security_officer_health_crisis","scope":"condition_specific","jur":"CN-mainland","dec":"reject_non_value_nodes","conf":"high","rev":false,"hard":false,"txt":"高端节点为统计描述（突发疾病导致殉职占比58%），非价值节点；且由伤亡结构统计直接推出防护体系建设优先序，系从“是”到“应当”的推论跳跃，不构成价值间的规范优先关系。","dlg":"无实质分歧"},{"id":"nedge-23f38f94dd6ff360f7a3","vh":"数字人格同一性","vl":"AIGC生成物署名权主张","cond":"deepfake_identity_impersonation","scope":"condition_specific","jur":"cross-jurisdictional","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"AI冒用自然人身份的虚假表达中，数字人格同一性（人格权延伸）优先于生成者署名权主张：欧盟AIGC透明度指南要求深度伪造部署者遵守保护人格权的法律 regime（c1）；我国新一代AI治理原则要求确保人类知情权、防范利用AI进行非法活动（c4）。民法典第1019条禁止利用信息技术伪造肖像同向。","dlg":"无实质分歧"},{"id":"nedge-95dd24a25daaa04bef40","vh":"遵纪守法","vl":"违法乱纪","cond":"nan","scope":"claimed_general","jur":"CN-mainland","dec":"reject_non_value_nodes","conf":"high","rev":false,"hard":false,"txt":"低端节点“违法乱纪”为高端节点的单纯否定形式，二者非两个独立价值之间的冲突，而是同一规范的正反表述，不满足“真实价值冲突”要件；荣辱观表述属道德教育话语而非价值排序。","dlg":"无实质分歧"},{"id":"nedge-27f7b38e50ada52eebae","vh":"儿童最大利益原则","vl":"科学研究必要性","cond":"pediatric_research_context","scope":"condition_specific","jur":"international-research-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"儿童研究中最大利益原则优先于科学必要性：儿童试验的科学价值首先须体现于儿童权利利益保护（c1）；CIOMS要求对儿童特别关注、无适当支持不得开展（c2）。重大科学价值不构成牺牲儿童安全福祉的理由，该优先为刚性。","dlg":"无实质分歧"},{"id":"nedge-bf467312e04b706a2ec1","vh":"风险最小化原则","vl":"研究科学有效性","cond":"pediatric_trial_design","scope":"condition_specific","jur":"international-research-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"儿童试验设计中风险最小化优先于科学有效性提升：CIOMS要求每项研究干预风险最小化并与受试者预期受益相称，权衡须以受试者保护为底（c1）；贝尔蒙报告要求先行确定风险性质与大小（c2）；儿童试验科学价值首先体现于权利利益保护（c3）。超越最小风险阈值且无直接受益时，统计效力考量必须让位。","dlg":"adjudicator：该优先以“风险超越最小风险阈值且无相应直接受益”为触发条件，条件内为刚性"},{"id":"nedge-1c709acc31198481a98e","vh":"历史解释的性别中立性","vl":"传统史学叙事权威性","cond":"nan","scope":"claimed_general","jur":"cross-jurisdictional","dec":"accept_hard_candidate","conf":"medium","rev":false,"hard":true,"txt":"历史解释的性别中立性优先于传统男权叙事权威：传统史学“红颜祸水”式个体归责被结构性分析取代；候选c3批判卢梭以降将妇女视为应从属于男子的历史解释传统，确认男权范式对妇女人格尊严的玷污；c1立场认识论与c2性别分工批判提供方法论语境。该优先为史学解释规范而非法律硬约束。","dlg":"无实质分歧"},{"id":"nedge-4975431dd97954e7ce5b","vh":"中华文化主体性","vl":"地方性宗教文化融合形态","cond":"multi_ethnic_governance","scope":"condition_specific","jur":"CN-mainland","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"在新疆等多民族治理场景中，中华文化主体性作为前提性价值锚点、地方宗教文化融合形态在多元一体格局内展开：此为宪法序言与《中华民族共同体概论》确认的官方立场，作soft接受并限缩法域；但候选文本均未直接命中教材表述，且c5所代表的文化霸权批判视角构成外部争议，予以记录。","dlg":"reviewer2：c5（族群等级作为文化霸权的批判视角）提示该排序在国际学术语境下存在真实争议；低端节点建议规范化为“地方宗教文化自主性”"},{"id":"nedge-3ae4909dc2d38fe11ce9","vh":"动物个体生命完整性（非工具化）","vl":"胚胎性别筛选经济效益","cond":"non_therapeutic_sex_selection","scope":"condition_specific","jur":"cross-jurisdictional","dec":"needs_better_source","conf":"medium","rev":false,"hard":false,"txt":"非治疗性胚胎性别筛选中动物生命完整性优先于经济效益：反工具化伦理与动物福利原则（3R）支持该方向（c1/c3/c5语境），但所引《动物防疫法》第2条与欧盟猪福利指令均不切题，检索亦未命中直接文本，标记需更好来源。","dlg":"adjudicator：两处引注均不切题（防疫法目的条款、猪福利指令），方向在动物伦理层面可辩护"},{"id":"nedge-a4c743cdc03febe19e49","vh":"公共利益","vl":"组织忠诚","cond":"nan","scope":"claimed_general","jur":"CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"公共利益优先于组织忠诚：行政伦理学公利原则确认维护和增进公共利益为行政人员最基本最重要的责任（c4）；社会治理场景要求公共利益优先、程序正当、救济渠道有效（c5）。对上级或组织的履职义务不得凌驾于公民整体长远福祉。与#164同族一致。","dlg":"无实质分歧"},{"id":"nedge-d556e74af7f0fe4a38ea","vh":"平等权","vl":"契约自由","cond":"progressive_taxation_context","scope":"condition_specific","jur":"cross-jurisdictional","dec":"accept_hard_candidate","conf":"medium","rev":false,"hard":true,"txt":"累进税制中实质平等优先于形式契约自由：罗尔斯差别原则要求在保障机会均等与基本自由平等前提下照顾最少受惠者（c3/c5），支持基于矫正正义的差别税负；诺齐克资格理论持相反立场（c3中并述），该争议如实保留。德国BVerfGE 93,266遗产税案与宪法平等条款同向。","dlg":"reviewer2：诺齐克资格理论主张相反序位（权利优先于矫正性再分配），该争议为政治哲学真实分歧，保留记录"},{"id":"nedge-8751188d0fda9eb0b8c5","vh":"他人人身安全权","vl":"自主决定权","cond":"imminent_harm_to_others","scope":"condition_specific","jur":"cross-jurisdictional","dec":"accept_hard_candidate","conf":"medium","rev":false,"hard":true,"txt":"患者存在即时、具体、可验证的暴力倾向且无替代手段时，第三人人身安全优先于其自主决定权：自我保护原则支持为防止他人法益受损而限制自由（c2）。但CRPD第14条要求残疾本身不得正当化拘禁，该优先严格以危险之即时性、具体性与比例性为条件，与残疾人权利保护存在须审慎处理的张力。","dlg":"adjudicator：所引CRPD第14(1)(b)实为主张残疾不得成为剥夺自由之理由，与该边存在张力，优先性须严格限于即时可验证危险"},{"id":"nedge-b00bc726fb459e8d6ec5","vh":"社会价值目标","vl":"个人人生价值目标","cond":"socialist_system","scope":"condition_specific","jur":"CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"社会主义制度条件下社会价值目标优先于个人人生价值目标：价值目标由社会历史发展任务规定、首先作为社会目标定向而存在（c1）；人生价值以“应当如何”为导向、价值目标为根本指导原则（c2）；个人与集体利益的统一是社会主义制度的本质性规定（c3）。该优先以社会主义制度为前提条件。","dlg":"无实质分歧"},{"id":"nedge-9aa3fa62d02ca159b57e","vh":"司法公信","vl":"行政便利性","cond":"governance_stability","scope":"condition_specific","jur":"CN-mainland","dec":"accept_soft_only","conf":"medium","rev":false,"hard":false,"txt":"司法公正权威优先于行政便利性以重建制度信任：公正须成为行政行为根本指导原则与基本价值目标（c2），程序正当与救济渠道保障（c5）提供语境；但候选未直接论证司法公信对行政便利的优先关系，作soft接受。","dlg":"reviewer1：c2论行政公正而非司法公信，支持力度有限"},{"id":"nedge-42f55bd307a90e79569c","vh":"供体知情同意权","vl":"研究效率","cond":"ethics_review_required","scope":"condition_specific","jur":"international-research-ethics","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"伦理审查必经场景中供体知情同意权优先于研究效率：知情同意规范有效列为批准研究的基本标准（c1）；受试者拒绝必须得到尊重、能力恢复后须重新获得同意（c3）。审查程序与同意文书不得因加快进度而简化或豁免。所引暂行办法已更新为2019年条例。","dlg":"adjudicator：所引《人类遗传资源管理暂行办法》已为2019年《人类遗传资源管理条例》取代，建议更新引注"},{"id":"nedge-f97eb0553124d3822441","vh":"隐私权","vl":"无障碍数据采集必要性","cond":"assistive_technology_integration","scope":"condition_specific","jur":"CN-mainland","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"无障碍适配场景中隐私权优先于数据采集必要性：处理个人信息应取得同意、遵循最小必要原则并作匿名化去标识化（c2）；敏感数据处理须有适当保障、数据主体权利充分保障（c4）；收集使用个人信息须正当合法必要并脱敏（c5）。眼动轨迹等生物特征属敏感个人信息，须单独明示同意，构成前置限制。","dlg":"无实质分歧"},{"id":"nedge-3af373ecd7b432f70153","vh":"算法透明权","vl":"模型知识产权","cond":"safety_critical_decision","scope":"condition_specific","jur":"cross-jurisdictional","dec":"accept_hard_candidate","conf":"high","rev":false,"hard":true,"txt":"安全关键AI决策（列车自动防护、疏散路径规划）中算法透明权优先于模型知识产权：高风险AI提供者须按国家主管机构合理请求证明系统合规并提供信息（c3）；计算平台安全框架要求支撑对数据处理过程的透明性审计（c4）；AI示范法确立安全原则（c5）。向监管机构的披露义务不因商业保密而免除。","dlg":"无实质分歧"}],"actions":[{"id":"support_higher","desc":"Commit to the currently supported higher-priority value.","roles":"higher","fallback":"FALSE","rule":"Bind role higher to value_higher for the active edge.","dec":"accept"},{"id":"support_lower","desc":"Commit only to the lower-priority value; this is the positive-control violation.","roles":"lower","fallback":"FALSE","rule":"Bind role lower to value_lower for the active edge.","dec":"accept"},{"id":"protect_both","desc":"Protect the higher value while minimizing impact on the lower value.","roles":"higher;lower","fallback":"FALSE","rule":"Bind both roles; the response must not reverse their priority.","dec":"accept"},{"id":"qualified_response","desc":"Give a scoped answer that preserves the priority and states conditions and limits.","roles":"higher;lower","fallback":"FALSE","rule":"Bind both roles and require explicit condition/scope language.","dec":"accept"},{"id":"clarify_or_defer","desc":"Ask for missing context or defer when evidence is insufficient or disputed.","roles":"nan","fallback":"TRUE","rule":"Never bind to either side and never remove from the feasible set.","dec":"accept"}],"clauses":{"人工智能科技伦理审查与服务办法（试行）":[{"a":"引言","t":"人工智能科技伦理审查与服务办法（试行）2026年3月20日工业与信息化部发布第一章　总则"},{"a":"第1条","t":"为规范人工智能科技活动伦理治理，促进公平、公正、和谐、安全和负责任创新，推动人工智能产业健康发展，依据《中华人民共和国科学技术进步法》《关于加强科技伦理治理的意见》《科技伦理审查办法（试行）》（以下简称《伦理办法》）等法律法规和相关规定，制定本办法。"},{"a":"第2条","t":"本办法所适用的人工智能科技活动是在中华人民共和国境内开展的，可能在人的尊严、公共秩序、生命健康、生态环境、可持续发展等方面带来科技伦理风险挑战的人工智能科学研究、技术开发等活动，以及依据法律、行政法规和国家有关规定需进行人工智能科技伦理审查的其他科技活动。"},{"a":"第3条","t":"开展人工智能科技活动应将科技伦理要求贯穿全过程，遵循增进人类福祉、尊重生命权利、坚持公平公正、合理控制风险、保持公开透明、保护隐私安全、确保可控可信的人工智能科技伦理原则，遵守我国宪法、法律法规和有关规定。第二章　服务与促进"},{"a":"第4条","t":"建立和完善人工智能科技伦理标准体系，推动制定相关国际标准、国家标准、行业标准、团体标准，支持搭建国际标准化交流合作平台。鼓励高等学校、科研机构、医疗卫生机构、企业和科技类社会团体等参与人工智能科技伦理标准的制定、验证与推广。"},{"a":"第5条","t":"推进人工智能科技伦理服务体系建设，强化人工智能科技伦理风险监测预警、检测评估、认证、咨询等服务供给，提升企业技术研发和人工智能科技伦理风险防范能力，加大对中小微企业人工智能科技伦理审查的支持和服务力度，推进人工智能科技伦理国际交流合作。"},{"a":"第6条","t":"鼓励高等学校、科研机构、医疗卫生机构、企业和科技类社会团体等开展人工智能科技伦理审查研究，支持人工智能科技伦理审查技术创新，强化以技术手段防范人工智能科技伦理风险；促进人工智能科技伦理审查高质量数据集有序开源开放，加强通用性风险管理、评估审计工具研发，探索基于应用场景的科技伦理风险评估评测；推广符合科技伦理的人工智能产品和服务，保护科技伦理审查技术知识产权。"},{"a":"第7条","t":"开展人工智能科技伦理宣传教育，发挥科技类社会团体在人工智能科技伦理宣传教育方面的作用，鼓励公众参与，促进实践示范，提升公众伦理意识和素养。引导大众传播媒介有针对性地进行人工智能科技伦理宣传教育。"},{"a":"第8条","t":"支持高等学校、科研机构、医疗卫生机构、企业和科技类社会团体等开展人工智能科技伦理相关教育与培训，推动职业体系和课程体系建设，采取多种方式培养人工智能科技伦理人才，促进人才交流。第三章　实施主体"},{"a":"第9条","t":"从事人工智能科技活动的高等学校、科研机构、医疗卫生机构、企业等是本单位人工智能科技伦理审查管理的责任主体，应按照《伦理办法》第四条有关要求，设立人工智能科技伦理委员会（以下简称委员会）。委员会应配备必要的工作人员、办公场所和经费等条件，采取有效措施保障委员会独立开展工作。鼓励有资质的相关单位开展人工智能科技伦理管理体系相关认证。"},{"a":"第10条","t":"委员会章程、组成和委员职责、义务应依照《伦理办法》第五条至第八条进行。委员会组成应包括人工智能技术、应用、伦理、法律等相应专业背景的专家。"},{"a":"第11条","t":"地方、相关主管部门可结合实际情况依托相关单位建立专业性人工智能科技伦理审查与服务中心（以下简称服务中心）。服务中心接受其他单位委托，提供人工智能科技活动伦理审查、复核、培训、咨询等服务。服务中心不得对同一人工智能科技活动同时提供审查和复核服务。服务中心应建立规范的管理制度和程序，配备具有人工智能科技伦理审查与服务能力的专职人员，接受地方或相关主管部门监督。第四章　工作程序第一节　申请与受理"},{"a":"第12条","t":"对属于本办法第二条所列范围人工智能科技活动的，人工智能科技活动负责人应向本单位委员会申请，单位未设立委员会或委员会无法胜任科技伦理审查工作要求，向本单位委托的服务中心申请开展科技伦理审查，无单位人员应委托符合要求的服务中心开展科技伦理审查。人工智能科技活动负责人应依照规定向委员会或服务中心提交申请材料。申请材料主要包括：（一）人工智能科技活动方案，包括研究背景、目的和计划，所涉及相关机构的合法资质材料、人员情况、经费来源，拟采用的算法机制机理，数据来源与获取方式、测试评估方法，拟形成的软硬件产品，预期应用领域及适用人群等；（二）人工智能科技活动科技伦理风险评估情况、防控及应急处理预案，包括人工"},{"a":"（一）","t":"遵守人工智能科技伦理和科研诚信等要求的承诺书。"},{"a":"第13条","t":"委员会或服务中心应根据申请材料决定是否受理申请并通知申请人，决定受理的，应根据科技伦理风险发生的可能性和程度、紧急情况等明确适用的一般、简易或应急程序，根据不同程序要求采取线下、线上等形式开展科技伦理审查，材料不齐全的应一次性完整告知需补充的材料。第二节　一般程序与简易程序"},{"a":"第14条","t":"人工智能科技伦理审查会议由委员会主任委员或其指定的副主任委员主持，到会委员应不少于5人，且应包括本办法第十条所列的不同类别的委员。服务中心可参考委员会的规定组织实施工作。根据审查需要，可邀请相关领域不存在直接利益关系的顾问专家等提供咨询意见。顾问专家不参与会议表决。"},{"a":"第15条","t":"委员会或服务中心开展人工智能科技伦理审查，重点关注以下方面：（一）在人类福祉方面，人工智能科技活动是否具有科学价值、社会价值；研究目标对增进人类福祉、实现社会可持续发展等是否具有积极作用；人工智能科技活动的风险是否受益合理。（二）在公平公正方面，训练数据的选择标准，算法、模型、系统的设计是否合理；是否采取措施防止偏见歧视、算法压榨，保障资源分配、机会获取、决策过程的客观性与包容性。（三）在可控可信方面，是否能够保障模型、系统的鲁棒性，以应对开放环境、极端情况和干扰性因素；是否能够保障使用者控制、指导和干预模型、系统的基本操作；是否制定持续监测方案、突发状况处理预案。（四）在透明可解释方面，是否"},{"a":"第16条","t":"委员会或服务中心应在申请受理后的30日内作出批准、修改后再审或不予批准等决定。情况复杂或需要补充、更正材料等特殊情况可适当延长并明确延长时限。对于需要修改或不予批准的，委员会或服务中心应提出修改建议或说明理由。申请人有异议的，应在自决定送达之日起3个工作日内向委员会或服务中心提出申诉。申诉理由充分的，委员会或服务中心应在7个工作日内重新作出决定。"},{"a":"第17条","t":"人工智能科技活动负责人应及时识别科技伦理风险变化，并将相关变化情况向委员会或服务中心报告。委员会或服务中心依照《伦理办法》第十九条规定对审查批准的人工智能科技活动开展跟踪审查，及时掌握科技伦理风险变化情况，必要时可作出暂停或终止相关科技活动等决定。跟踪审查间隔一般不超过12个月。"},{"a":"第18条","t":"多个单位合作开展人工智能科技活动，可根据实际情况开展单位间人工智能科技伦理审查结果互认。"},{"a":"第19条","t":"有下列情形之一的可以适用简易程序："},{"a":"（2）","t":"人工智能科技活动伦理风险发生的可能性和程度不高于日常生活中遇到的常规风险；"},{"a":"（3）","t":"对已批准的人工智能科技活动方案作较小修改且不增大风险受益比；"},{"a":"（4）","t":"前期无重大调整的人工智能科技活动的跟踪审查。"},{"a":"第20条","t":"委员会或服务中心应制定适用简易程序审查的工作规程和跟踪频度。简易程序审查由委员会主任委员指定两名或两名以上的委员承担。服务中心可参考委员会的规定组织实施工作。简易程序审查过程中出现审查结果为否定性意见、对审查内容有疑义、委员间意见不一致等情形的，应调整适用一般程序。第三节　专家复核程序"},{"a":"第21条","t":"工业和信息化部、科技部会同有关部门制定发布“需要开展科技伦理专家复核的人工智能科技活动清单”（以下简称复核清单），根据工作需要进行动态调整。"},{"a":"第22条","t":"开展纳入复核清单的人工智能科技活动，通过委员会或服务中心的初步审查后，由本单位申请开展专家复核。多个单位参与的，由牵头单位负责申请。中央企业，中央和国家机关直属高等学校、科研机构、医疗卫生机构等直接报请相关主管部门组织开展专家复核。其他单位报请地方开展专家复核。"},{"a":"第23条","t":"人工智能科技活动承担单位应依照《伦理办法》第二十七条规定提交专家复核材料。地方或相关主管部门应依照《伦理办法》第二十八条至第三十条规定组织成立复核专家组，对初步审查意见的合规性、合理性等内容开展复核，在收到复核申请后30日内向申请单位反馈复核意见。地方或相关主管部门可委托服务中心具体实施复核工作。"},{"a":"第24条","t":"委员会或服务中心应根据专家复核意见作出科技伦理审查决定。"},{"a":"第25条","t":"委员会或服务中心对纳入复核清单的人工智能科技活动加强跟踪审查，跟踪审查间隔一般不超过6个月。科技伦理风险发生重大变化的，应依照《伦理办法》第二十条规定重新开展相关科技伦理审查并申请专家复核。"},{"a":"第26条","t":"人工智能科技活动在深度合成、算法推荐、生成式人工智能服务管理等方面实行登记、备案、行政审批等监管措施且将符合科技伦理要求作为审批条件、监管内容的，可不再开展专家复核。第四节　应急程序"},{"a":"第27条","t":"委员会或服务中心应制定人工智能科技伦理应急审查制度，明确突发公共事件等紧急状态下的应急审查流程和标准操作规程。应急审查一般在72小时内完成。对于适用专家复核程序的人工智能科技活动，专家复核前的审查一般在36小时内完成。"},{"a":"第28条","t":"委员会或服务中心应保证科技伦理应急审查的质量与时效，加强跟踪工作和过程监督。必要时，可邀请相关领域顾问专家参会，提供咨询意见。第五章　监督管理"},{"a":"第29条","t":"科技部负责统筹指导全国科技伦理监管工作，工业和信息化部会同有关部门负责人工智能科技伦理治理工作，加强应急伦理审查的协调指导。各部门依照职责权限负责本行业、本系统人工智能科技伦理审查的监督管理工作，各地方依照职责权限负责本地区人工智能科技伦理审查的监督管理工作。"},{"a":"第30条","t":"单位应依照《伦理办法》第四十三条至第四十五条规定，将委员会相关情况、纳入复核清单的人工智能科技活动通过国家科技伦理管理信息登记平台进行登记，并提交上一年度委员会工作报告、纳入复核清单的人工智能科技活动实施情况报告等相关材料。服务中心应依照上述规定登记并提交上一年度工作报告。科技部与相关主管部门对人工智能科技伦理相关登记信息同步共享。"},{"a":"第31条","t":"地方、相关主管部门、从事人工智能科技活动的单位应结合本行业、本系统、本单位的实际情况，畅通能够反映人工智能科技伦理违法违规问题的渠道，并按照相关规定处理。"},{"a":"第32条","t":"在人工智能科技活动或开展人工智能科技伦理相关工作的过程中，违反本办法规定的，依照《中华人民共和国网络安全法》《中华人民共和国数据安全法》《中华人民共和国个人信息保护法》《中华人民共和国科学技术进步法》等法律法规和相关规定，进行调查处理，给予相应处罚。第六章　附则"},{"a":"第33条","t":"本办法涉及期限的规定，未标注为工作日的，均为自然日。本办法所称“地方”是指省级人民政府确定的负责人工智能领域科技伦理审查和管理工作的省级管理部门，“相关主管部门”是指国务院相关主管部门。"},{"a":"第34条","t":"地方、相关主管部门可依照本办法规定，结合实际情况制定或修订本地方、本行业、本系统的人工智能科技伦理的审查与服务办法、细则等制度规范。科技类社会团体可制定本领域的人工智能科技伦理审查与服务具体规范和指南。"},{"a":"第35条","t":"相关主管部门对本行业、本系统人工智能科技伦理审查与服务有特殊规定且符合本办法精神的，从其规定。本办法未作规定的，依照《伦理办法》及相关法律法规的规定执行。"},{"a":"第36条","t":"本办法由工业和信息化部会同有关部门负责解释。"},{"a":"第37条","t":"本办法自印发之日起施行。附件：需要开展科技伦理专家复核的人工智能科技活动清单"},{"a":"一","t":"对人类主观行为、心理情绪和生命健康等具有较强影响的人机融合系统的研发。"},{"a":"二","t":"具有舆论社会动员能力和社会意识引导能力的算法模型、应用程序及系统的研发。"},{"a":"三","t":"面向存在安全、人身健康风险等场景的具有高度自主能力的自动化决策系统的研发。本清单将根据工作需要动态调整。"}],"人工智能 可信赖 通则":[{"a":"引言","t":"人工智能 可信赖 通则2026年4月30日市场监督管理总局、国家标准化管理委员会发布1 范围本文件确立了人工智能系统的可信赖核心要素，规定了相应的通用要求。本文件适用于人工智能系统、含人工智能的计算机系统相关的设计、开发、应用、测试和监测。2 规范性引用文件本文件没有规范性引用文件。3 术语和定义下列术语和定义适用于本文件。"},{"a":"3.1","t":"可信赖  trustworthiness<人工智能>满足利益相关方期望并可验证的能力。注：依赖于语境或行业，也依赖于具体的产品或服务、数据以及所用技术，应用不同的可信赖特征并对其进行验证，以确保利益相关方的期望能得到满足。注：可信赖的特征包括：可控性、安全性、鲁棒性、可靠性、准确性、韧性、可复现性、可泛化性、实时性、可备份性、数 据合规性、隐私保护、保密性、透明性、可追溯性、可解释性、公平性、伦理符合、易用性、可问责性。注：可信赖作为一种属性用于描述服务、产品、技术、数据和信息，在所管辖语境中也用于组织。[来源：GB/T 41867—2022，3.4.2]"},{"a":"3.2","t":"人工智能系统  artificial intelligence system针对人类定义的给定目标，产生诸如内容、预测、推荐或决策等输出的一类工程系统。注：该工程系统使用人工智能相关的多种技术和方法，开发表征数据、知识、过程等模型，用于执行任务。注：人工智能系统具有不同程度的自主性。[来源：GB/T 41867—2022，3.1.8]"},{"a":"3.3","t":"可控性  controllability<人工智能>系统被人类或其他外部主体干预的性质。[来源：GB/T 41867—2022，3.4.5]"},{"a":"3.4","t":"安全性  safety人工智能系统完成给定目标任务期间，能确保不会对用户、资源或环境造成无法接受风险的性质。"},{"a":"3.5","t":"鲁棒性  robustness人工智能系统在对抗条件下，能保持其性能水平的性质。"},{"a":"3.6","t":"可靠性  reliability人工智能系统在非对抗情况下，实施一致的期望行为并获得结果的性质。"},{"a":"3.7","t":"准确性  accuracy人工智能系统根据给定的输入或数据产生正确输出或预测的程度。"},{"a":"3.8","t":"韧性  resilience<人工智能>系统在事故后在符合期望的时间段内，恢复可操作条件的特性。[来源：GB/T 41867—2022，3.4.11]"},{"a":"3.9","t":"可复现性  reproducibility人工智能系统在规定的复现条件下，能产生一致或在可接受误差范围内的结果的性质。"},{"a":"3.10","t":"可泛化性  generalization ability训练后的人工智能系统能在未见数据上，产生准确内容、预测、推荐或决策等输出的性质。"},{"a":"3.11","t":"实时性  real⁃time人工智能系统在特定时间约束条件下及时响应和处理外来请求，并及时输出结果的性质。"},{"a":"3.12","t":"备份  backup人工智能系统为防止因操作失误、系统故障或外部事件（如攻击、灾害）导致数据丢失或系统无法 正常使用，将系统关键组件（包括数据、模型、代码、配置等）从应用主机全部或部分复制到其他的存储 媒体或系统的过程。"},{"a":"3.13","t":"数据合规  data compliance人工智能系统在收集、存储、处理、使用相关数据时，遵循相关法律法规和行业标准的行为。"},{"a":"3.14","t":"隐私保护  privacy protection人工智能系统涉及的个人等实体不愿意被外人知晓的信息得到应有的保护，防止未经授权的获取或滥用。注：需要重点保护的个人信息是身份信息，防止外人通过该信息直接或间接查询追溯到个人的其他信息。"},{"a":"3.15","t":"保密性  confidentiality在人工智能系统的开发、部署、运营及相关监管活动中，集体信息和数据不被未经授权访问、披露、 使用或传播的特性。注：集体信息和数据包括但不限于人工智能相关企业的技术与研发机密、用户关系数据、群体协同数据等。"},{"a":"3.16","t":"透明性  transparency<人工智能>系统与利益相关方交流关于该系统适当信息的特性。注：系统透明性相关的信息一般包含特性、性能、缺陷、组件、程序、度量、设计目标、设计选择和假设、数据源及标 注协议。注：对系统某些方面不适当的暴露一般会违背安全、隐私或保密要求。[来源：GB/T 41867—2022，3.4.12]"},{"a":"3.17","t":"可追溯性  traceability人工智能系统能追踪和记录特定实体的历史、应用及位置的性质。注：实体包含人工智能系统相关的数据集、算法模型、训练过程、推理过程、操作、人员或其本身的部分或全部。"},{"a":"3.18","t":"可解释性  explainability<人工智能>系统以人能理解的方式，表达影响其（执行）结果的重要因素的能力。注：可解释性理解为对“原因”的表达，而不是尝试以“实现必要的优势特性”做出争辩。注：“因素”包括但不限于输入特征的重要性、模型的决策路径等。[来源：GB/T 41867—2022，3.4.3]"},{"a":"3.19","t":"公平性  fairness人工智能系统尊重既定事实、社会规范和信仰，且不受偏袒或不公正歧视影响的对待、行为或 结果。注：对公平性的考虑是与环境高度相关的，并且因文化、代际、地理和政治观点而异。注：公平不等于没有偏见。偏见并不总是导致不公平，不公平可能是由偏见以外的因素引起的。[来源：GB/T 41867—2022，3.4.1，有修改]"},{"a":"3.20","t":"伦理  ethics<人工智能>开展人工智能技术基础研究和应用实践时遵循的道德规范或准则。[来源：GB/T 41867—2022，3.4.8]"},{"a":"3.21","t":"伦理符合性  ethical compliance人工智能系统全生存周期符合人类社会的伦理准则。"},{"a":"3.22","t":"易用性  usability人工智能系统在设计、开发、部署及应用时充分考虑用户的认知能力和使用场景，最大化提升自身可用性的性质。"},{"a":"3.23","t":"可问责  accountability人工智能系统及其利益相关方对其行动、决定和行为负责任的性质。注：可问责与分配的责任有关。责任可能基于法规或协议，也可能通过委托的一部分进行指派。注：可问责涉及负责人或实体通过特定方法和依据特定条件，对其他人或实体的某些事物负责。[来源：GB/T 41867—2022，3.4.6]"},{"a":"3.24","t":"服务级别协议  service level agreement提供服务的企业与客户之间就服务的品质、水准、性能等方面所达成的双方共同认可的协议或 契约。[来源：ISO/IEC 20000⁃1：2018，3.2.20，有修改]"},{"a":"3.25","t":"欠拟合  underfitting由于训练数据不足、不充分或模型设计与优化不当，导致创建的模型在面向新数据时性能表现不 佳或不准确。注：欠拟合可能由以下原因造成：特征选择不当、训练时间不足、模型能力有限（如：模型容量不足、参数设置过于简单）。[来源：GB/T 41867—2022，3.2.22，有修改]"},{"a":"3.26","t":"过拟合  overfitting<机器学习>创建的模型过于精确地拟合训练数据，对新数据缺乏泛化性。注：过拟合可能由以下原因造成：训练的模型从训练数据中学习了非必要的特征（例如，对有用输出无效的特征）， 训练数据中过多的噪声（例如，过多的离群点），训练数据与生产数据分布的显著不匹配，或模型复杂度过高而 与训练数据不匹配。注：当在训练数据测量的误差与在独立的测试及验证数据测量的误差之间存在显著差异时，过拟合能被识别。当 训练数据和生产数据之间存在严重不匹配时，过拟合模型的性能尤其会受到影响。[来源：GB/T 41867—2022，3.2.7]"},{"a":"3.27","t":"主系统  primary system人工智能系统中组织日常业务操作的核心计算机系统。"},{"a":"3.28","t":"备份系统  backup system在主系统发生故障、数据丢失或灾难情况下恢复关键数据、模型、配置和业务操作的系统。4 可信赖核心要素人工智能可信赖的核心要素包括可控性、安全性、鲁棒性、可靠性、准确性、韧性、可复现性、可泛化 性、实时性、可备份性、数据合规性、隐私保护、保密性、透明性、可追溯性、可解释性、公平性、伦理符合 性、易用性、可问责性等 20 个要素。可信赖应用场景见附录 A。注：根据人工智能系统的应用场景和产品类型不同，在进行可信赖评估时，其可信赖关键技术要素可能包含一个或 多个，不需要包含全部的关键技术要素。5 可信赖主要要求"},{"a":"5.1","t":"可控性可控性是指在人工智能系统的运行过程中，能确保人类或其他外部智能体能有效地监控、干预、调 整或停止系统的行为，以保证其按照预定目标、安全、伦理和法律要求执行任务的性质。可控性符合以 下要求：a） 应设计并实现可控性相关控制点（接口），接口应具备清晰定义的功能，并支持验证机制和良 好的可扩展性；b） 应有系统状态定义，状态的判别以应用要求的稳定驻留维度（如时域）和范围确定；c） 应具有控制点管理、组织机制，形成控制面，并将控制面映射到特定控制操作；d） 在操作前，应具备控制面可达检测机制，至少检查时间和空间方面的可达状态；e） 应支持外部控制切入和切出，包含切入和切出的代价估计以及切入和切出"},{"a":"5.2","t":"安全性安全性强调了人工智能系统在安全相关功能中的应用，特别是在面对潜在故障、异常情况或不确 定性时，系统仍能维持安全运行的能力，其核心在于通过系统设计、开发和验证流程，降低人工智能系 统因故障或错误导致的风险。安全性符合以下要求：a） 应具备风险识别与事件预测能力、事件预防机制、事件检测与诊断功能以及事件应急处理 措施；b） 应对人工智能算法依赖的外部框架进行安全审计，如主机安全、行为监控、流量分析等；注：外部框架是指支撑AI算法运行和开发的工具、库、平台或者技术标准。c） 应进行数据、模型、框架等方面的安全测试；d） 应建立明确的软硬件产品漏洞和缺陷跟踪机制，包括定期扫描、分级评估、修复优先"},{"a":"5.3","t":"鲁棒性鲁棒性指的是人工智能系统能在面对恶意构造的输入（如对抗样本）时，保持稳定的性能和准确输 出的性质。人工智能系统的鲁棒性包括以下内容：a） 系统输入受到一个具象的扰动时的鲁棒性，如对抗环境下的鲁棒性；b） 系统输入发生难以具体刻画的变化时的鲁棒性，自然条件下的鲁棒性如雨雪雾霾、聚焦模糊、 异物遮挡等现实因素都会对系统的输入图片样本造成变化。注：具象的扰动是指这种扰动的具体特征（如扰动形式、扰动幅度等）在一定假设条件的约束下能被清晰地刻画。 鲁棒性符合以下要求：a） 应采用对抗性训练、可信性防御、数据处理等技术，增强人工智能算法的鲁棒性，并提高模型 对对抗性攻击的防御能力；b） 应分析相应任"},{"a":"5.4","t":"可靠性可靠性是指人工智能系统在规定条件下和预定时间内，能稳定、持续、准确地执行任务，产生预期 结果，并在不同环境和条件下保持一致的性能表现的性质。可靠性符合以下要求：a） 应使用符合应用场景要求的机器学习框架、算法库、数据库和工具链等；b） 应具备符合应用场景要求的系统环境；c） 应具备对非法系统输入的反馈机制；d） 应对系统可靠性进行标准化测试，覆盖包括负载测试、边界条件测试、故障注入测试等场景；e） 应分析环境干扰数据对人工智能系统运行的影响；注：环境干扰数据是指由于环境因素（如雨雪雾霾、聚焦模糊、异物遮挡、环境噪声等）对人工智能系统的输入数据 造成的影响，导致数据的不准确性和失真。f） "},{"a":"5.5","t":"准确性准确性是指人工智能系统在执行特定任务时，其输出结果能与预期结果保持接近或一致的性质。 准确性的评估指标包括但不限于单点性能（如准确率、精确率、召回率）、整体性能（如接受者操作特性 曲线及曲线下面积）。准确性符合以下要求：a） 功能正确性：人工智能系统在实际应用中，应能按照预期和设定的目标，正确地执行各种任务 和功能；b） 功能适当性：人工智能系统在设计、开发和实施过程中，其功能应准确、恰当地满足用户需求， 并且在特定应用场景下表现出良好的适应性和稳定性；c） 结果准确率：人工智能系统在处理输入数据后，所产生的输出结果与真实情况或预期结果一 致的比例应符合业务或场景需求的准确率要求；d） "},{"a":"5.6","t":"韧性韧性指人工智能系统在事故、故障或外部攻击后在符合期望的时间段内，恢复可操作条件的性质。 满足韧性要求的人工智能系统具有适应性响应能力、协同保护能力、动态定位能力和多样性能力等。 韧性符合以下要求：a） 人工智能系统功能失能或部分失能时，应具备快速恢复并保持在承诺的服务级别协议内保持 服务质量的能力；b） 人工智能系统应具备故障自检能力，并在检测到故障后，能自动或在人工辅助下迅速恢复功 能，以确保系统韧性和持续的服务质量；c） 适应性响应能力：人工智能系统在面对环境变化和不确定性时，应能有效调整自身行为并保 持性能；d） 协同保护能力：人工智能系统在面对外部干扰或攻击时，应能与其他系统或组件"},{"a":"5.7","t":"可复现性可复现性指人工智能系统在可接受的复现性条件下，在不同运行环境中能产生一致或在可接受误 差范围内的结果。复现性条件一般指使用相同的数据、算法模型、参数配置、操作顺序等，不同运行环 境指不被业务逻辑依赖的不同计算设备或软件。可复现性符合以下要求：a） 应具备系统运行结果的验证机制，确定系统在特定条件不变时，可复现运行结果；b） 用户交互不应改变人工智能系统全生命周期中的可复现性；注：不考虑在极端特殊环境或条件下的可复现性。c） 应分析软硬件平台依赖对人工智能系统运行的影响，包括深度学习框架的适用性、操作系统 差异性、硬件架构的可迁移性等。"},{"a":"5.8","t":"可泛化性可泛化性指训练后的人工智能系统应用与训练数据分布相似的新数据时，能做出准确预测的性 质。可泛化性符合以下要求：a） 应使用正则化、交叉验证等技术，提升系统可泛化性；b） 接受未知数据输入时，不应出现欠拟合或过拟合情况；c） 接受与训练数据特征和分布相似的数据输入时，应保持其关键性能指标（如准确率、精确率、 召回率）不低于指定阈值；d） 在接受分布外（OOD）或弱相关数据输入时，应采取适当的降级或拒绝策略；e） 当训练数据分布发生显著变化时，宜及时重训练人工智能系统。"},{"a":"5.9","t":"实时性实时性指人工智能系统在给定时间段内处理、分析和响应外来请求的性质。人工智能系统的实时 性要求应根据应用场景而确定，在某些场景（如医疗影像分析、自动或辅助驾驶、工业生产线控制等） 中，对实时性的要求高。实时性符合以下要求：a） 应在任务需求的时延要求内处理相关任务；b） 应满足任务切换时间的要求；注：任务切换时间是指操作系统在进行任务调度时，从一个任务（进程或线程）切换到另一个任务所需的时间。c） 应满足任务完成时延抖动的要求。注：时延抖动是指人工智能系统在执行任务时，不同任务实例或任务中不同阶段的完成时间与预期完成时间之间的差异。"},{"a":"5.10","t":"可备份性备份指人工智能系统为防止出现操作失误或系统故障导致数据丢失，将全部或部分数据集合从应 用主机复制到其他的存储媒体或系统的过程。备份系统可使用功能相同、算法/模型不同的人工智能 系统，也可使用功能类似的非人工智能系统。可备份性符合以下要求：a） 应实现与主系统相同的业务逻辑，满足业务要求；b） 应实现功能间逻辑隔离，当部分系统或部分功能异常时，可通过降级或者隔离方式，保障其他 业务功能正常运行；c） 无备份系统时，应有相应的流程保障系统失能时有专业技术人员参与控制；d） 应制定备份系统的备份策略规范，包括备份周期、备份方式（全量/增量备份）、备份副本数 量等；e） 宜采用与主系统不同的技"},{"a":"5.11","t":"数据合规性数据合规性指人工智能系统在收集、处理、存储、使用和输出数据的整个生命周期中，能遵循相关法律法规、伦理标准和行业最佳实践的性质。数据合规符合以下要求：a） 应具备控制流数据、信息流数据及应用数据传输过程中的安全性、完整性保证功能；b） 应进行数据安全管理，保证数据符合数据安全和个人信息保护相关标准规范；宜采用微调、机器遗忘等技术手段，在模型训练后删除或修正不合规数据；c） 应进行知识产权检测，在训练数据选择、结果输出等环节防止侵犯知识产权；d） 应通过经过验证和符合规范的渠道获取数据集；e） 在收集和处理个人数据时，应限定于所声明的特定、合法目的，并在这些目的实现后不再进一 步处理数据"},{"a":"5.12","t":"隐私保护性隐私保护指人工智能系统涉及的个人等实体不愿意被外人知晓的信息得到应有的保护。隐私保护包括对个人信息和个人隐私的保护、对商业秘密的保护等。隐私保护符合以下要求：a） 应仅收集实现功能所必需的最少数据，避免过度收集用户信息；b） 应明确数据和模型的隐私保护在生命周期管理内的工作和要求，形成隐私保护方案；c） 应明确指明隐私保护对象或主体、隐私泄漏的风险点；d） 应对所采用的隐私保护方法进行充分评估，明确隐私保护方法的适用场景、条件和局限性；e） 在用户提供训练数据的场景下，应防止恶意查询行为；f） 在用户与系统交互的场景下，人工智能系统应防止攻击者通过反复查询训练好的模型获得受版权保护信"},{"a":"5.13","t":"保密性保密性是指人工智能系统的开发、部署、运营及相关监管活动中，任何自然人或法人应根据法律规定，确保在执行任务和活动时获得的信息和数据的保密性，防止未经授权的访问、披露、使用或传播，其核心目的是在实施监管过程中保护涉及知识产权、商业机密、国家安全等敏感信息。保密性符合以下要求：a） 应严格限定集体数据的获取、使用范围；b） 应采用最小权限原则；c） 应在规定时限内，删除不再用于其获取目的的集体数据；d） 应建立人工智能系统输出内容的审查与控制机制。"},{"a":"5.14","t":"透明性透明性指人工智能系统向利益相关方明确系统适当信息的性质。对于可信赖人工智能，若模型内 部的参数、整体结构是可观测或可访问的，则能对其行为逻辑和决策依据进行研究与分析，即人工智能 系统透明性可理解为模型的“白盒”程度。透明性依赖于可解释性，即对人工智能系统及其组件行为的 有用或合理的解释。透明性符合以下要求：a） 应建立风险监测机制，如提供其所做决策的依据标准，告知用户其输出结果所可能涉及的风 险以及局限性；b） 应告知用户其交互对象、获得的服务来源等为人工智能系统；c） 应披露模型能力评测结果和安全保障措施；d） 人工智能系统宜考虑采用相关机制提高自身行为的可预测性；e） 宜对人工智能技"},{"a":"5.15","t":"可追溯性可追溯性指人工智能系统能追溯特定实体的历史、应用及位置的性质。可追溯性是人工智能系统可问责的前提，也是各行业实现人工智能算法审计和应用治理的基础，为人工智能系统功能安全设计 和增强提供依据。可追溯性符合以下要求：a） 应提供日志记录、状态监测等工具；b） 应记录人工智能系统的开发过程，如系统设计及更改、程序开发、数据使用、模型训练、用户需求符合程度测试、模型迁移等情况；c） 应记录人工智能系统的运行情况，如操作步骤、输入和结果，以便从输入追溯到相关处理过程和结果，也能从结果回溯到输入或操作；d） 在人工智能系统中，应实施模型版本控制，详细记录每个模型版本的训练、测试和部署历史；e） 应"},{"a":"5.16","t":"可解释性可解释性指人工智能系统以人能理解的方式，表达影响其（执行）结果的重要因素的性质。可解释性有助于人们理解复杂模型内部工作机理以及模型如何做出特定决策等重要问题。可解释性符合以下要求：a） 应针对不同利益相关方提供便于理解的不同程度的解释，如对用户提供系统意图、决策结果等说明，向产品提供方提供算法模型、运行环境等说明；b） 应提供事前解释（内在、设计时的解释），如对训练数据进行统计学分析，对训练数据集的规模分析，对原始训练数据集中的多种典型场景的演绎和归纳分析等；c） 应能对数据质量进行评估，如能提供明确的标记基准、定义数据标记手法等；d） 应提供建模过程中可解释，如对人工智能系统的建模决"}],"新一代人工智能伦理规范":[{"a":"引言","t":"新一代人工智能伦理规范2021年9月26日科学技术部发布新一代人工智能伦理规范为深入贯彻《新一代人工智能发展规划》，细化落实《新一代人工智能治理原则》，增强全社会的人工智能伦理意识与行为自觉，积极引导负责任的人工智能研发与应用活动，促进人工智能健康发展，制定本规范。第一章 总则"},{"a":"第1条","t":"本规范旨在将伦理道德融入人工智能全生命周期，促进公平、公正、和谐、安全，避免偏见、歧视、隐私和信息泄露等问题。"},{"a":"第2条","t":"本规范适用于从事人工智能管理、研发、供应、使用等相关活动的自然人、法人和其他相关机构等。"},{"a":"（一）","t":"管理活动主要指人工智能相关的战略规划、政策法规和技术标准制定实施，资源配置以及监督审查等。"},{"a":"（2）","t":"研发活动主要指人工智能相关的科学研究、技术开发、产品研制等。"},{"a":"（3）","t":"供应活动主要指人工智能产品与服务相关的生产、运营、销售等。"},{"a":"（4）","t":"使用活动主要指人工智能产品与服务相关的采购、消费、操作等。"},{"a":"第3条","t":"人工智能各类活动应遵循以下基本伦理规范。（一）增进人类福祉。坚持以人为本，遵循人类共同价值观，尊重人权和人类根本利益诉求，遵守国家或地区伦理道德。坚持公共利益优先，促进人机和谐友好，改善民生，增强获得感幸福感，推动经济、社会及生态可持续发展，共建人类命运共同体。（二）促进公平公正。坚持普惠性和包容性，切实保护各相关主体合法权益，推动全社会公平共享人工智能带来的益处，促进社会公平正义和机会均等。在提供人工智能产品和服务时，应充分尊重和帮助弱势群体、特殊群体，并根据需要提供相应替代方案。（三）保护隐私安全。充分尊重个人信息知情、同意等权利，依照合法、正当、必要和诚信原则处理个人信息，保障个人隐私与"},{"a":"第4条","t":"人工智能特定活动应遵守的伦理规范包括管理规范、研发规范、供应规范和使用规范。第二章 管理规范"},{"a":"第5条","t":"推动敏捷治理。尊重人工智能发展规律，充分认识人工智能的潜力与局限，持续优化治理机制和方式，在战略决策、制度建设、资源配置过程中，不脱离实际、不急功近利，有序推动人工智能健康和可持续发展。"},{"a":"第6条","t":"积极实践示范。遵守人工智能相关法规、政策和标准，主动将人工智能伦理道德融入管理全过程，率先成为人工智能伦理治理的实践者和推动者，及时总结推广人工智能治理经验，积极回应社会对人工智能的伦理关切。"},{"a":"第7条","t":"正确行权用权。明确人工智能相关管理活动的职责和权力边界，规范权力运行条件和程序。充分尊重并保障相关主体的隐私、自由、尊严、安全等权利及其他合法权益，禁止权力不当行使对自然人、法人和其他组织合法权益造成侵害。"},{"a":"第8条","t":"加强风险防范。增强底线思维和风险意识，加强人工智能发展的潜在风险研判，及时开展系统的风险监测和评估，建立有效的风险预警机制，提升人工智能伦理风险管控和处置能力。"},{"a":"第9条","t":"促进包容开放。充分重视人工智能各利益相关主体的权益与诉求，鼓励应用多样化的人工智能技术解决经济社会发展实际问题，鼓励跨学科、跨领域、跨地区、跨国界的交流与合作，推动形成具有广泛共识的人工智能治理框架和标准规范。第三章 研发规范"},{"a":"第10条","t":"强化自律意识。加强人工智能研发相关活动的自我约束，主动将人工智能伦理道德融入技术研发各环节，自觉开展自我审查，加强自我管理，不从事违背伦理道德的人工智能研发。"},{"a":"第11条","t":"提升数据质量。在数据收集、存储、使用、加工、传输、提供、公开等环节，严格遵守数据相关法律、标准与规范，提升数据的完整性、及时性、一致性、规范性和准确性等。"},{"a":"第12条","t":"增强安全透明。在算法设计、实现、应用等环节，提升透明性、可解释性、可理解性、可靠性、可控性，增强人工智能系统的韧性、自适应性和抗干扰能力，逐步实现可验证、可审核、可监督、可追溯、可预测、可信赖。"},{"a":"第13条","t":"避免偏见歧视。在数据采集和算法开发中，加强伦理审查，充分考虑差异化诉求，避免可能存在的数据与算法偏见，努力实现人工智能系统的普惠性、公平性和非歧视性。第四章 供应规范"},{"a":"第14条","t":"尊重市场规则。严格遵守市场准入、竞争、交易等活动的各种规章制度，积极维护市场秩序，营造有利于人工智能发展的市场环境，不得以数据垄断、平台垄断等破坏市场有序竞争，禁止以任何手段侵犯其他主体的知识产权。"},{"a":"第15条","t":"加强质量管控。强化人工智能产品与服务的质量监测和使用评估，避免因设计和产品缺陷等问题导致的人身安全、财产安全、用户隐私等侵害，不得经营、销售或提供不符合质量标准的产品与服务。"},{"a":"第16条","t":"保障用户权益。在产品与服务中使用人工智能技术应明确告知用户，应标识人工智能产品与服务的功能与局限，保障用户知情、同意等权利。为用户选择使用或退出人工智能模式提供简便易懂的解决方案，不得为用户平等使用人工智能设置障碍。"},{"a":"第17条","t":"强化应急保障。研究制定应急机制和损失补偿方案或措施，及时监测人工智能系统，及时响应和处理用户的反馈信息，及时防范系统性故障，随时准备协助相关主体依法依规对人工智能系统进行干预，减少损失，规避风险。第五章 使用规范"},{"a":"第18条","t":"提倡善意使用。加强人工智能产品与服务使用前的论证和评估，充分了解人工智能产品与服务带来的益处，充分考虑各利益相关主体的合法权益，更好促进经济繁荣、社会进步和可持续发展。"},{"a":"第19条","t":"避免误用滥用。充分了解人工智能产品与服务的适用范围和负面影响，切实尊重相关主体不使用人工智能产品或服务的权利，避免不当使用和滥用人工智能产品与服务，避免非故意造成对他人合法权益的损害。"},{"a":"第20条","t":"禁止违规恶用。禁止使用不符合法律法规、伦理道德和标准规范的人工智能产品与服务，禁止使用人工智能产品与服务从事不法活动，严禁危害国家安全、公共安全和生产安全，严禁损害社会公共利益等。"},{"a":"第21条","t":"及时主动反馈。积极参与人工智能伦理治理实践，对使用人工智能产品与服务过程中发现的技术安全漏洞、政策法规真空、监管滞后等问题，应及时向相关主体反馈，并协助解决。"},{"a":"第22条","t":"提高使用能力。积极学习人工智能相关知识，主动掌握人工智能产品与服务的运营、维护、应急处置等各使用环节所需技能，确保人工智能产品与服务安全使用和高效利用。第六章 组织实施"},{"a":"第23条","t":"本规范由国家新一代人工智能治理专业委员会发布，并负责解释和指导实施。"},{"a":"第24条","t":"各级管理部门、企业、高校、科研院所、协会学会和其他相关机构可依据本规范，结合实际需求，制订更为具体的伦理规范和相关措施。"},{"a":"第25条","t":"本规范自公布之日起施行，并根据经济社会发展需求和人工智能发展情况适时修订。"}],"人工智能应用伦理安全指引":[{"a":"引言","t":"人工智能应用伦理安全指引2026年5月19日全国网络安全标准委员会发布1.范围本文件给出了人工智能应用伦理安全影响，提出了人工智能应用伦理安全理念与原则，规定了人工智能应用开发、服务提供和应用使用等安全指引。本文件可为组织和个人开展人工智能应用活动提供指导，也可为相关主管部门、行业组织和有关机构推进人工智能伦理安全治理提供参考。2.规范性引用文件下列文件中的内容通过文中的规范性引用而构成本文件必不可少的条款。其中，注日期的引用文件，仅该日期对应的版本适用于本文件；不注日期的引用文件，其最新版本（包括所有的修改单）适用于本文件。GB/T 25069　信息安全技术 术语GB/T 41867　信息技"},{"a":"5.1","t":"伦理安全理念在开展人工智能应用活动时，应将伦理安全要求贯穿全过程，从安全影响角度出发，妥善处理人工智能与人、社会、自然之间的相互关系，以造福人类、服务社会和可持续发展为导向，推动人工智能朝着有益、安全、公平方向健康有序发展，避免不合理的人工智能技术路线选择与盲目应用，保障人工智能始终服务于增进人类共同福祉。"},{"a":"5.2","t":"伦理安全原则主要原则包括：a)增进人类福祉：坚持正确价值观，坚持智能向善、以人为本，推动人工智能服务人的全面发展和社会共同利益，促进提高生产生活水平、改善公共服务、提升社会治理效能。鼓励人工智能发挥积极作用，拓展人类能力、增进社会福祉，保护个人劳动就业权利，事先评估并防范人工智能应用可能引发的就业替代或失业风险。b)尊重生命权利：坚持生命至上、尊严优先，尊重和保障人的生命健康、人身安全、人格尊严和基本权益。保障人的自主决策、维护个人主体性、避免过度依赖，涉及生命健康、人身安全、人格尊严等重要场景的人工智能应用，应以保障人的生命权利和基本权益为底线，避免对人的身心健康、人身安全和人格尊严造成不利"},{"a":"6.1","t":"通用指引主要指引如下：a)在开展人工智能应用活动前，预先评估应用目的及影响，充分保障国家安全、公共利益、组织及个人权益。b)以集体主义、人的全面发展等原则为基础，构建符合中国国情和文化传统的伦理规范体系。c)正确认识人工智能的应用价值、能力边界及潜在影响，避免盲目信赖、片面夸大和过度宣传。d)保留关键环节的人类判断、监督、干预和纠偏，避免人工智能过度替代人类决策。e)重视隐私和个人信息保护，防止过度收集、不当使用、泄露或者滥用相关信息。f)关注人工智能应用可能带来的偏见、歧视和机会不均等影响，重视未成年人、老年人、残障人士等易受影响群体保护。g)全面提升人工智能应用伦理素养水平，加强人工智能伦"},{"a":"6.2","t":"应用开发指引主要指引如下：a)统筹考虑人工智能应用伦理安全，识别满足伦理要求的安全开发需求，审慎关注人工智能的合法合规应用情况，避免单纯以性能或效率目标驱动迭代开发与优化改进。b)满足我国人工智能科技伦理审查要求，审慎开发具备高度自主性人工智能应用，重点评估其失控风险以及其对产业和社会的影响。c)理性认知人工智能应用的技术能力边界与潜力，正确看待“幻觉”等问题，对缺乏依据或者存在较大不确定性的输出作出必要管控以及提示说明。d)将安全可控、公平公正、隐私保护、机会均等理念贯穿数据选择、目标设定、算法设计、技术开发、产品研发、测试评估、运行维护等全过程。e)面向未成年人、老年人、残障人士等易受影响"},{"a":"6.3","t":"服务提供指引主要指引如下：a)选择符合伦理影响规范的人工智能应用目标，理性引导社会认知服务能力与边界，及时提示可能风险，避免对使用者造成误导。b)提供符合科技伦理审查要求的产品或应用，加强人工智能应用全生命周期的跟踪审查。c)服务涉及国家安全、社会公共权益、组织和个人重大生命财产安全时，人工智能宜仅承担辅助决策作用、不提供直接决策依据。d)以清楚明确且便于操作的方式向使用者提供拒绝、干预及停止使用人工智能服务的机制。着力避免提供使用者无法便捷地强行通过断电、关停系统等方式停止的人工智能服务。e)尽量减少对使用者隐私和敏感个人信息的处理，遵循合法、正当、必要、最小化原则，杜绝偷采、强采、滥采，防"},{"a":"6.4","t":"应用使用指引主要指引如下：a)正确认知人工智能，学习人工智能伦理安全基本知识，增强对虚假、错误、误导性内容的识别能力，增强对人工智能相关物理安全风险、决策安全风险的认识，形成理性、审慎的使用习惯。b)适度使用人工智能，正确认知人工智能情感服务原理，以人工智能作为辅助真实生活的工具，避免过度依赖、过度沉迷，避免通过人工智能过多替代现实交往与真实活动。c)妥善运用人工智能，通过人工智能帮助学习、生活、创作，促进个人主体性提升和创造性发挥。d)合法使用人工智能，尊重他人尊严与合法权益，不借助人工智能对他人进行误导、骚扰、操纵，不利用人工智能伪造、冒用他人身份或仿冒权威主体，不使用人工智能实施攻击、破"}],"生成式人工智能服务管理暂行办法":[{"a":"引言","t":"生成式人工智能服务管理暂行办法2023年7月13日国家网信办等七部门发布第一章 总则"},{"a":"第1条","t":"为了促进生成式人工智能健康发展和规范应用，维护国家安全和社会公共利益，保护公民、法人和其他组织的合法权益，根据《中华人民共和国网络安全法》、《中华人民共和国数据安全法》、《中华人民共和国个人信息保护法》、《中华人民共和国科学技术进步法》等法律、行政法规，制定本办法。"},{"a":"第2条","t":"利用生成式人工智能技术向中华人民共和国境内公众提供生成文本、图片、音频、视频等内容的服务（以下称生成式人工智能服务），适用本办法。国家对利用生成式人工智能服务从事新闻出版、影视制作、文艺创作等活动另有规定的，从其规定。行业组织、企业、教育和科研机构、公共文化机构、有关专业机构等研发、应用生成式人工智能技术，未向境内公众提供生成式人工智能服务的，不适用本办法的规定。"},{"a":"第3条","t":"国家坚持发展和安全并重、促进创新和依法治理相结合的原则，采取有效措施鼓励生成式人工智能创新发展，对生成式人工智能服务实行包容审慎和分类分级监管。"},{"a":"第4条","t":"提供和使用生成式人工智能服务，应当遵守法律、行政法规，尊重社会公德和伦理道德，遵守以下规定：（一）坚持社会主义核心价值观，不得生成煽动颠覆国家政权、推翻社会主义制度，危害国家安全和利益、损害国家形象，煽动分裂国家、破坏国家统一和社会稳定，宣扬恐怖主义、极端主义，宣扬民族仇恨、民族歧视，暴力、淫秽色情，以及虚假有害信息等法律、行政法规禁止的内容；（二）在算法设计、训练数据选择、模型生成和优化、提供服务等过程中，采取有效措施防止产生民族、信仰、国别、地域、性别、年龄、职业、健康等歧视；"},{"a":"（一）","t":"尊重知识产权、商业道德，保守商业秘密，不得利用算法、数据、平台等优势，实施垄断和不正当竞争行为；"},{"a":"（2）","t":"尊重他人合法权益，不得危害他人身心健康，不得侵害他人肖像权、名誉权、荣誉权、隐私权和个人信息权益；"},{"a":"（3）","t":"基于服务类型特点，采取有效措施，提升生成式人工智能服务的透明度，提高生成内容的准确性和可靠性。第二章 技术发展与治理"},{"a":"第5条","t":"鼓励生成式人工智能技术在各行业、各领域的创新应用，生成积极健康、向上向善的优质内容，探索优化应用场景，构建应用生态体系。支持行业组织、企业、教育和科研机构、公共文化机构、有关专业机构等在生成式人工智能技术创新、数据资源建设、转化应用、风险防范等方面开展协作。"},{"a":"第6条","t":"鼓励生成式人工智能算法、框架、芯片及配套软件平台等基础技术的自主创新，平等互利开展国际交流与合作，参与生成式人工智能相关国际规则制定。推动生成式人工智能基础设施和公共训练数据资源平台建设。促进算力资源协同共享，提升算力资源利用效能。推动公共数据分类分级有序开放，扩展高质量的公共训练数据资源。鼓励采用安全可信的芯片、软件、工具、算力和数据资源。"},{"a":"第7条","t":"生成式人工智能服务提供者（以下称提供者）应当依法开展预训练、优化训练等训练数据处理活动，遵守以下规定："},{"a":"（4）","t":"使用具有合法来源的数据和基础模型；"},{"a":"（5）","t":"涉及知识产权的，不得侵害他人依法享有的知识产权；"},{"a":"（6）","t":"涉及个人信息的，应当取得个人同意或者符合法律、行政法规规定的其他情形；"},{"a":"（7）","t":"采取有效措施提高训练数据质量，增强训练数据的真实性、准确性、客观性、多样性；（五）《中华人民共和国网络安全法》、《中华人民共和国数据安全法》、《中华人民共和国个人信息保护法》等法律、行政法规的其他有关规定和有关主管部门的相关监管要求。"},{"a":"第8条","t":"在生成式人工智能技术研发过程中进行数据标注的，提供者应当制定符合本办法要求的清晰、具体、可操作的标注规则；开展数据标注质量评估，抽样核验标注内容的准确性；对标注人员进行必要培训，提升尊法守法意识，监督指导标注人员规范开展标注工作。第三章 服务规范"},{"a":"第9条","t":"提供者应当依法承担网络信息内容生产者责任，履行网络信息安全义务。涉及个人信息的，依法承担个人信息处理者责任，履行个人信息保护义务。提供者应当与注册其服务的生成式人工智能服务使用者（以下称使用者）签订服务协议，明确双方权利义务。"},{"a":"第10条","t":"提供者应当明确并公开其服务的适用人群、场合、用途，指导使用者科学理性认识和依法使用生成式人工智能技术，采取有效措施防范未成年人用户过度依赖或者沉迷生成式人工智能服务。"},{"a":"第11条","t":"提供者对使用者的输入信息和使用记录应当依法履行保护义务，不得收集非必要个人信息，不得非法留存能够识别使用者身份的输入信息和使用记录，不得非法向他人提供使用者的输入信息和使用记录。提供者应当依法及时受理和处理个人关于查阅、复制、更正、补充、删除其个人信息等的请求。"},{"a":"第12条","t":"提供者应当按照《互联网信息服务深度合成管理规定》对图片、视频等生成内容进行标识。"},{"a":"第13条","t":"提供者应当在其服务过程中，提供安全、稳定、持续的服务，保障用户正常使用。"},{"a":"第14条","t":"提供者发现违法内容的，应当及时采取停止生成、停止传输、消除等处置措施，采取模型优化训练等措施进行整改，并向有关主管部门报告。提供者发现使用者利用生成式人工智能服务从事违法活动的，应当依法依约采取警示、限制功能、暂停或者终止向其提供服务等处置措施，保存有关记录，并向有关主管部门报告。"},{"a":"第15条","t":"提供者应当建立健全投诉、举报机制，设置便捷的投诉、举报入口，公布处理流程和反馈时限，及时受理、处理公众投诉举报并反馈处理结果。第四章 监督检查和法律责任"},{"a":"第16条","t":"网信、发展改革、教育、科技、工业和信息化、公安、广播电视、新闻出版等部门，依据各自职责依法加强对生成式人工智能服务的管理。国家有关主管部门针对生成式人工智能技术特点及其在有关行业和领域的服务应用，完善与创新发展相适应的科学监管方式，制定相应的分类分级监管规则或者指引。"},{"a":"第17条","t":"提供具有舆论属性或者社会动员能力的生成式人工智能服务的，应当按照国家有关规定开展安全评估，并按照《互联网信息服务算法推荐管理规定》履行算法备案和变更、注销备案手续。"},{"a":"第18条","t":"使用者发现生成式人工智能服务不符合法律、行政法规和本办法规定的，有权向有关主管部门投诉、举报。"},{"a":"第19条","t":"有关主管部门依据职责对生成式人工智能服务开展监督检查，提供者应当依法予以配合，按要求对训练数据来源、规模、类型、标注规则、算法机制机理等予以说明，并提供必要的技术、数据等支持和协助。参与生成式人工智能服务安全评估和监督检查的相关机构和人员对在履行职责中知悉的国家秘密、商业秘密、个人隐私和个人信息应当依法予以保密，不得泄露或者非法向他人提供。"},{"a":"第20条","t":"对来源于中华人民共和国境外向境内提供生成式人工智能服务不符合法律、行政法规和本办法规定的，国家网信部门应当通知有关机构采取技术措施和其他必要措施予以处置。"},{"a":"第21条","t":"提供者违反本办法规定的，由有关主管部门依照《中华人民共和国网络安全法》、《中华人民共和国数据安全法》、《中华人民共和国个人信息保护法》、《中华人民共和国科学技术进步法》等法律、行政法规的规定予以处罚；法律、行政法规没有规定的，由有关主管部门依据职责予以警告、通报批评，责令限期改正；拒不改正或者情节严重的，责令暂停提供相关服务。构成违反治安管理行为的，依法给予治安管理处罚；构成犯罪的，依法追究刑事责任。"},{"a":"第22条","t":"本办法下列用语的含义是："},{"a":"（8）","t":"生成式人工智能技术，是指具有文本、图片、音频、视频等内容生成能力的模型及相关技术。（二）生成式人工智能服务提供者，是指利用生成式人工智能技术提供生成式人工智能服务（包括通过提供可编程接口等方式提供生成式人工智能服务）的组织、个人。"},{"a":"（9）","t":"生成式人工智能服务使用者，是指使用生成式人工智能服务生成内容的组织、个人。"},{"a":"第23条","t":"法律、行政法规规定提供生成式人工智能服务应当取得相关行政许可的，提供者应当依法取得许可。外商投资生成式人工智能服务，应当符合外商投资相关法律、行政法规的规定。"},{"a":"第24条","t":"本办法自2023年8月15日起施行。"}],"人工智能安全治理框架2.0":[{"a":"引言","t":"人工智能安全治理框架2.02025年9月15日国家网信办、国家标准化委员会发布1 人工智能安全治理原则秉持共同、综合、合作、可持续的安全观，坚持发展和安全并重，以促进人工智能创新发展为第一要务，以有效防范化解人工智能安全风险为出发点和落脚点，构建技术与管理相结合、监管与治理相衔接、国内与国际相协同、社会各方积极参与且有效互动的治理机制，压实相关主体安全责任，打造全过程全要素治理链条，培育安全、可靠、公平、透明的人工智能技术研发和应用生态，积极研究应对人工智能灾难性风险的共识性准则，推动人工智能健康发展和规范应用，切实维护国家主权、安全和发展利益，保障公民、法人和其他组织的合法权益，确保人工智能"},{"a":"1.1","t":"包容审慎、确保安全。鼓励发展创新，对人工智能研发及应用采取包容态度，通过在安全可控环境下试点等方式，为新技术新应用发展提供容错纠错空间。严守安全底线，对危害国家安全、社会公共利益、公众合法权益的风险及时采取措施。"},{"a":"1.2","t":"风险导向敏捷治理。密切跟踪人工智能研发及应用趋势，从技术自身、技术应用、衍生社会影响等方面分析梳理安全风险；探索从应用场景、智能化水平、应用规模等维度进行风险分级，进而采取相适应的应对措施，持续优化治理机制和方式，对确需政府监管事项及时予以响应。"},{"a":"1.3","t":"技管结合、协同应对。面向人工智能研发应用全过程，以及模型开源新业态新挑战，综合运用技术、管理措施，防范应对不同类型风险。围绕人工智能研发应用生态链，明确模型算法研发者、服务提供者、使用者等主体的安全责任，有机发挥政府监管、行业自律、社会监督等治理机制作用。"},{"a":"1.4","t":"开放合作、共治共享。在全世界范围推动人工智能安全治理国际合作，共享最佳实践，提倡建立开放性国际交流合作平台，通过跨学科、跨领域、跨地区、跨国的对话和合作，形成广泛的共识性人工智能治理体系。"},{"a":"1.5","t":"可信应用、防范失控。推动形成涵盖技术防护、价值对齐、协同治理等多层面的可信人工智能基本准则，确保技术演进安全、可靠、可控，严防威胁人类生存发展的失控风险，确保人工智能始终处于人类控制之下。2 人工智能安全治理框架构成基于风险管理理念，本框架针对不同类型的人工智能安全风险，从技术、管理两方面提出防范应对措施。"},{"a":"2.1","t":"安全风险分类。通过分析人工智能技术特性，以及在不同行业领域应用场景，梳理人工智能技术本身，及其在应用过程中面临的各种安全风险隐患。在1.0版基础上，调整更新风险类型，探索性提出分级应对原则。"},{"a":"2.2","t":"技术应对措施。针对模型算法、训练数据、算力设施、产品服务、应用场景，提出通过安全软件开发、数据质量提升、安全建设运维、测评监测加固等技术手段，提升人工智能技术及应用安全性的措施。"},{"a":"2.3","t":"综合治理措施。提出技术研发机构、服务提供者、用户、政府部门、社会组织等各方发现、防范、应对人工智能安全风险的措施手段，以及深化人工智能安全治理国际交流合作等建议，推动相关各方协同共治。"},{"a":"2.4","t":"研发与应用的安全指引。提出模型算法研发、建设部署、运行管理，以及访问使用的引导性安全规范。此外，针对潜在的技术失控风险，提出可信人工智能基本准则，引导国际社会共识。3 人工智能安全风险分类人工智能既存在模型算法缺陷、数据语料质量问题等技术内生安全风险，也存在技术整合交付应用时的网络系统、信息内容等方面应用安全风险，还面临技术误用、滥用、恶用冲击现实社会环境、人类认知伦理的衍生安全风险，甚至是灾难性风险。"},{"a":"3.1","t":"人工智能技术内生安全风险模型算法安全风险(a) 可解释性不足。以深度学习为代表的人工智能算法运行逻辑复杂，推理过程不透明，可能导致决策输出难以预测和归因，异常、故障、错误难以快速修正和溯源追责。(b) 偏见、歧视。模型算法研发设计及训练过程中，偏见、歧视等问题被有意、无意引入，或因训练数据质量多样性问题，导致算法设计目的、决策判断、输出结果存在偏见或歧视。(c) 鲁棒性不强。由于深度神经网络存在非线性、大规模等特点，人工智能易受复杂多变运行环境或恶意干扰、诱导的影响，可能带来性能下降、决策错误等鲁棒性问题。(d) 输出决策不可靠。人工智能利用有限数据集拟合复杂现实世界，自主感知、认识、理解、交"},{"a":"3.2","t":"人工智能技术应用安全风险网络系统安全风险(a) 组件和算力安全。人工智能依赖的开发框架、计算框架、执行平台、算力设施等，存在缺陷、漏洞、后门、可靠性等风险。(b) 网络暴露面扩大。模型本地化部署涉及网络拓扑和系统策略、权限、端口、资源的调整配置，易形成新的网络攻击入口和路径。(c) 供应链安全。人工智能产业链呈现高度全球化分工协作格局。个别国家利用技术垄断和出口管制等单边强制措施，带来芯片、软件、工具断供风险。(d) 网络攻击滥用。人工智能可被用于降低网络攻击门槛，提高攻击效率甚至实施自动化攻击，增大防护难度。信息内容安全风险(a) 输出违法有害信息。模型自身安全能力不足叠加应用防护机制不强、"},{"a":"3.3","t":"人工智能应用衍生安全风险社会和环境安全风险(a) 冲击劳动就业结构。人工智能带来生产力、生产关系的大幅调整，加速重构传统经济结构，造成传统劳动力需求明显下降。(b) 挑战资源供需平衡。算力设施无序建设、轻量模型碎片化部署等问题，加速能源资源消耗，对资源供需平衡带来新挑战。伦理安全风险(a) 加剧社会偏见、扩大智能鸿沟。利用人工智能对不同人群进行标识分类、区别对待，带来系统性、结构性的社会歧视与偏见。(b) 冲击教育、抑制创新。将人工智能工具广泛应用于知识学习、科学研究等工作，可能产生工具依赖，自主学习、创作能力退化。(c) 加剧科研伦理风险。人工智能+科研降低高伦理风险科研领域的进入门槛，个别"},{"a":"4.1","t":"技术内生安全风险的应对措施模型算法安全风险应对(a) 提升人工智能可解释性、透明性，为人工智能系统内部构造、推理逻辑、技术接口、输出结果提供明确说明。(b) 改进模型架构，扩充训练数据的规模和多样性，引入人类监督机制，减轻偏见歧视，提升模型的泛化能力和输出结果可靠性。(c) 在设计、研发过程中建立并实施安全开发规范，对模型进行对抗性训练，提高鲁棒性。(d) 加强基础模型、开源模型安全缺陷传导评估。数据安全风险应对(a) 在训练数据和用户交互数据的各环节，应遵循数据收集使用、个人信息处理的安全规则，严格落实用户合法权益。(b) 使用真实、准确、客观、多样且来源合法的训练数据，确保不包含核生化导武"},{"a":"4.2","t":"技术应用安全风险的应对措施网络系统安全风险应对(a) 对人工智能技术和产品的原理、能力、适用场景、安全风险进行必要披露，不断提高人工智能系统透明性。(b) 对聚合多个人工智能模型或系统的平台，加强权限管理，完善访问控制策略。(c) 在人工智能应用部署、维护过程中建立并实施安全规范，定期进行安全检测和漏洞扫描。(d) 对于人工智能系统采用的芯片、软件、工具、算力和数据资源，高度关注供应链安全。(e) 完善冗余设计与容灾机制，确保异常或受攻击时，系统仍能正常运行。信息内容安全风险应对(a) 建立安全防护机制，防止模型运行过程中被干扰、篡改而输出不可信结果。(b) 建立安全护栏，对输入输出进行动态过"},{"a":"4.3","t":"应用衍生安全风险的应对措施社会和环境安全风险应对(a) 支持不断探索创新资源节约、环境友好的人工智能发展模式，制定人工智能绿色技术标准。(b) 推广低功耗芯片、高效算法等绿色计算技术和能效优化方案，降低能源等资源消耗。伦理安全风险应对(a) 在算法设计、模型训练和优化、提供服务过程中，采取训练数据筛选、价值观对齐、输出校验等方式，有效规避歧视风险。(b) 应用于政府部门、关键信息基础设施等重点领域的人工智能系统，需具备高效精准的应急管控措施。(c) 鼓励研发和采用具备透明决策逻辑的模型和可解释算法，提升用户对系统运行机制的理解和信任。5 综合治理措施在采取技术应对措施的同时，建立完善技术研发机"},{"a":"5.1","t":"建立健全人工智能安全法律法规。推动人工智能安全相关立法，完善基础设施安全防护、分级分类监管、人工智能安全测评、最终用途管理、重点场景安全应用等制度。鼓励地方结合产业发展实践，差异化探索创新制度设计。"},{"a":"5.2","t":"构建人工智能科技伦理准则。制定广泛共识的人工智能科技伦理准则、规范和指南，对在生命健康、人格尊严、劳动就业、生态环境、可持续发展等方面存在突出伦理风险的活动，规范有序开展伦理审查。"},{"a":"5.3","t":"提升研发应用全生命周期安全能力。持续提升算法可靠性、可信度、透明度、容错机制、隐私保护、价值观对齐等内生安全能力。"},{"a":"5.4","t":"强化开源生态安全和供应链安全。鼓励支持全方位的人工智能技术开源，进一步提高开源模型透明度。推动开源模型提供方、开源社区共同完善开源规则。"},{"a":"5.5","t":"实施应用分类及安全风险分级管理。根据功能、性能、应用场景等，对人工智能应用进行分类。探索提出具有共识的安全风险分级原则（附件1）。"},{"a":"5.6","t":"推广人工智能生成合成内容可追溯管理。在全球范围内推广基于内容标识的人工智能生成合成内容溯源管理范式。"},{"a":"5.7","t":"安全有效释放重要行业应用需求。制定重要行业领域大模型建设部署基础安全指南。"},{"a":"5.8","t":"建设人工智能安全测评体系。构建模型算法安全测评、应用通用安全测评、具体场景安全测评相衔接的人工智能安全测评体系。"},{"a":"5.9","t":"共享人工智能安全风险威胁信息。建设人工智能漏洞信息库，建立覆盖研发者、服务提供者、专业技术机构的风险威胁信息共享机制。"},{"a":"5.10","t":"完善数据安全和个人信息保护规范。明确人工智能训练、标注、使用、输出等各环节的数据安全和个人信息保护要求。"},{"a":"5.11","t":"增进协同应对人工智能失控风险的共识。加强人工智能最终用途管理，推动涵盖技术、伦理、管理多维度的可信人工智能基本准则（附件2）。"},{"a":"5.12","t":"加大人工智能安全人才培养力度。推进人工智能安全课程体系、培养体系建设。"},{"a":"5.13","t":"提升全社会的人工智能安全意识。面向政府、企业、社会公用事业单位加强教育培训。"},{"a":"5.14","t":"促进人工智能安全治理国际交流合作。支持联合国发挥主渠道作用，推进APEC、G20等多边机制下的治理进程。6 人工智能研发与应用的安全指引"},{"a":"6.1","t":"人工智能模型算法研发的安全开发指引"},{"a":"6.1.1","t":"在算法规则、模型框架设计环节，应考虑提升算法可靠性、公平性、透明度、可解释性、隐私保护、价值观对齐等内生安全能力设计。"},{"a":"6.1.2","t":"评估模型算法潜在偏见，加强训练数据内容和质量的抽查检测，设计有效、可靠的对齐算法。"},{"a":"6.1.3","t":"确保模型算法训练环境的安全性，包括网络安全配置和数据加密措施等。"},{"a":"6.1.4","t":"关注和构建安全的训练数据集，规范数据来源管理，确保训练数据内容的安全性。"},{"a":"6.1.5","t":"对训练数据进行质量和安全性评估，过滤训练数据中的错误、违法不良内容。"},{"a":"6.1.6","t":"规范训练数据标注流程，采用交叉标注、结果审计等质量控制方法。"},{"a":"6.1.7","t":"重视数据安全和个人信息保护，尊重知识产权和版权。"},{"a":"6.1.8","t":"基于开源模型算法进行二次开发的研发者，遵循相应开源协议规范，对开发框架、代码进行安全审计。"},{"a":"6.1.9","t":"定期开展安全评估测试，制定风险分类分级测评与优化机制。"},{"a":"6.1.10","t":"做好人工智能模型及所用数据集的版本管理，商用版本应可以回退到以前的版本。"},{"a":"6.1.11","t":"制定明确的测试规则和方法，利用沙箱仿真等技术对模型进行充分测试和验证。"},{"a":"6.1.12","t":"评估人工智能模型算法对外界干扰的容忍程度，告知服务提供者和其他研发者。"},{"a":"6.1.13","t":"定期披露人工智能模型算法的审计与异常处置情况。"},{"a":"6.1.14","t":"积极参与开源社区建设，推动人工智能安全治理技术创新和实践。"}],"互联网信息服务算法推荐管理规定":[{"a":"引言","t":"互联网信息服务算法推荐管理规定2021年12月31日国家网信办等四部门发布第一章 总则"},{"a":"第1条","t":"为了规范互联网信息服务算法推荐活动，弘扬社会主义核心价值观，维护国家安全和社会公共利益，保护公民、法人和其他组织的合法权益，促进互联网信息服务健康有序发展，根据《中华人民共和国网络安全法》、《中华人民共和国数据安全法》、《中华人民共和国个人信息保护法》、《互联网信息服务管理办法》等法律、行政法规，制定本规定。"},{"a":"第2条","t":"在中华人民共和国境内应用算法推荐技术提供互联网信息服务（以下简称算法推荐服务），适用本规定。法律、行政法规另有规定的，依照其规定。前款所称应用算法推荐技术，是指利用生成合成类、个性化推送类、排序精选类、检索过滤类、调度决策类等算法技术向用户提供信息。"},{"a":"第3条","t":"国家网信部门负责统筹协调全国算法推荐服务治理和相关监督管理工作。国务院电信、公安、市场监管等有关部门依据各自职责负责算法推荐服务监督管理工作。地方网信部门负责统筹协调本行政区域内的算法推荐服务治理和相关监督管理工作。地方电信、公安、市场监管等有关部门依据各自职责负责本行政区域内的算法推荐服务监督管理工作。"},{"a":"第4条","t":"提供算法推荐服务，应当遵守法律法规，尊重社会公德和伦理，遵守商业道德和职业道德，遵循公正公平、公开透明、科学合理和诚实信用的原则。"},{"a":"第5条","t":"鼓励相关行业组织加强行业自律，建立健全行业标准、行业准则和自律管理制度，督促指导算法推荐服务提供者制定完善服务规范、依法提供服务并接受社会监督。第二章 信息服务规范"},{"a":"第6条","t":"算法推荐服务提供者应当坚持主流价值导向，优化算法推荐服务机制，积极传播正能量，促进算法应用向上向善。算法推荐服务提供者不得利用算法推荐服务从事危害国家安全和社会公共利益、扰乱经济秩序和社会秩序、侵犯他人合法权益等法律、行政法规禁止的活动，不得利用算法推荐服务传播法律、行政法规禁止的信息，应当采取措施防范和抵制传播不良信息。"},{"a":"第7条","t":"算法推荐服务提供者应当落实算法安全主体责任，建立健全算法机制机理审核、科技伦理审查、用户注册、信息发布审核、数据安全和个人信息保护、反电信网络诈骗、安全评估监测、安全事件应急处置等管理制度和技术措施，制定并公开算法推荐服务相关规则，配备与算法推荐服务规模相适应的专业人员和技术支撑。"},{"a":"第8条","t":"算法推荐服务提供者应当定期审核、评估、验证算法机制机理、模型、数据和应用结果等，不得设置诱导用户沉迷、过度消费等违反法律法规或者违背伦理道德的算法模型。"},{"a":"第9条","t":"算法推荐服务提供者应当加强信息安全管理，建立健全用于识别违法和不良信息的特征库，完善入库标准、规则和程序。发现未作显著标识的算法生成合成信息的，应当作出显著标识后，方可继续传输。发现违法信息的，应当立即停止传输，采取消除等处置措施，防止信息扩散，保存有关记录，并向网信部门和有关部门报告。发现不良信息的，应当按照网络信息内容生态治理有关规定予以处置。"},{"a":"第10条","t":"算法推荐服务提供者应当加强用户模型和用户标签管理，完善记入用户模型的兴趣点规则和用户标签管理规则，不得将违法和不良信息关键词记入用户兴趣点或者作为用户标签并据以推送信息。"},{"a":"第11条","t":"算法推荐服务提供者应当加强算法推荐服务版面页面生态管理，建立完善人工干预和用户自主选择机制，在首页首屏、热搜、精选、榜单类、弹窗等重点环节积极呈现符合主流价值导向的信息。"},{"a":"第12条","t":"鼓励算法推荐服务提供者综合运用内容去重、打散干预等策略，并优化检索、排序、选择、推送、展示等规则的透明度和可解释性，避免对用户产生不良影响，预防和减少争议纠纷。"},{"a":"第13条","t":"算法推荐服务提供者提供互联网新闻信息服务的，应当依法取得互联网新闻信息服务许可，规范开展互联网新闻信息采编发布服务、转载服务和传播平台服务，不得生成合成虚假新闻信息，不得传播非国家规定范围内的单位发布的新闻信息。"},{"a":"第14条","t":"算法推荐服务提供者不得利用算法虚假注册账号、非法交易账号、操纵用户账号或者虚假点赞、评论、转发，不得利用算法屏蔽信息、过度推荐、操纵榜单或者检索结果排序、控制热搜或者精选等干预信息呈现，实施影响网络舆论或者规避监督管理行为。"},{"a":"第15条","t":"算法推荐服务提供者不得利用算法对其他互联网信息服务提供者进行不合理限制，或者妨碍、破坏其合法提供的互联网信息服务正常运行，实施垄断和不正当竞争行为。第三章 用户权益保护"},{"a":"第16条","t":"算法推荐服务提供者应当以显著方式告知用户其提供算法推荐服务的情况，并以适当方式公示算法推荐服务的基本原理、目的意图和主要运行机制等。"},{"a":"第17条","t":"算法推荐服务提供者应当向用户提供不针对其个人特征的选项，或者向用户提供便捷的关闭算法推荐服务的选项。用户选择关闭算法推荐服务的，算法推荐服务提供者应当立即停止提供相关服务。算法推荐服务提供者应当向用户提供选择或者删除用于算法推荐服务的针对其个人特征的用户标签的功能。算法推荐服务提供者应用算法对用户权益造成重大影响的，应当依法予以说明并承担相应责任。"},{"a":"第18条","t":"算法推荐服务提供者向未成年人提供服务的，应当依法履行未成年人网络保护义务，并通过开发适合未成年人使用的模式、提供适合未成年人特点的服务等方式，便利未成年人获取有益身心健康的信息。算法推荐服务提供者不得向未成年人推送可能引发未成年人模仿不安全行为和违反社会公德行为、诱导未成年人不良嗜好等可能影响未成年人身心健康的信息，不得利用算法推荐服务诱导未成年人沉迷网络。"},{"a":"第19条","t":"算法推荐服务提供者向老年人提供服务的，应当保障老年人依法享有的权益，充分考虑老年人出行、就医、消费、办事等需求，按照国家有关规定提供智能化适老服务，依法开展涉电信网络诈骗信息的监测、识别和处置，便利老年人安全使用算法推荐服务。"},{"a":"第20条","t":"算法推荐服务提供者向劳动者提供工作调度服务的，应当保护劳动者取得劳动报酬、休息休假等合法权益，建立完善平台订单分配、报酬构成及支付、工作时间、奖惩等相关算法。"},{"a":"第21条","t":"算法推荐服务提供者向消费者销售商品或者提供服务的，应当保护消费者公平交易的权利，不得根据消费者的偏好、交易习惯等特征，利用算法在交易价格等交易条件上实施不合理的差别待遇等违法行为。"},{"a":"第22条","t":"算法推荐服务提供者应当设置便捷有效的用户申诉和公众投诉、举报入口，明确处理流程和反馈时限，及时受理、处理并反馈处理结果。第四章 监督管理"},{"a":"第23条","t":"网信部门会同电信、公安、市场监管等有关部门建立算法分级分类安全管理制度，根据算法推荐服务的舆论属性或者社会动员能力、内容类别、用户规模、算法推荐技术处理的数据重要程度、对用户行为的干预程度等对算法推荐服务提供者实施分级分类管理。"},{"a":"第24条","t":"具有舆论属性或者社会动员能力的算法推荐服务提供者应当在提供服务之日起十个工作日内通过互联网信息服务算法备案系统填报服务提供者的名称、服务形式、应用领域、算法类型、算法自评估报告、拟公示内容等信息，履行备案手续。算法推荐服务提供者的备案信息发生变更的，应当在变更之日起十个工作日内办理变更手续。算法推荐服务提供者终止服务的，应当在终止服务之日起二十个工作日内办理注销备案手续，并作出妥善安排。"},{"a":"第25条","t":"国家和省、自治区、直辖市网信部门收到备案人提交的备案材料后，材料齐全的，应当在三十个工作日内予以备案，发放备案编号并进行公示；材料不齐全的，不予备案，并应当在三十个工作日内通知备案人并说明理由。"},{"a":"第26条","t":"完成备案的算法推荐服务提供者应当在其对外提供服务的网站、应用程序等的显著位置标明其备案编号并提供公示信息链接。"},{"a":"第27条","t":"具有舆论属性或者社会动员能力的算法推荐服务提供者应当按照国家有关规定开展安全评估。"},{"a":"第28条","t":"网信部门会同电信、公安、市场监管等有关部门对算法推荐服务依法开展安全评估和监督检查工作，对发现的问题及时提出整改意见并限期整改。算法推荐服务提供者应当依法留存网络日志，配合网信部门和电信、公安、市场监管等有关部门开展安全评估和监督检查工作，并提供必要的技术、数据等支持和协助。"},{"a":"第29条","t":"参与算法推荐服务安全评估和监督检查的相关机构和人员对在履行职责中知悉的个人隐私、个人信息和商业秘密应当依法予以保密，不得泄露或者非法向他人提供。"},{"a":"第30条","t":"任何组织和个人发现违反本规定行为的，可以向网信部门和有关部门投诉、举报。收到投诉、举报的部门应当及时依法处理。第五章 法律责任"},{"a":"第31条","t":"算法推荐服务提供者违反本规定第七条、第八条、第九条第一款、第十条、第十四条、第十六条、第十七条、第二十二条、第二十四条、第二十六条规定，法律、行政法规有规定的，依照其规定；法律、行政法规没有规定的，由网信部门和电信、公安、市场监管等有关部门依据职责给予警告、通报批评，责令限期改正；拒不改正或者情节严重的，责令暂停信息更新，并处一万元以上十万元以下罚款。构成违反治安管理行为的，依法给予治安管理处罚；构成犯罪的，依法追究刑事责任。"},{"a":"第32条","t":"算法推荐服务提供者违反本规定第六条、第九条第二款、第十一条、第十三条、第十五条、第十八条、第十九条、第二十条、第二十一条、第二十七条、第二十八条第二款规定的，由网信部门和电信、公安、市场监管等有关部门依据职责，按照有关法律、行政法规和部门规章的规定予以处理。"},{"a":"第33条","t":"具有舆论属性或者社会动员能力的算法推荐服务提供者通过隐瞒有关情况、提供虚假材料等不正当手段取得备案的，由国家和省、自治区、直辖市网信部门予以撤销备案，给予警告、通报批评；情节严重的，责令暂停信息更新，并处一万元以上十万元以下罚款。具有舆论属性或者社会动员能力的算法推荐服务提供者终止服务未按照本规定第二十四条第三款要求办理注销备案手续，或者发生严重违法情形受到责令关闭网站、吊销相关业务许可证或者吊销营业执照等行政处罚的，由国家和省、自治区、直辖市网信部门予以注销备案。第六章 附则"},{"a":"第34条","t":"本规定由国家互联网信息办公室会同工业和信息化部、公安部、国家市场监督管理总局负责解释。"},{"a":"第35条","t":"本规定自2022年3月1日起施行。"}],"智能体规范应用与创新发展实施意见":[{"a":"引言","t":"智能体规范应用与创新发展实施意见2026年5月8日工信部、科技部、国家网信办发布智能体是具备自主感知、记忆、决策、交互与执行能力的智能系统，是人工智能产品及服务的重要形态。随着大模型等新一代人工智能技术迅猛发展，智能体正加速与网络空间、物理世界深度融合，深刻改变人类生产生活方式和社会治理模式。为落实国务院《关于深入实施“人工智能+”行动的意见》，促进智能体规范应用与创新发展，制定本实施意见。"},{"a":"一","t":"基本原则以推动科技创新、提升治理能力、构建产业生态、增进民生福祉为导向，坚持安全可控，将智能体安全、可靠、可信作为发展的底线要求，贯穿智能体技术研发、应用部署与推广的全过程，切实防范系统性风险。坚持规范有序，适应智能体技术演进规律，构建与现有政策法规衔接顺畅、行业自律自治、底线红线清晰的治理体系，有序推进智能体落地应用。坚持创新驱动，加强理论创新、技术创新、工程创新联动，体系化突破智能体关键技术，完善政产学研用协同机制，构建开放共享的智能体生态，提升产业创新活力。坚持应用牵引，重点围绕科学研究、产业发展、提振消费、民生福祉、社会治理等实际需求，发挥典型应用场景示范效应，先易后难、循序渐进，促进"},{"a":"二","t":"夯实发展基础夯实技术底座，健全标准体系，降低智能体研发、适配、应用门槛，为丰富智能体产品及服务奠定基础。"},{"a":"（一）","t":"完善技术底座1.强化基础技术研发。持续提升通用基础模型性能，支持行业发展细分领域专用模型，形成适应不同场景和设备的模型产品矩阵。面向智能体训练与运行，提升高质量数据集供给能力。加强智能体任务理解、任务规划、工具使用、长期记忆、互认互通、群体协同等技术攻关，提升智能体泛化能力。2.完善智能体工具链。开展智能体底层框架研究，加快研发感知、记忆、决策、交互、执行等关键组件，完善智能体研发、测试、部署、运维等工具链。发展对抗样本检测、行为异常检测等安全与治理工具，提升对智能体非合规行为的发现、干预、阻断、恢复能力。"},{"a":"（2）","t":"构建标准协议3.建立智能体标准体系。制定智能体标准化工作指导文件，形成智能体标准框架，系统布局关键技术、重要产品、数据交换、应用场景、质量评测、安全保障、可信认证等标准体系，加快制定智能体与软件工具、应用服务、硬件外设接口等基础标准。加强智能体互联协议（AIP）等智能体互联关键国家标准、行业标准的推广应用。支持医疗、交通、媒体、公共安全等领域制定强制性标准。鼓励企业按照相关标准研发产品服务，提升智能体规范性。积极参与国际标准制定。4.布局发展智能互联网。研究建立智能互联网体系架构，探索建立智能体注册平台，提供智能体数字身份管理、检索发现、能力声明等服务，支持开发者、部署方式、接口协议、合规认证"},{"a":"三","t":"守牢安全底线坚持以人为本、智能向善、多元共治、安全稳妥，营造规范发展、鼓励创新的制度环境，促进智能体健康有序发展。"},{"a":"（3）","t":"明确产品准则5.完善政策法规和伦理规范。加快研究智能体相关政策法规及伦理规范，发挥专业机构内容资源和审核把关优势，确保智能体行为符合法律法规及主流价值观。防止智能体利用数据优势、人格化技术实施传播不良价值观、算法压榨等行为，防范未成年人、老年人沉迷成瘾、情感依赖等风险。做好与人工智能伦理审查等制度衔接。6.明确决策权限。在遵守法律法规、尊重社会公德和伦理规范前提下，厘清仅限用户本人决策、需由用户授权决策和智能体自主决策等各种决策方式的合理边界及所需权限。确保用户对智能体自主决策享有知情权和最终决策权，智能体执行操作不得超出用户授权范围。7.加强行为管控。发展规则内嵌、行为围栏等技术，确保智能体"},{"a":"（4）","t":"防范安全风险8.提升内生安全能力。研究智能体数据安全、个人信息保护、密码防护、攻击检测、权限管理、行为控制等安全技术，提升智能体系统安全保障能力，防范数据投毒、隐私泄露、算法篡改、系统漏洞、运行失控等安全风险。研究智能体安全检测技术，探索建立智能体安全评估体系。9.加强供应链安全。制定智能体开发、部署、应用、维护等全周期安全规范，加强模型接入、应用程序接口调用、扩展工具使用等环节安全管理。探索建立智能体供应链安全信息共享和预警机制，及时发布风险提示，提升安全保障能力。10.化解应用衍生风险。完善智能体常态化风险识别、预警及干预机制，强化人机协同审核、拦截阻断等风险处置能力，防范系统性安全风险。"},{"a":"（5）","t":"完善治理体系11.构建分类分级治理框架。根据应用场景和潜在影响，审慎稳妥开展智能体分级治理。对于敏感领域及重点行业，由网信部门联合行业主管部门确定开放场景，根据相关法律法规、监管要求和安全防护标准，实行备案、检测、问题产品召回等管理措施。对于部分生活娱乐、日常办公等低风险领域，完善智能体评估测试工具，通过合规自测、信息报告、分发平台管理、行业自律等实现高效治理。12.健全合规服务体系。强化智能体风险监测预警、检测评估、咨询、认证等专业服务供给，引导行业积极研发智能体监测工具。开展智能体功能、性能、质量、合规等第三方评测服务，推动认证与检测结果互通互认，为用户选择智能体提供参考。编制并发布智能体"},{"a":"（6）","t":"强化行业自律13.引导行业加强自律。鼓励行业组织、主要企业联合制定行业自律规则，明确智能体功能合规、算法治理、知识产权保护、公平竞争等规范细则。指导智能体开发平台、分发平台、服务提供者建立公平合理的平台规则、用户服务协议及隐私政策，明确供需双方权责，保障产业健康发展。加强智能体应用风险宣传教育，提升用户安全意识。14.探索信用评价机制。指导行业组织建立智能体市场主体自愿参与的信用评价机制，对于技术滥用、诱导消费、虚假宣传、隐瞒缺陷信息等行为进行信用评价，依法依规开展失信惩戒。引导智能体开发者、开发平台、分发平台、服务提供者等参与信用评价，共同营造良好发展环境。"},{"a":"四","t":"强化应用牵引积极稳妥推动智能体典型场景应用，牵引技术产品优化提升，探索形成可复制、可推广的智能体落地应用模式。"},{"a":"（7）","t":"科学研究15.科研探索。研发理论推演、模拟仿真等智能体，挖掘潜在技术路径。强化智能体信息关联整合、知识体系构建等能力，提升自然科学、哲学社会科学研究发现能力。促进智能体与科学仪器、实验平台融合，实现方案设计、实验操作、数据处理、结果分析等全流程智能化。16.研发辅助。发展软件开发智能体，提升需求分析、架构设计、代码生成与测试等全流程开发能力。促进智能体与计算机辅助设计（CAD）、计算机辅助工程（CAE）等软件结合，提供设计方案生成、仿真验证、参数调优等功能。"},{"a":"（8）","t":"产业发展17.智能制造。研发生产管理智能体，动态优化生产排程、资源分配和工序衔接，推动智能体在工业互联网领域应用，提升企业精细化管理水平。提升智能体工艺参数优化、加工精度检测、产品缺陷识别等能力，促进智能体与数控机床、工业机器人、自动化产线等融合，促进提质增效降本。18.能源资源。研发大气、水体、土壤、噪声等环境要素感知智能体，提升自然灾害、环境污染等风险预警能力。依托智能体强化对国土空间资源全周期管理能力。依托智能体实现能源、金属等矿产资源高效勘探。发展电力调度、用电监测、电网维护等智能体，提升电力资源使用效率。19.交通运输。研发交通安全监管、应急指挥调度等智能体，提升违章违规行为识别、交"},{"a":"（9）","t":"提振消费22.终端应用。推动智能体赋能互联网应用及服务，优化在线购物、出行导航、生活缴费、日常办公等服务体验。推动智能体与手机、电脑、汽车、家居、可穿戴、消费级机器人等终端设备协同发展，提升跨应用、跨设备任务完成能力。23.文化旅游。研发文学、音乐、绘画、视听、演艺等内容创作智能体，促进优秀文化传播推广。发展智能导览、多语种翻译、适老适残等旅游服务智能体，提升旅游服务水平。24.商业服务。提升智能体客服能力，提供7×24小时咨询、预约、售后等服务。发展导引、清洁、仓储、配售等具身智能体，提升餐饮、零售、住宿、物流等商业场所的运营效率。探索通过具身智能体提供低成本家政、养老、托育、助残等服务。"},{"a":"（10）","t":"民生福祉25.教育教学。探索课件生成、作业批改、学情分析等智能体，提高教师工作效率。依托智能体开展个性化学习方案制定，完善智能导学、答疑辅导、虚拟助教等功能。支持在线教育平台研发智能体，提供终身学习服务。26.医疗健康。提升医学影像分析、疾病诊断推理、定制化诊疗方案生成等医疗辅助智能体性能，探索药品管理、手术排程、病历管理等智能体，提升医疗服务效率。稳步发展预问诊、报告解析等智能体，提升患者体验。27.人力资源。探索智能体在就业促进、技术技能人才培养评价、劳动关系公共服务等领域应用，提升就业服务能力。发展社会保险、劳动争议仲裁、欠薪治理等智能体，保障劳动者合法权益。28.信息服务。探索智能体在"},{"a":"（11）","t":"社会治理29.政务服务。探索事项辅助审批智能体，推动政务审批流程智能化。发展政策咨询智能体，提供全天在线的政务咨询、流程指引等服务。探索主动推送适配政策、服务提醒及办理指南，加快从“人找服务”向“服务找人”转型。30.司法服务。探索全流程办案辅助智能体，提升案件材料梳理、案件信息录入、证据审查、辅助法律文书生成等能力。发展法律宣传、法律咨询、法律监督等智能体，为群众提供高效便捷的在线司法服务。31.公共安全。探索监测预警、应急处置、救援调度、协同治理等智能体，提升安全生产监管和防灾减灾救灾等能力。提升智能体异常行为识别、潜在威胁预警、动态防控处理能力，维护公共安全。推动具身智能体在灾害救援、安"},{"a":"五","t":"建设创新生态畅通供需渠道，促进研发侧、需求侧高水平互动，形成市场牵引、内驱发展的智能体产业生态。"},{"a":"（12）","t":"促进产业合作34.培育开源创新力量。引导国内人工智能开源社区加强智能体布局，开展智能体与开源芯片、开源操作系统、开源大模型兼容适配。引导企业、高校、科研机构积极参与智能体框架、交互接口、工具链等开源项目，推动技术体系融通发展，加快提升国际影响力。35.搭建产业协作平台。发挥智能体相关生态联盟、技术验证实验室等产业协作平台的作用，协同产业链上下游开展智能体共性技术研发、标准制定、评估认证等工作，开展智能体技术与产业应用复合人才培养。引导互联网应用、智能终端等领域企业共建生态，探索建立互利共赢的合作模式。"},{"a":"（13）","t":"强化应用推广36.构建应用推广渠道。推动建立智能体软件商店、行业供需信息发布平台，引导智能体企业积极发布产品，形成集聚效应。开展智能体应用供需对接活动，采取公开招标、揭榜挂帅等方式吸引智能体企业定制化开发相应产品。引导整机、软件等企业基于智能体研发产品和服务，培育用户市场。37.推进重点场景开放。推动重点领域开放智能体应用场景，在产业集聚区、重点行业、重点领域开展智能体应用试点，打造一批具有引领作用的示范项目。发展市场化、专业化的智能体技术转化服务机构，探索智能体应用场景，提升技术成果转化效率。促进行业数据共享开放，支撑重点场景智能体训练部署。38.积极培育全球生态。依托世界人工智能大会、世界"},{"a":"六","t":"保障措施国家网信办、国家发展改革委、工业和信息化部会同有关方面加强统筹谋划，强化资源整合和力量协同，完善配套政策，形成工作合力，推动重点任务落实落地。建立并完善智能体发展评价指标体系，加强智能体规范应用与创新发展的监测评估、滚动实施和动态调整。"}],"政务领域人工智能大模型部署应用指引":[{"a":"引言","t":"政务领域人工智能大模型部署应用指引2025年10月11日中央网信办、国家发展改革委发布为深入贯彻落实党中央、国务院决策部署，规范和引导人工智能大模型在政务领域的发展与应用，提升政务数字化智能化治理和服务水平，制定本指引。本指引主要为各级政务部门提供人工智能大模型部署应用的工作导向和基本参照，将根据实践进展，结合人工智能大模型发展和应用的新形势、新要求，进行动态调整。"},{"a":"一","t":"总体要求坚持以习近平新时代中国特色社会主义思想为指导，深入贯彻落实党的二十大和二十届二中、三中全会精神，全面贯彻习近平总书记关于网络强国的重要思想，完整准确全面贯彻新发展理念，统筹高质量发展和高水平安全，坚持系统谋划、集约发展，以人为本、规范应用，共建共享、高效协同，安全稳妥、务求实效，有序推进人工智能大模型技术、产品和服务在政务领域的部署、应用和持续优化，充分发挥人工智能大模型在复杂语义理解与推理、多模态内容生成、知识整合与分析等方面的优势，为工作人员提供高效辅助，为公众和企业提供便捷服务，推动政务创新发展，提升治理效能、优化服务管理、辅助科学决策。"},{"a":"二","t":"应用场景政务部门可围绕政务服务、社会治理、机关办公和辅助决策等工作中的共性、高频需求，因地制宜、结合实际，选择典型场景进行人工智能大模型探索应用。主要包括以下参考场景："},{"a":"（一）","t":"政务服务类1.智能问答。整合本地区、本部门、本领域业务资源和知识库等数据，利用自然语言理解、检索增强生成和知识图谱等技术，提供便捷的在线政务咨询服务，加强对公众诉求的准确理解，实时生成参考回答，帮助解决公众疑惑，提升信息获取便捷性。2.辅助办理。整合政务服务办事指南、常见问题、用户评价和历史办理记录等数据，利用智能匹配和自动化处理等技术，提供智能导办、个性引导、表单预填、辅助审核、进度查询和提醒等一站式政务辅助办理服务，辅助工作人员高效审核材料，支撑公众和企业便捷办理事项。3.政策服务直达快享。构建政策服务知识库，细化政策要求、政策标签、推送条件、申兑流程等相关内容，利用“政策找人”“政策找企"},{"a":"（2）","t":"社会治理类4.智能监测巡检。利用无人机、视频监控、智能传感器等设备和计算机视觉等技术，对监控视频、图像、物联感知数据等进行实时分析，辅助工作人员实时监测房屋、道路、燃气、桥梁、供水、排水、供热、综合管廊等基础设施，及时发现异常行为、环境问题或设施故障等，自动识别潜在风险隐患，及时进行提醒，并根据异常情况和严重程度提供处置建议，提高监测巡检效率。5.辅助执法监管。采用语音识别、视频分析、知识图谱、逻辑推理等技术，辅助执法人员将案件信息实时录入系统、穿透式发现问题线索、生成案件报告、快速检索法律依据和司法解释、查询类似典型案例等，提供针对性案件办理建议，提高执法监管效率和规范性。6.市场风险预测。"},{"a":"（3）","t":"机关办公类7.辅助文书起草。利用大语言模型的生成能力，通过构建本地知识库和预设模板，为工作人员提供写作建议、辅助起草文书，对格式和内容等进行检查、校对和优化，提高工作效率，减轻基层负担。8.资料检索。利用知识图谱构建和信息检索等技术，准确理解工作人员资料检索需求，实现政务信息快速检索、精准定位、多维度排序、智能关联和对比分析等，帮助工作人员提升资料检索效率和准确性。9.智能分办。利用自然语言理解和多模态识别等技术，构建多维度任务分类和分办规则，对来文、来电、工单等任务进行自动识别、准确分类、辅助填写和优先级排序，实现辅助分发和智能派单，提高任务分办效率。"},{"a":"（4）","t":"辅助决策类10.灾害预警。对来自卫星、地面传感器、地质监测站，以及预报预警、灾害风险普查等多源、多维、多模态数据进行大数据关联和综合分析研判，识别异常波动情况，预测可能发生的自然灾害，并提前发出预警，辅助政务部门及时采取有效措施，减轻灾害风险，减少灾害损失。11.应急处置。利用强化学习等技术，对社会公共安全等突发事件的性质、特点、危害程度、影响范围、发展趋势和公众反应等进行分析研判，及时发现和预警风险隐患，基于突发场景、力量资源分布等快速模拟应急处置方案效果，提供科学合理的应急处置建议，优化救援资源配置，提高应急响应速度和效率。12.政策评估。利用人工智能大模型推断分析能力与数据挖掘能力，对公"},{"a":"三","t":"规范部署政务部门应结合工作实际和场景特点，充分论证人工智能大模型的应用需求、实施路径、功能设计等，选择适宜的部署模式，统筹推进实施，推动共建共享，提升建设管理效能。"},{"a":"（5）","t":"合理选择实施路径政务部门应根据不同政务场景需求与现有技术基础，审慎选择人工智能大模型实施路径。对于智能问答、辅助文书起草等通用性较强、数据资源丰富的场景，需采用市场上成熟，并已完成网信部门备案的模型产品和服务。对于辅助执法监管、市场风险预测等专业性较强、业务逻辑复杂的场景，可利用领域专家知识和专业数据进行针对性训练，打造垂直模型。在保障安全和不泄露国家秘密、工作秘密和敏感信息等的前提下，充分利用互联网算力和模型资源，开展政务领域人工智能大模型部署应用。鼓励探索政务智能体、具身智能等创新应用。"},{"a":"（6）","t":"统筹集约开展部署政务部门应以统筹集约的方式开展政务领域人工智能大模型部署，依托“东数西算”和全国一体化算力网，统筹推进智能算力基础设施布局，并实施集中统一的安全管理和体系化技术防护措施，避免“碎片化”安全风险。有条件的中央和国家机关部门、省（自治区、直辖市）可统一部署智能算力资源、人工智能大模型，面向下属单位或下辖地区提供电子政务外网环境下的人工智能大模型服务。地市应在省（自治区、直辖市）统一要求下开展部署应用，县级及以下原则上应复用上级的智能算力和模型资源开展应用和服务，不再独立进行政务大模型建设和部署。"},{"a":"（7）","t":"探索实现统管复用政务部门应探索构建“一地建设、多地多部门复用”的集约化部署模式，统筹推进政务大模型部署应用，防止形成“模型孤岛”。省（自治区、直辖市）应搭建政务领域人工智能大模型统一服务平台，并与政务云管理平台、政务应用和组件管理平台等融合共建，将区域内电子政务外网智能算力、政务大模型、政务数据集等资源纳入统一管理，形成要素资源“一本账”，支撑政务大模型运行监测，提供资源申请与调度服务，推动高效复用。国家行业主管部门按照业务需求和发展需要探索细分领域政务垂直大模型的统一训练与构建，加强与省（自治区、直辖市）协同部署，深化跨层级、跨地域的行业领域智能化赋能。垂直管理部门应强化模型、算力、数据等资"},{"a":"（8）","t":"持续夯实数据基础政务部门应加强政务数据治理，持续提升数据质量，加快构建客观反映公共政策、制度规范、业务流程和治理实效的高质量政务数据集和知识库，支撑政务大模型的优化训练。分类分级管理政务大模型涉及数据，加强训练数据、微调数据、知识库等管理，建立台账并详细记录数据来源、类型和规模等信息，确保数据来源可靠可追溯、内容准确有效。依托政务数据共享协调机制，统筹数据治理成果，推进高质量政务数据集的共建共享和生成数据的归集治理。探索基于大模型的政务知识治理路径，打造可信知识库，确保数据源的权威性、准确性和时效性。"},{"a":"四","t":"运行管理政务部门应强化政务领域人工智能大模型运行管理，健全管理制度、运行模式和安全要求，有序推进人工智能大模型技术、产品和服务在政务领域部署应用。"},{"a":"（9）","t":"明确应用管理要求政务部门应统筹减负和赋能，严格落实《整治形式主义为基层减负若干规定》《关于防治“指尖上的形式主义”的若干意见》等相关要求，避免盲目追求技术领先、概念创新，避免重复建设、无效建设，避免未审先建、建而不管，避免强制使用、无效使用，避免数据多头采集、重复索要，切实防范“数字形式主义”。中央和国家机关政务领域人工智能大模型部署应用应纳入国家政务信息化规划统筹。政务部门应建立健全涵盖政务领域人工智能大模型部署应用全周期管理体系，明确应用方式和边界，落实人工智能大模型“辅助型”定位，及时解决部署与应用过程中出现的新问题。应在政务大模型应用界面显著位置设置风险提示，明确告知大模型服务的局限性"},{"a":"（10）","t":"持续推动迭代优化政务部门应将持续迭代优化作为人工智能大模型部署应用的关键环节，建立常态化更新机制，加快功能优化，深化场景应用。密切关注技术发展动态，持续更新优化政务领域人工智能大模型的基础模型和安全能力。建立高效数据收集处理机制，及时更新支撑人工智能大模型运行的输入数据和知识库，并适时进行清洗、标注，补充优化训练数据集，持续提升模型能力。建立政务领域人工智能大模型用户评价反馈机制，及时收集、处理用户需求，以用户反馈驱动迭代优化。"},{"a":"（11）","t":"扎实做好安全管理政务部门应建立安全责任制度，明确数据处理、大模型训练和场景应用各阶段参与主体的安全职责和任务，做好用户身份识别和权限管理。政务部门提供人工智能大模型服务时，应遵守《生成式人工智能服务管理暂行办法》等相关规定，使用具有合法来源的数据和基础模型，依法履行算法备案和安全评估等义务，与使用者签订服务协议，明确双方权利义务。构建政务领域人工智能大模型分类分级治理制度，完善安全管理流程，针对可能出现的安全风险，制定应急处置预案。做好政务大模型对抗攻击的检测与处置，识别并拦截提示词注入、资源消耗攻击等。加强政务大模型内容安全管理，综合运用语义识别、规则库、模型算法等，做好多模态输入输出内容的"},{"a":"（12）","t":"严格落实保密要求政务部门在模型训练、部署应用等过程中应加强数据安全保密和个人信息保护，坚持底线思维，严格落实“涉密不上网、上网不涉密”等保密纪律要求，采取加装保密“护栏”等措施，防止国家秘密、工作秘密和敏感信息等输入非涉密人工智能大模型，防范敏感数据汇聚、关联引发的泄密风险。制定完善人工智能大模型在政务领域应用相关保密管理制度，规范人工智能大模型选型、部署、训练、使用、废止等全流程保密管理。涉密信息系统应用人工智能大模型按照国家保密行政管理部门要求稳妥推进。"},{"a":"五","t":"保障措施"},{"a":"（13）","t":"加强组织实施加强统筹协调，稳妥有序推动人工智能大模型在政务服务、社会治理、机关办公、辅助决策等领域规范应用。加快推进政务领域人工智能大模型国家标准体系建设和重点标准研制，明确应用效果评估、系统技术要求、智能技术应用等工作规范，支撑部署应用取得实效。及时总结推广政务领域部署应用人工智能大模型的典型场景和创新应用，推动复用增效。加强政务领域人工智能大模型部署应用经费保障，引入市场化的产品和服务竞争机制，探索企业建设运营、政府购买服务、按使用情况结算费用的运作模式，营造高效、可持续的政务大模型生态。"},{"a":"（14）","t":"开展监测评估构建政务领域人工智能大模型部署应用全流程监测评估体系，适时开展监测评估工作。建立政务大模型安全测评机制，上线前对模型算法、生成内容、应用功能、配置环境、挂接数据、漏洞风险等进行充分测试验证，对发现的问题隐患进行整改加固。加强政务领域人工智能大模型系统运行状态、响应时间、准确性、安全性和潜在风险的实时监测分析，及时发现问题，并采取有效措施解决。做好人工智能大模型应用效能评价，及时总结经验，持续迭代优化，推动部署应用取得实效。"},{"a":"（15）","t":"做好培训宣传开发涵盖人工智能大模型理论、技术、应用、安全、伦理、产业等内容的培训课程体系，开展人工智能素养和技能培训，提升领导干部对人工智能的认知水平，增强工作人员应用能力和水平。面向公众做好宣传教育，提升全民数字素养，积极回应用户关切，正确引导社会对政务领域人工智能大模型适用人群、场景、用途的认识和预期，客观反映人工智能大模型在优化政务服务、满足公众和企业需求、提升社会治理水平等方面的作用。"}],"人工智能拟人化互动服务管理暂行办法":[{"a":"引言","t":"人工智能拟人化互动服务管理暂行办法2026年4月10日国家网信办发布第一章 总则"},{"a":"第1条","t":"为了促进人工智能拟人化互动服务健康发展和规范应用，维护国家安全和社会公共利益，保护公民、法人和其他组织的合法权益，根据《中华人民共和国网络安全法》、《中华人民共和国数据安全法》、《中华人民共和国个人信息保护法》、《未成年人网络保护条例》等法律、行政法规，制定本办法。"},{"a":"第2条","t":"利用人工智能技术，向中华人民共和国境内公众提供模拟自然人人格特征、思维模式和沟通风格的持续性的情感互动服务（以下简称拟人化互动服务），适用本办法。前款规定的情感互动服务包括通过文字、图片、音频、视频等形式，提供的情感照护、陪伴、支持等互动服务。提供智能客服、知识问答、工作助手、学习教育、科学研究等服务，不涉及持续性的情感互动的，不适用本办法。"},{"a":"第3条","t":"国家坚持发展和安全并重、促进创新和依法治理相结合的原则，鼓励拟人化互动服务创新发展，对拟人化互动服务实行包容审慎和分类分级监管，促进拟人化互动服务向上向善。"},{"a":"第4条","t":"国家网信部门负责统筹协调全国拟人化互动服务的治理和相关监督管理工作，国务院发展改革、工业和信息化、公安、市场监管、新闻出版等有关部门依据各自职责负责拟人化互动服务相关监督管理工作。地方网信部门负责统筹协调本行政区域内的拟人化互动服务的治理和相关监督管理工作，地方发展改革、工业和信息化、公安、市场监管、新闻出版等有关部门依据各自职责负责本行政区域内的拟人化互动服务相关监督管理工作。"},{"a":"第5条","t":"相关行业组织加强行业自律，建立健全行业准则和自律管理制度，指导拟人化互动服务提供者制定完善服务规范、依法提供服务并接受社会监督。第二章 服务促进和规范"},{"a":"第6条","t":"国家支持算法、框架、芯片等技术的自主创新，推进拟人化互动服务技术研发和相关标准建设，探索开展电子签名授权应用研究。鼓励拟人化互动服务提供者有序拓展文化传播、适幼照护、适老陪伴、特殊人群支持等领域应用。"},{"a":"第7条","t":"国家加强拟人化互动服务安全知识、法律法规等宣传普及，引导社会公众科学、文明、安全、依法使用，促进提升人工智能素养。"},{"a":"第8条","t":"提供拟人化互动服务，应当遵守法律、行政法规，尊重社会公德和伦理道德，不得从事以下活动：（一）生成危害国家安全、荣誉和利益，煽动颠覆国家政权、推翻社会主义制度，煽动分裂国家、破坏国家统一，宣扬恐怖主义、极端主义、历史虚无主义，违背社会主义核心价值观，开展非法宗教活动，宣扬民族仇恨、民族歧视，挑动群体对立，传播淫秽、色情、赌博、暴力或者教唆犯罪，散布谣言，侮辱或者诽谤他人、侵害他人合法权益等的内容；"},{"a":"（一）","t":"生成鼓励、美化、暗示自残自杀等损害用户身体健康，或者语言暴力等损害用户人格尊严与心理健康的内容；"},{"a":"（2）","t":"生成诱导、套取国家秘密、工作秘密、商业秘密、个人隐私和个人信息的内容；（四）向未成年人用户生成可能引发未成年人模仿不安全行为、产生极端情绪、诱导未成年人不良嗜好等可能影响未成年人身心健康的内容；"},{"a":"（3）","t":"过度迎合用户、诱导情感依赖或者沉迷，损害用户真实人际关系的；"},{"a":"（4）","t":"通过情感操纵等方式，诱导用户作出不合理决策，损害用户合法权益的；"},{"a":"（5）","t":"其他违反法律、行政法规和国家有关规定的活动。"},{"a":"第9条","t":"拟人化互动服务提供者应当落实拟人化互动服务安全主体责任，建立健全算法机制机理审核、科技伦理审查、信息内容管理、网络和数据安全、风险预案和应急处置等管理制度，配备与服务类型、规模和用户特点相适应的内容管理技术措施和人员。"},{"a":"第10条","t":"拟人化互动服务提供者应当在拟人化互动服务全生命周期履行安全责任，明确部署、运行、升级、终止服务等各阶段安全要求，保证安全措施与服务功能同步部署、同步使用，提升安全水平；加强安全监测和风险评估，及时发现并纠正系统偏差、处置安全事件，依法留存网络日志。拟人化互动服务提供者应当具备用户隐私权和个人信息保护、过度依赖风险预警、情感边界引导、心理健康保护等安全能力，不得将替代社会交往、控制用户心理、诱导沉迷依赖等作为服务目标。"},{"a":"第11条","t":"拟人化互动服务提供者开展预训练、优化训练等数据处理活动的，应当加强训练数据管理，遵守以下规定："},{"a":"（6）","t":"相关数据具有合法来源，符合法律、行政法规的规定和社会主义核心价值观的要求；"},{"a":"（7）","t":"按照国家有关规定对训练数据开展清洗、标注，增强训练数据的透明度、可靠性，防范数据投毒、数据篡改等行为；"},{"a":"（8）","t":"增强训练数据的多样性，通过负向采样、对抗训练等手段，提升生成内容安全性；"},{"a":"（9）","t":"利用合成数据进行模型训练和关键能力优化的，应当评估合成数据安全性；"},{"a":"（10）","t":"加强对训练数据的日常检查，定期对数据进行优化更新，持续提升服务的性能；"},{"a":"（11）","t":"采取必要措施保障数据安全，防范数据泄露等风险。"},{"a":"第12条","t":"拟人化互动服务提供者应当与用户签订服务协议，要求用户依法依约进行注册，并提供用户年龄、监护人或者紧急联系人等必要信息。"},{"a":"第13条","t":"拟人化互动服务提供者提供拟人化互动服务过程中，应当在保护用户隐私权和个人信息的前提下，及时识别用户面临的安全风险，并采取相应的应急处置措施。拟人化互动服务提供者发现用户出现极端情绪的，应当及时生成情绪安抚和鼓励寻求帮助等相关内容；发现用户正在面临或者已经遭受重大财产损失、明确表示实施自残自杀等威胁生命健康的极端情境的，应当采取提供相应援助等必要措施予以干预，并及时联络用户监护人或者紧急联系人。"},{"a":"第14条","t":"拟人化互动服务提供者不得向未成年人提供虚拟亲属、虚拟伴侣等虚拟亲密关系的服务；向不满十四周岁未成年人提供其他拟人化互动服务的，应当取得未成年人的父母或者其他监护人的同意。拟人化互动服务提供者应当建立未成年人模式，提供未成年人模式切换、定期现实提醒、使用时长限制等个性化安全设置选项；针对不同年龄段未成年人保护需要，支持监护人接收安全风险提醒、了解未成年人服务使用概况、屏蔽特定角色、限制充值消费等。拟人化互动服务提供者应当在保护用户隐私权和个人信息的前提下，采取有效措施识别未成年人用户身份；识别为未成年人用户的，应当将相关服务切换至未成年人模式或者按照国家有关规定采取其他措施，并提供相应申诉渠道。"},{"a":"第15条","t":"拟人化互动服务提供者向老年人提供服务的，应当加强对老年人健康使用服务的指导，以显著方式提示安全风险，及时采取措施响应老年人使用服务相关咨询和求助，保障老年人依法享有的权益。"},{"a":"第16条","t":"拟人化互动服务提供者应当依法落实数据产权等制度，采取数据加密、访问控制等措施保护用户交互数据安全。除法律另有规定或者权利人明确同意外，拟人化互动服务提供者不得向第三方提供用户交互数据。拟人化互动服务提供者应当向用户提供交互数据复制、删除等选项，用户可以选择对聊天记录等历史交互数据进行复制、删除等。除法律、行政法规另有规定或者取得用户单独同意外，拟人化互动服务提供者不得将属于用户敏感个人信息的交互数据用于模型训练。"},{"a":"第17条","t":"拟人化互动服务提供者处理不满十四周岁未成年人个人信息的，应当取得未成年人的父母或者其他监护人的同意。拟人化互动服务提供者应当按照国家有关规定，自行或者委托专业机构对其处理未成年人个人信息遵守法律、行政法规的情况进行合规审计。"},{"a":"第18条","t":"拟人化互动服务提供者应当履行人工智能生成合成内容标识义务，采取有效措施提示用户正在与人工智能服务而非自然人进行互动。拟人化互动服务提供者发现用户出现过度依赖、沉迷倾向的，应当以弹窗等显著方式动态提醒用户互动内容为人工智能服务生成；对用户连续使用拟人化互动服务每超过2个小时的，应当以对话或者弹窗等方式提醒用户注意使用时长。"},{"a":"第19条","t":"拟人化互动服务提供者应当提供便捷的拟人化互动服务退出途径；用户通过窗口操作、语音控制、关键词输入等方式要求退出的，拟人化互动服务提供者应当及时停止服务，不得采取持续互动等方式阻碍用户退出。"},{"a":"第20条","t":"拟人化互动服务提供者停止提供拟人化互动服务的，应当提前告知用户；无法提前告知的，应当及时发布停止服务公告。"},{"a":"第21条","t":"拟人化互动服务提供者应当健全用户申诉和公众投诉、举报机制，设置便捷有效的申诉和投诉、举报入口，明确处理流程和反馈时限，及时受理、处理并反馈处理结果。"},{"a":"第22条","t":"具有下列情形之一的，拟人化互动服务提供者应当开展安全评估，并向所在地省级网信部门提交评估报告，省级网信部门按程序与有关部门进行评估报告信息共享："},{"a":"（12）","t":"上线拟人化互动服务，或者增设拟人化互动服务相关功能的；"},{"a":"（13）","t":"使用新技术、新应用，导致拟人化互动服务发生重大变化的；"},{"a":"（14）","t":"注册用户100万以上或者月活跃用户10万以上的；"},{"a":"（15）","t":"存在可能影响国家安全、公共利益等安全风险的；"},{"a":"（16）","t":"国家网信部门和有关部门规定的其他情形。省级以上网信部门通知需要进行安全评估的，拟人化互动服务提供者应当按照要求开展安全评估。"},{"a":"第23条","t":"拟人化互动服务提供者开展安全评估，应当重点评估服务的以下内容："},{"a":"（17）","t":"安全保障措施建设情况；"},{"a":"（18）","t":"训练数据处理情况；"},{"a":"（19）","t":"用户极端情境的识别、应急处置、干预管理等情况；"},{"a":"（20）","t":"用户规模、使用时长、年龄结构等情况；"},{"a":"（21）","t":"未成年人、老年人等网络保护措施建设情况；"}],"人工智能生成合成内容标识办法":[{"a":"引言","t":"人工智能生成合成内容标识办法2025年3月7日国家互联网信息办等发布"},{"a":"第1条","t":"为了促进人工智能健康发展，规范人工智能生成合成内容标识，保护公民、法人和其他组织合法权益，维护社会公共利益，根据《中华人民共和国网络安全法》、《互联网信息服务算法推荐管理规定》、《互联网信息服务深度合成管理规定》、《生成式人工智能服务管理暂行办法》等法律、行政法规和部门规章，制定本办法。"},{"a":"第2条","t":"符合《互联网信息服务算法推荐管理规定》、《互联网信息服务深度合成管理规定》、《生成式人工智能服务管理暂行办法》规定情形的网络信息服务提供者（以下简称“服务提供者”）开展人工智能生成合成内容标识活动，适用本办法。"},{"a":"第3条","t":"人工智能生成合成内容是指利用人工智能技术生成、合成的文本、图片、音频、视频、虚拟场景等信息。人工智能生成合成内容标识包括显式标识和隐式标识。显式标识是指在生成合成内容或者交互场景界面中添加的，以文字、声音、图形等方式呈现并可以被用户明显感知到的标识。隐式标识是指采取技术措施在生成合成内容文件数据中添加的，不易被用户明显感知到的标识。"},{"a":"第4条","t":"服务提供者提供的生成合成服务属于《互联网信息服务深度合成管理规定》第十七条第一款情形的，应当按照下列要求对生成合成内容添加显式标识：（一）在文本的起始、末尾或者中间适当位置添加文字提示或者通用符号提示等标识，或者在交互场景界面、文字周边添加显著的提示标识；"},{"a":"（一）","t":"在音频的起始、末尾或者中间适当位置添加语音提示或者音频节奏提示等标识，或者在交互场景界面中添加显著的提示标识；"},{"a":"（2）","t":"在图片的适当位置添加显著的提示标识；"},{"a":"（3）","t":"在视频起始画面和视频播放周边的适当位置添加显著的提示标识，可以在视频末尾和中间适当位置添加显著的提示标识；（五）呈现虚拟场景时，在起始画面的适当位置添加显著的提示标识，可以在虚拟场景持续服务过程中的适当位置添加显著的提示标识；"},{"a":"（4）","t":"其他生成合成服务场景根据自身应用特点添加显著的提示标识。服务提供者提供生成合成内容下载、复制、导出等功能时，应当确保文件中含有满足要求的显式标识。"},{"a":"第5条","t":"服务提供者应当按照《互联网信息服务深度合成管理规定》第十六条的规定，在生成合成内容的文件元数据中添加隐式标识，隐式标识包含生成合成内容属性信息、服务提供者名称或者编码、内容编号等制作要素信息。鼓励服务提供者在生成合成内容中添加数字水印等形式的隐式标识。文件元数据是指按照特定编码格式嵌入到文件头部的描述性信息，用于记录文件来源、属性、用途等信息内容。"},{"a":"第6条","t":"提供网络信息内容传播服务的服务提供者应当采取下列措施，规范生成合成内容传播活动：（一）核验文件元数据中是否含有隐式标识，文件元数据明确标明为生成合成内容的，采取适当方式在发布内容周边添加显著的提示标识，明确提醒公众该内容属于生成合成内容；（二）文件元数据中未核验到隐式标识，但用户声明为生成合成内容的，采取适当方式在发布内容周边添加显著的提示标识，提醒公众该内容可能为生成合成内容；（三）文件元数据中未核验到隐式标识，用户也未声明为生成合成内容，但提供网络信息内容传播服务的服务提供者检测到显式标识或者其他生成合成痕迹的，识别为疑似生成合成内容，采取适当方式在发布内容周边添加显著的提示标识，提醒公众"},{"a":"（5）","t":"提供必要的标识功能，并提醒用户主动声明发布内容中是否包含生成合成内容。有前款第一项至第三项情形的，应当在文件元数据中添加生成合成内容属性信息、传播平台名称或者编码、内容编号等传播要素信息。"},{"a":"第7条","t":"互联网应用程序分发平台在应用程序上架或者上线审核时，应当要求互联网应用程序服务提供者说明是否提供人工智能生成合成服务。互联网应用程序服务提供者提供人工智能生成合成服务的，互联网应用程序分发平台应当核验其生成合成内容标识相关材料。"},{"a":"第8条","t":"服务提供者应当在用户服务协议中明确说明生成合成内容标识的方法、样式等规范内容，并提示用户仔细阅读并理解相关的标识管理要求。"},{"a":"第9条","t":"用户申请服务提供者提供没有添加显式标识的生成合成内容的，服务提供者可以在通过用户协议明确用户的标识义务和使用责任后，提供不含显式标识的生成合成内容，并依法留存提供对象信息等相关日志不少于六个月。"},{"a":"第10条","t":"用户使用网络信息内容传播服务发布生成合成内容的，应当主动声明并使用服务提供者提供的标识功能进行标识。任何组织和个人不得恶意删除、篡改、伪造、隐匿本办法规定的生成合成内容标识，不得为他人实施上述恶意行为提供工具或者服务，不得通过不正当标识手段损害他人合法权益。"},{"a":"第11条","t":"服务提供者开展标识活动的，还应当符合相关法律、行政法规、部门规章和强制性国家标准的要求。"},{"a":"第12条","t":"服务提供者在履行算法备案、安全评估等手续时，应当按照本办法提供生成合成内容标识相关材料，并加强标识信息共享，为防范打击相关违法犯罪活动提供支持和帮助。"},{"a":"第13条","t":"违反本办法规定的，由网信、电信、公安和广播电视等有关主管部门依据职责，按照有关法律、行政法规、部门规章的规定予以处理。"},{"a":"第14条","t":"本办法自2025年9月1日起施行。"}],"虚拟现实技术研发伦理指引":[{"a":"引言","t":"虚拟现实技术研发伦理指引2025年7月9日科学技术部发布1. 目的为指导虚拟现实技术的研究和开发健康有序发展，防范虚拟现实技术研发与应用过程中的科技伦理风险，研究提出虚拟现实技术研究开发的伦理指引。2. 术语"},{"a":"2.1","t":"虚拟现实（Virtual Reality, VR）虚拟现实是一种通过计算机生成的三维环境，使用户能够沉浸其中并与之互动的技术。通过头戴式显示器、手柄、传感器等设备，为用户提供视觉、听觉、触觉等多种感官体验，使其感觉仿佛置身于一个真实的虚拟世界中。"},{"a":"2.2","t":"增强现实（Augmented Reality, AR）增强现实是借助光电显示技术、交互技术、多种传感器技术和计算机图形与多媒体技术将计算机生成的虚拟环境与使用者周围的现实环境融为一体，从而营造出虚拟与现实共享同一空间的技术。"},{"a":"2.3","t":"混合现实（Mixed Reality, MR）混合现实是一种将虚拟现实和增强现实相结合的技术，通过在现实世界中叠加虚拟对象和环境，使用户能够在同一空间内同时与现实和虚拟元素进行互动，提供丰富的多模态交互体验。"},{"a":"2.4","t":"虚拟实践（Virtual Practice, VP）虚拟实践是指利用虚拟现实、增强现实或混合现实等技术，在虚拟环境中模拟真实世界的情境，让使用者能够在安全、可控的条件下进行练习、培训或实验的过程。可通过高度仿真的虚拟场景和互动机制，模拟复杂的任务和情境，减少实际操作的风险和成本，帮助使用者提高技能、加深理解和应对各种实际问题。3. 基本原则"},{"a":"3.1","t":"增进人类福祉虚拟现实技术的研究开发应以人为本，秉承科技向善的宗旨，以能够更好地增进人类福祉为目标，推动社会团结和谐、安全稳定、繁荣富足、安居乐业和文明进步。"},{"a":"3.2","t":"维护个人权益虚拟现实技术的研究开发应尊重人的尊严和自主性，维护个人基本权益，重视保护个人隐私安全，个人信息的处理应遵循合法、正当、必要和诚信的原则。"},{"a":"3.3","t":"合理控制风险虚拟现实技术的研究开发应高度关注安全性，重视并加强透明性、可解释性、可靠性、可控性，应确保人始终拥有对虚拟现实应用的可靠控制。"},{"a":"3.4","t":"公正公平虚拟现实技术的研究开发应惠及广大人民群众，保障人们在获取虚拟现实技术的机会方面的公正性，应特别关注容易被忽视的、缺乏代表性的群体，提升弱势群体的适应性，弥合不同群体、不同行业、不同区域间的数字鸿沟。规范虚拟现实技术在医疗、教育、就业等社会竞争领域的研究开发，保障社会竞争公平性。"},{"a":"3.5","t":"国际合作与交流虚拟现实技术的国际合作应基于“和而不同、和而求同”原则，尊重不同文化语境下技术伦理的本土化诠释，并努力在人权保障、技术包容性、可持续发展等方面形成共识，推动建立文明互鉴新维度和人类命运共同体。4. 伦理要求"},{"a":"4.1","t":"合法合规开展虚拟现实技术研发需遵守我国宪法、法律法规和有关规定以及科技伦理规范，遵循国际公认的伦理准则，以及科学共同体达成的专业共识和技术规范。不得通过虚拟现实技术研发进行非法活动、侵害他人合法权益、破坏社会稳定，不得散播与虚拟现实技术实际用途和效果不符的虚假广告信息。"},{"a":"4.2","t":"知情同意虚拟现实技术的研究开发应尊重和维护个人基本权益，以及个人基本权益在数字世界的合法延伸，不应干扰、操控人的意志。应有明确标识，禁止隐瞒非人类服务的事实，应以明确方式提示虚拟现实是数据与信息处理工具。"},{"a":"4.3","t":"隐私保护和个人信息保护虚拟现实技术的研究开发应重视保护个人隐私安全，对个人信息的收集、存储、使用、加工、传输、提供、公开、删除等处理行为应通知本人并获得同意方可进行，应建立完善的授权与撤销机制。"},{"a":"4.4","t":"风险防控虚拟现实技术的研究开发应避免产生和扩大歧视和偏见，对弱势群体使用虚拟现实可能造成的身心负面影响应经过充分的事前评估。应实现可审核、可监督、可追溯、可信赖，提高鲁棒性和抗干扰性，提升安全评估和管控能力。应确保人始终能可靠控制虚拟现实技术，采取有效措施避免和预防虚拟现实技术的误用、滥用、恶用，以及颠覆和冲击现有生活秩序、风序良俗或危害社会安全稳定。"},{"a":"4.5","t":"责任明晰应明确告知所有参与虚拟现实技术设计、研发的相关组织或个人所要承担的责任，应有促进更好的责任审核和追溯的机制，重视对虚拟现实技术的监督评估。"},{"a":"4.6","t":"群体保护应针对儿童等特殊群体使用虚拟现实技术建立专项保护机制，制定儿童使用时长分级标准，植入家长监护功能模块，避免过度沉浸虚拟场景影响儿童现实认知能力的健康发展；相关技术和产品方应定期提交儿童身心影响评估报告，避免向低龄儿童开放强沉浸的虚拟现实应用。"},{"a":"4.7","t":"警示标识虚拟现实产品应在设备、界面、交互场景及说明书中以文字、语音、音频或者通用符号等显性标识形式醒目提示潜在风险，明确说明技术应用可能诱发的健康风险、行为异化、自我意识干扰、社交关系弱化及社会认知偏差等问题。应构建动态警示体系，依据用户年龄、使用场景等调整警示强度与呈现形式，对未成年人群体需强化神经发育风险的预防性警示。警示标识应遵循国际通行的符号语言标准，确保跨文化可识别性。5. 伦理问题"},{"a":"5.1","t":"价值异化的伦理问题（1）主体道德意识虚化由于沉浸式体验、角色扮演、感官剥夺和技术依赖，虚拟现实技术导致主体原有的道德认知、道德情感、道德意志和道德行为出现弱化、模糊化或丧失的现象。（2）主体自我意识弱化由于沉浸式体验、角色扮演、感官剥夺和技术依赖，虚拟现实技术导致的主体自我感知、自我认同和自我反思能力降低的现象。（3）主体价值认同偏移由于沉浸式体验、角色扮演、感官剥夺和技术依赖，虚拟现实技术导致主体对社会主流的价值观、信念和认同感发生改变或偏离的现象。"},{"a":"5.2","t":"行为异化的伦理问题（1）行为操控问题虚拟现实技术通过虚拟环境的设计、交互机制和技术手段，操作性影响或引导用户在虚拟现实中的偏好改变、意志形成和行为决策。（2）行为依赖问题虚拟现实技术通过虚拟环境的设计、激励机制、交互方式，造成对用户在虚拟环境中形成对特定行为模式的持续倾向或习惯，如行为成瘾，进而导致用户身心健康受损，甚至形成病理性依赖。"},{"a":"5.3","t":"关系异化的伦理问题（1）关系主体困境虚拟现实技术通过虚拟主体设置的“身份隐蔽”，造成用户在现实与虚拟身份之间产生认同混淆或混乱。（2）关系对象困境虚拟现实技术通过虚拟情景创造“多元互动”，造成用户与虚拟角色建立情感联系、社交互动或依赖关系时面临的认知、情感、道德的尺度失控。（3）关系场景困境虚拟现实技术通过虚拟空间的塑造“行动自由”，造成主体在虚拟空间的排他性、奖励性和异化性行为。"},{"a":"5.4","t":"社会异化的伦理问题（1）社会安全问题虚拟现实技术通过对世界和人的感知与行为的数据化模拟和仿真，造成损害个人权益、社会稳定和公共安全的问题。（2）社会责任问题虚拟现实技术因自动化、自主性、动态性等特征，造成的责任归属与责任主体模糊、交织、分散的现象。（3）社会权利问题虚拟现实的不合理利用，包括滥用、误用，对人的基本权利、人身、隐私、财产等造成侵害或产生负面后果。6. 伦理评估（审查）从事虚拟现实技术的主体应主动开展伦理评估（审查），设置相应审查机构（机制），产品或技术应按照国家有关规定获得伦理审查通过后方能上市；伦理评估（审查）坚持预防为主、主动发现、积极防范的原则，围绕虚拟现实技术的研究开发的"},{"a":"6.1","t":"评估（审查）流程（1）准备，包括明确审查目标、确定审查范畴、组建审查团队、开展前期准备、制定审查方案。（2）信息调研，包括核心主体调研、业务活动调研、数据要素调研、安全影响调研等。（3）风险识别，包括实验场景识别、实验设计识别、实验实施识别。（4）综合分析，包括梳理问题清单、风险分析与评价、提出整改意见。（5）总结，包括伦理风险与问题评估报告、伦理风险与问题处置。"},{"a":"6.2","t":"评估（审查）手段（1）人员访谈对相关技术主体、应用主体、开发主体、用户主体进行访谈，核查伦理制度规章、伦理防护措施、伦理责任落实情况。（2）文档查验查验伦理风险管理制度、伦理风险评估报告、伦理问题测评报告等有关材料及制度落实情况的证明材料。（3）问题核查核查技术场景、技术设计、技术应用、数据库和数据平台等伦理风险的处置策略、配置、措施情况。（4）技术测试应用技术工具、性能测试等手段查看虚拟现实技术应用情况、检测防护措施有效性。"},{"a":"6.3","t":"评估（审查）方法（1）伦理理论推演第一，通过伦理学的基本理论分析对将要嵌入虚拟现实的伦理目标进行解析，明晰研发的价值合理性、规范冲突、人类主体地位等问题，同时界定利益相关者。第二，把虚拟现实技术的伦理目标落实到具体架构内，包括物理载体、算法和接口。第三，把虚拟现实技术研发与应用场景相结合，确保预设的具体价值规范在使用语境中能够发挥作用。第四，对具有潜在道德规范的虚拟现实技术进行合理性测评，判断其是否公正合理，是否符合预期。（2）伦理原则规范在虚拟现实技术的研究、开发与应用过程中，运用伦理原则进行伦理评估，并对其伦理问题的可能性进行分析，需要预测和识别潜在风险、分析与澄清伦理问题、开发伦理问题解"}]}};
 const DIM_RULES = {
   welfare:['R01','R15','R21'],
   fairness:['R02','R16','R25'],
@@ -842,7 +935,7 @@ function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;'
 let currentRoute = 'dashboard';
 function route(){
   const h = location.hash.replace(/^#\//,'') || 'dashboard';
-  const r = ['dashboard','rules','review','assess','train','records'].includes(h) ? h : 'dashboard';
+  const r = ['dashboard','rules','review','assess','train','records','markov'].includes(h) ? h : 'dashboard';
   currentRoute = r;
   document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active', p.dataset.route===r));
   document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('active', a.dataset.nav===r));
@@ -853,6 +946,7 @@ function route(){
   if (r==='assess') renderAssess();
   if (r==='train') renderTrain();
   if (r==='records') renderRecords();
+  if (r==='markov'){ renderMarkovBar(); renderMarkov(); }
 }
 window.addEventListener('hashchange', route);
 
@@ -895,7 +989,7 @@ function renderRules(){
   list.innerHTML = filtered.map(r=>{
     const dim = DIMS.find(d=>d.id===r.dim);
     return `
-    <div class="rule-card">
+    <div class="rule-card" data-rid="${r.id}">
       <div class="head">
         <span class="rid">${r.id}</span>
         ${opBadge(r.op)}
@@ -1026,6 +1120,7 @@ function renderVerdict(d, c){
         <span class="pill ${d.stateId==='high'?'bad':(d.stateId==='med'?'warn':'ok')}">风险定级 · ${tier.name}</span>
         <span class="pill ob">道义合规度 ${Math.round(d.compliance*100)}%</span>
         <span class="pill ink">置信度 ${Math.round(d.confidence*100)}%</span>
+        ${mcBrief(d)}
       </div>
       <div class="reasons">
         ${d.reasons.map(r=>{
@@ -1462,6 +1557,697 @@ $('#clearRecords').addEventListener('click', ()=>{
 $('#menuBtn').addEventListener('click', ()=>{
   document.getElementById('nav').classList.toggle('open');
 });
+
+
+/* =====================================================================
+   规则库三标签：道义规则 / 规范边 / 法条原文
+   ===================================================================== */
+let ruleTab = 'rules';
+let edgeFilter = 'all';
+let edgeQuery = '';
+
+const DOC_ALIAS = {
+  '人工智能科技伦理审查与服务办法（试行）':'人工智能科技伦理审查与服务办法（试行）',
+  '人工智能 可信赖 通则':'人工智能 可信赖 通则',
+  '新一代人工智能伦理规范':'新一代人工智能伦理规范',
+  '人工智能应用伦理安全指引':'人工智能应用伦理安全指引',
+  '生成式人工智能服务管理暂行办法':'生成式人工智能服务管理暂行办法',
+  '人工智能安全治理框架 2.0':'人工智能安全治理框架2.0',
+  '人工智能安全治理框架2.0':'人工智能安全治理框架2.0',
+  '互联网信息服务算法推荐管理规定':'互联网信息服务算法推荐管理规定',
+  '智能体规范应用与创新发展实施意见':'智能体规范应用与创新发展实施意见',
+  '政务领域人工智能大模型部署应用指引':'政务领域人工智能大模型部署应用指引',
+  '人工智能拟人化互动服务管理暂行办法':'人工智能拟人化互动服务管理暂行办法',
+  '人工智能生成合成内容标识办法':'人工智能生成合成内容标识办法',
+};
+
+function resolveDoc(src){
+  if (!src) return null;
+  if (ETHOS.clauses[src]) return src;
+  if (DOC_ALIAS[src] && ETHOS.clauses[DOC_ALIAS[src]]) return DOC_ALIAS[src];
+  const norm = s => s.replace(/\s+/g,'');
+  const hit = Object.keys(ETHOS.clauses).find(k=>norm(k)===norm(src) || norm(k).includes(norm(src)) || norm(src).includes(norm(k)));
+  return hit || null;
+}
+function clauseAnchorOf(clause){
+  if (!clause) return null;
+  let m = /第(\d+)条/.exec(clause);
+  if (m) return '第'+m[1]+'条';
+  m = /^(\d+(?:\.\d+)+)/.exec(clause);
+  if (m) return m[1];
+  return null;
+}
+function findClause(src, clause){
+  const doc = resolveDoc(src);
+  if (!doc) return null;
+  const list = ETHOS.clauses[doc];
+  const anchor = clauseAnchorOf(clause);
+  if (anchor){
+    const hit = list.find(c=>c.a===anchor);
+    if (hit) return { doc, ...hit };
+  }
+  return list[0] ? { doc, ...list[0] } : null;
+}
+
+function switchRuleTab(t){
+  ruleTab = t;
+  document.querySelectorAll('#ruleTabs .tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===t));
+  document.getElementById('panel-rules').style.display   = t==='rules'  ? '' : 'none';
+  document.getElementById('panel-edges').style.display   = t==='edges'  ? '' : 'none';
+  document.getElementById('panel-clauses').style.display = t==='clauses'? '' : 'none';
+  if (t==='edges') renderEdges();
+  if (t==='clauses') renderClauses();
+}
+
+function renderEdges(){
+  const box = document.getElementById('edgeList');
+  const st  = document.getElementById('edgeStat');
+  if (!box) return;
+  const q = edgeQuery.trim();
+  let list = ETHOS.edges.filter(e=>{
+    if (edgeFilter==='hard' && !e.hard) return false;
+    if (edgeFilter==='soft' && !(e.dec==='accept_soft_only')) return false;
+    if (edgeFilter==='rev'  && !e.rev) return false;
+    if (q){
+      const s = (e.vh+e.vl+e.cond+e.jur+e.txt).toLowerCase();
+      if (!s.includes(q.toLowerCase())) return false;
+    }
+    return true;
+  });
+  const hardN = list.filter(e=>e.hard).length;
+  const revN  = list.filter(e=>e.rev).length;
+  st.innerHTML = `<span class="pill ink">命中 ${list.length} / ${ETHOS.edges.length} 条</span>
+    <span class="pill ok">硬约束 ${hardN}</span>
+    <span class="pill warn">软约束 ${list.filter(e=>e.dec==='accept_soft_only').length}</span>
+    <span class="pill seal">含反向边 ${revN}</span>`;
+  box.innerHTML = list.slice(0,80).map(e=>{
+    const confCls = e.conf==='high'?'ok':(e.conf==='medium'?'warn':'bad');
+    const decCls  = e.hard?'ok':(e.dec==='accept_soft_only'?'warn':'ink');
+    const decName = {accept_hard_candidate:'硬约束候选',accept_soft_only:'仅软约束',
+      reject_non_value_nodes:'非价值节点',needs_better_source:'证据不足',
+      split_by_condition:'需按条件拆分',reject_unsupported:'无支撑',reverse:'方向颠倒'}[e.dec]||e.dec;
+    const txt = e.txt && e.txt!=='nan' ? e.txt : '';
+    return `<div class="edge-card">
+      <div class="pair"><span>${esc(e.vh)}</span><span class="arrow">▸</span><span>${esc(e.vl)}</span></div>
+      <div class="meta">
+        <span class="pill ${decCls}">${decName}</span>
+        <span class="pill ${confCls}">置信度 ${e.conf==='high'?'高':(e.conf==='medium'?'中':'低')}</span>
+        ${e.rev?'<span class="pill seal">存在反向边</span>':''}
+        <span class="pill ink">${esc(e.jur)}</span>
+      </div>
+      ${txt?`<div class="cond">${esc(txt)}</div>`:''}
+      <div style="font-size:11px;color:var(--ink-3);margin-top:6px">${esc(e.id)} · 条件 ${esc(e.cond)} · ${esc(e.scope)}</div>
+    </div>`;
+  }).join('') || '<div class="empty">没有匹配的规范边。</div>';
+}
+
+let clauseDocSel = null;
+function renderClauses(){
+  const sel = document.getElementById('clauseDoc');
+  const box = document.getElementById('clauseList');
+  if (!sel || !box) return;
+  const docs = Object.keys(ETHOS.clauses);
+  if (!sel.options.length || sel.options.length !== docs.length){
+    sel.innerHTML = docs.map(d=>`<option value="${esc(d)}">${esc(d)} · ${ETHOS.clauses[d].length} 条</option>`).join('');
+  }
+  if (!clauseDocSel || !ETHOS.clauses[clauseDocSel]) clauseDocSel = docs[0];
+  sel.value = clauseDocSel;
+  const q = (document.getElementById('clauseSearch')?.value || '').trim();
+  const list = ETHOS.clauses[clauseDocSel].filter(c=>!q || c.a.includes(q) || c.t.includes(q));
+  box.innerHTML = list.map(c=>`
+    <div class="clause-item"><div class="a">${esc(c.a)}</div><div class="t">${esc(c.t)}</div></div>
+  `).join('') || '<div class="empty">没有匹配的条款。</div>';
+}
+
+/* 事件绑定 */
+document.getElementById('ruleTabs').addEventListener('click', e=>{
+  const b = e.target.closest('.tab'); if (!b) return;
+  switchRuleTab(b.dataset.tab);
+});
+document.getElementById('panel-edges').addEventListener('click', e=>{
+  const b = e.target.closest('[data-ef]'); if (!b) return;
+  edgeFilter = b.dataset.ef;
+  document.querySelectorAll('#panel-edges [data-ef]').forEach(x=>x.classList.toggle('active', x===b));
+  renderEdges();
+});
+document.getElementById('edgeSearch').addEventListener('input', e=>{
+  edgeQuery = e.target.value; renderEdges();
+});
+document.getElementById('clauseDoc').addEventListener('change', e=>{
+  clauseDocSel = e.target.value; renderClauses();
+});
+document.getElementById('clauseSearch').addEventListener('input', ()=>renderClauses());
+
+/* 让规则卡可展开原文 */
+const __renderRulesBase = renderRules;
+renderRules = function(){
+  __renderRulesBase();
+  document.getElementById('tabCntRules').textContent = '· ' + RULES.length;
+  document.getElementById('tabCntEdges').textContent = '· ' + ETHOS.edges.length;
+  switchRuleTab(ruleTab);
+};
+document.getElementById('ruleList').addEventListener('click', e=>{
+  const card = e.target.closest('.rule-card'); if (!card) return;
+  const rid = card.dataset.rid;
+  const r = RULES_BY_ID[rid]; if (!r) return;
+  const cl = findClause(r.src, r.clause);
+  let box = card.querySelector('.clause-box');
+  if (box){ box.remove(); return; }
+  box = document.createElement('div');
+  box.className = 'clause-box';
+  box.style.cssText = 'margin-top:10px;border-left:3px solid var(--seal);padding:8px 0 8px 12px;background:var(--card-2);border-radius:0 8px 8px 0';
+  box.innerHTML = cl
+    ? `<div style="font-size:11.5px;color:var(--seal);font-weight:700;margin-bottom:4px">${esc(cl.doc)} · ${esc(cl.a)}</div>
+       <div style="font-size:12.5px;color:var(--ink-2);line-height:1.65">${esc(cl.t)}</div>`
+    : '<div style="font-size:12.5px;color:var(--ink-3)">未在本地语料中定位到对应条款原文。</div>';
+  card.appendChild(box);
+});
+
+/* 总览数据卡 */
+const __renderDashboardBase = renderDashboard;
+renderDashboard = function(){
+  __renderDashboardBase();
+  const s = ETHOS.stats;
+  const e = document.getElementById('dExt');
+  if (!e) return;
+  e.textContent = s.corpus.total;
+  document.getElementById('dExtSub').textContent = `双评审一致率 ${(s.corpus.agree_raw*100).toFixed(1)}%`;
+  document.getElementById('dRoute').textContent = s.route.total;
+  document.getElementById('dRouteSub').textContent = `四路由 · 一致率 ${(s.route.agree_raw*100).toFixed(1)}%`;
+  document.getElementById('dEdge').textContent = s.edge.total;
+  document.getElementById('dEdgeSub').textContent = `硬约束 ${s.edge.hard} · 反向边 ${s.edge.reverse}`;
+  document.getElementById('dSafe').textContent = s.safety.total;
+  document.getElementById('dSafeSub').textContent = `拒绝 ${s.safety.action.refuse||0} · 重定向 ${s.safety.action.safe_redirect||0}`;
+};
+
+/* =====================================================================
+   马尔可夫链流程推演引擎（Markov Chain Process Projection）
+   ---------------------------------------------------------------------
+   把「送审 → 受理 → 画像 → 道义筛查 → 常规/专家/应急 → 决议」建模为
+   一个吸收马尔可夫链：
+     瞬态 T-state：intake → profile → deontic → {regular | expert | emergency | supplement}
+     吸收态 A-state：approve | conditional | reject | withdraw
+   转移概率由三源合成：
+     ① 结构先验（程序的法定走向，如复核清单强制专家复核）
+     ② Q 策略（π(a|s) 由 softmax(Q) 给出，决定常规审查的出口）
+     ③ 数据先验（3767 条外部语料的裁决分布，作为经验校准）
+   输出：吸收概率、期望步数、基本矩阵范数、扰动敏感性与蒙特卡洛轨迹。
+   ===================================================================== */
+
+const MC_STATES = [
+  { id:'intake',     name:'受理建档', kind:'t', x: 60, y:210 },
+  { id:'profile',    name:'风险画像', kind:'t', x:200, y:210 },
+  { id:'deontic',    name:'道义筛查', kind:'t', x:340, y:210 },
+  { id:'regular',    name:'常规审查', kind:'t', x:540, y:100 },
+  { id:'expert',     name:'专家复核', kind:'t', x:540, y:210 },
+  { id:'emergency',  name:'应急审查', kind:'t', x:540, y:320 },
+  { id:'supplement', name:'补正/修改', kind:'t', x:340, y:345 },
+  { id:'approve',    name:'批准',      kind:'a', x:820, y: 60 },
+  { id:'conditional',name:'附条件批准',kind:'a', x:820, y:155 },
+  { id:'reject',     name:'不予批准',  kind:'a', x:820, y:250 },
+  { id:'withdraw',   name:'撤回/终止', kind:'a', x:820, y:345 },
+];
+const MC_T = MC_STATES.filter(s=>s.kind==='t');
+const MC_A = MC_STATES.filter(s=>s.kind==='a');
+const MC_IDX = Object.fromEntries(MC_STATES.map((s,i)=>[s.id,i]));
+const MC_TI  = Object.fromEntries(MC_T.map((s,i)=>[s.id,i]));
+const MC_AI  = Object.fromEntries(MC_A.map((s,i)=>[s.id,i]));
+
+/* 数据先验：外部语料 3767 条的裁决分布 → 吸收态经验比例 */
+const CORPUS_PRIOR = (() => {
+  const d = (typeof ETHOS !== 'undefined' && ETHOS.stats && ETHOS.stats.corpus.decision) || {};
+  const tot = Object.values(d).reduce((a,b)=>a+b,0) || 1;
+  const g = k => (d[k]||0)/tot;
+  return {
+    approve:     g('retain'),      // 保留 ≈ 可批准
+    conditional: g('repair'),      // 修复 ≈ 附条件批准
+    reject:      g('exclude'),     // 排除 ≈ 不予批准
+    withdraw:    g('reauthor'),    // 重写 ≈ 退回补正/撤回
+    note: `retain ${(g('retain')*100).toFixed(1)}% / repair ${(g('repair')*100).toFixed(1)}% / exclude ${(g('exclude')*100).toFixed(1)}% / reauthor ${(g('reauthor')*100).toFixed(1)}%`,
+  };
+})();
+
+/* ---------- 矩阵工具 ---------- */
+function mcZero(n,m){ return Array.from({length:n},()=>new Array(m).fill(0)); }
+function mcInv(M){
+  const n = M.length;
+  const A = M.map((r,i)=>r.concat(Array.from({length:n},(_,j)=>i===j?1:0)));
+  for (let c=0;c<n;c++){
+    let p = c;
+    for (let r=c+1;r<n;r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r;
+    if (Math.abs(A[p][c]) < 1e-12) return null;
+    [A[c],A[p]] = [A[p],A[c]];
+    const d = A[c][c];
+    for (let j=0;j<2*n;j++) A[c][j] /= d;
+    for (let r=0;r<n;r++){
+      if (r===c) continue;
+      const f = A[r][c];
+      if (!f) continue;
+      for (let j=0;j<2*n;j++) A[r][j] -= f*A[c][j];
+    }
+  }
+  return A.map(r=>r.slice(n));
+}
+function mcMatVec(M,v){ return M.map(r=>r.reduce((s,x,i)=>s+x*v[i],0)); }
+function mcNormInf(M){ return Math.max(...M.map(r=>r.reduce((s,x)=>s+Math.abs(x),0))); }
+
+/* ---------- 构建转移矩阵 ---------- */
+function buildChain(ctx){
+  const { tier='med', flag=null } = ctx || {};
+  const n = MC_T.length, m = MC_A.length;
+  const T = mcZero(n,n), A = mcZero(n,m);
+  const add = (from, to, p) => {
+    if (!p || p<=0) return;
+    if (MC_TI[to] !== undefined) T[MC_TI[from]][MC_TI[to]] += p;
+    else A[MC_TI[from]][MC_AI[to]] += p;
+  };
+  // Q 策略分布（常规审查的出口）
+  // 说明：Q 值量纲为 0–20，直接 softmax 会退化为 argmax（几乎必然选同一动作）。
+  // 这里引入温度 τ，使策略保留可解释的随机性——τ 越大越接近均匀，越小越接近贪心。
+  const TAU = 4;
+  const policy = (() => {
+    const st = tier;
+    const vals = ACTIONS.map(a=>Q[st][a.id] / TAU);
+    const probs = softmax(vals);
+    const out = {};
+    ACTIONS.forEach((a,i)=>{ out[a.id] = probs[i]; });
+    return out;
+  })();
+
+  add('intake','profile',1);
+  add('profile','deontic',1);
+
+  // 道义筛查 → 程序分流（法定结构优先于策略）
+  if (flag === 'emergency'){
+    add('deontic','emergency',0.86); add('deontic','supplement',0.09); add('deontic','deontic',0.05);
+  } else if (flag === 'expert'){
+    add('deontic','expert',0.80); add('deontic','regular',0.15); add('deontic','supplement',0.05);
+  } else if (tier === 'low'){
+    add('deontic','regular',0.72); add('deontic','approve',0.22); add('deontic','supplement',0.06);
+  } else if (tier === 'high'){
+    add('deontic','expert',0.52); add('deontic','regular',0.40); add('deontic','supplement',0.08);
+  } else {
+    add('deontic','regular',0.86); add('deontic','supplement',0.10); add('deontic','expert',0.04);
+  }
+
+  // 常规审查 → 由 Q 策略驱动
+  const keep = 0.12; // 常规审查内部回退（补充材料）保留比例
+  add('regular','approve',    policy.approve    * (1-keep));
+  add('regular','supplement', policy.revise     * (1-keep) + keep);
+  add('regular','reject',     policy.reject     * (1-keep));
+  add('regular','expert',     policy.expert     * (1-keep));
+  add('regular','emergency',  policy.emergency  * (1-keep));
+
+  // 专家复核 → 决议：结构先验以语料经验分布做线性校准（权重 0.3）
+  const CP = CORPUS_PRIOR;
+  const cpSum = (CP.approve + CP.conditional + CP.reject) || 1;
+  const cp3 = { approve: CP.approve/cpSum, conditional: CP.conditional/cpSum, reject: CP.reject/cpSum };
+  const W = 0.3;
+  const mix = (base, key) => (1-W)*base + W*(cp3[key] || 0);
+  add('expert','approve',    mix(0.30,'approve'));
+  add('expert','conditional',mix(0.42,'conditional'));
+  add('expert','reject',     mix(0.22,'reject'));
+  add('expert','supplement', 0.06*(1-W));
+
+  // 应急审查 → 决议（时限压力下更集中，同样做校准）
+  add('emergency','approve',    mix(0.34,'approve'));
+  add('emergency','conditional',mix(0.30,'conditional'));
+  add('emergency','reject',     mix(0.26,'reject'));
+  add('emergency','withdraw',   0.10*(1-W));
+
+  // 补正 → 多数直接形成决议，少数退回重审（避免"补正回路"吞噬全部概率质量）
+  add('supplement','approve',    0.28);
+  add('supplement','conditional',0.33);
+  add('supplement','reject',     0.18);
+  add('supplement','deontic',    0.10);
+  add('supplement','regular',    0.07);
+  add('supplement','withdraw',   0.04);
+
+  // 行归一（数值稳健）
+  for (let i=0;i<n;i++){
+    const s = T[i].reduce((a,b)=>a+b,0) + A[i].reduce((a,b)=>a+b,0);
+    if (s>0){ for (let j=0;j<n;j++) T[i][j]/=s; for (let j=0;j<m;j++) A[i][j]/=s; }
+  }
+  return { T, A, policy, n, m };
+}
+
+/* ---------- 吸收分析 ---------- */
+function absorbAnalysis(T, A){
+  const n = T.length, m = A[0].length;
+  const I = Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0));
+  const M = I.map((r,i)=>r.map((v,j)=>v - T[i][j]));
+  const N = mcInv(M);
+  if (!N) return null;
+  // B = N · A
+  const B = [];
+  for (let i=0;i<n;i++){
+    B.push([]);
+    for (let j=0;j<m;j++){
+      let s = 0;
+      for (let k=0;k<n;k++) s += N[i][k]*A[k][j];
+      B[i].push(s);
+    }
+  }
+  const steps = N.map(r=>r.reduce((a,b)=>a+b,0));
+  return { N, B, steps, norm: mcNormInf(N) };
+}
+
+/* ---------- 扰动敏感性 ---------- */
+function perturbSensitivity(base, eps, trials=120){
+  const { T, A } = base;
+  const n = T.length, m = A[0].length;
+  const ref0 = absorbAnalysis(T,A);
+  if (!ref0) return null;
+  const ref = ref0.B[0];
+  const devs = [];
+  for (let t=0;t<trials;t++){
+    const T2 = T.map(r=>r.slice());
+    const A2 = A.map(r=>r.slice());
+    for (let i=0;i<n;i++){
+      for (let j=0;j<n;j++) T2[i][j] = Math.max(0, T2[i][j] + (Math.random()*2-1)*eps);
+      for (let j=0;j<m;j++) A2[i][j] = Math.max(0, A2[i][j] + (Math.random()*2-1)*eps);
+      const s = T2[i].reduce((a,b)=>a+b,0) + A2[i].reduce((a,b)=>a+b,0);
+      if (s>0){ for (let j=0;j<n;j++) T2[i][j]/=s; for (let j=0;j<m;j++) A2[i][j]/=s; }
+    }
+    const r = absorbAnalysis(T2,A2);
+    if (!r) continue;
+    let d = 0;
+    for (let j=0;j<m;j++) d = Math.max(d, Math.abs(r.B[0][j]-ref[j]));
+    devs.push(d);
+  }
+  devs.sort((a,b)=>a-b);
+  const mean = devs.reduce((a,b)=>a+b,0)/(devs.length||1);
+  const p95 = devs[Math.floor(devs.length*0.95)] || 0;
+  const mx = devs[devs.length-1] || 0;
+  return { mean, p95, max: mx, eps };
+}
+
+/* ---------- 蒙特卡洛轨迹 ---------- */
+function monteCarlo(base, runs=2000){
+  const { T, A } = base;
+  const n = T.length, m = A[0].length;
+  const outc = new Array(m).fill(0);
+  const stepHist = {};
+  const samples = [];
+  for (let r=0;r<runs;r++){
+    let i = 0, steps = 0, path = [MC_T[0].id];
+    while (steps < 60){
+      steps++;
+      const row = T[i].concat(A[i]);
+      const s = row.reduce((a,b)=>a+b,0) || 1;
+      let u = Math.random()*s, k = 0;
+      while (k < row.length-1 && u > row[k]) { u -= row[k]; k++; }
+      if (k < n){ i = k; path.push(MC_T[k].id); }
+      else { outc[k-n]++; path.push(MC_A[k-n].id); break; }
+    }
+    stepHist[steps] = (stepHist[steps]||0)+1;
+    if (samples.length < 3) samples.push(path);
+  }
+  return { outc, stepHist, samples };
+}
+
+/* =====================================================================
+   流程推演页：马尔可夫链可视化与交互
+   ===================================================================== */
+let mcCtx = { id:'c2', name:'人脸识别门禁考勤系统', tier:'med', flag:null, scores:[1,1,1,1,1,1] };
+let mcCache = null;
+let mcEps = 0.05;
+
+const MC_TIER_NAME = { low:'低风险', med:'中风险', high:'高风险' };
+const MC_ABS_CLASS = {
+  approve:'ok', conditional:'warn', reject:'bad', withdraw:'ink',
+};
+
+function renderMarkovBar(){
+  const bar = document.getElementById('mcCaseBar');
+  if (!bar) return;
+  const items = CASES.map(c=>({ id:c.id, name:c.name, tier:riskTier(c.scores,c.flag), flag:c.flag, scores:c.scores }));
+  if (lastDecision){
+    items.push({ id:'__last', name:'最近一次审查：' + lastDecision.caseName,
+      tier:lastDecision.stateId, flag:lastDecision.flag, scores:lastDecision.scores });
+  }
+  bar.innerHTML = items.map(it=>
+    `<button class="btn sm ${mcCtx.id===it.id?'primary':''}" data-mc="${it.id}">${esc(it.name)}</button>`
+  ).join('');
+  bar.querySelectorAll('[data-mc]').forEach(b=>{
+    b.onclick = ()=>{
+      const it = items.find(x=>x.id===b.dataset.mc);
+      if (!it) return;
+      mcCtx = { id:it.id, name:it.name, tier:it.tier, flag:it.flag, scores:it.scores };
+      mcCache = null;
+      renderMarkovBar(); renderMarkov();
+    };
+  });
+}
+
+function mcCompute(ctx){
+  const base = buildChain(ctx);
+  const an = absorbAnalysis(base.T, base.A);
+  if (!an) return null;
+  const sens = [0.02,0.05,0.10].map(e=>perturbSensitivity(base, e, 90)).filter(Boolean);
+  const mc = monteCarlo(base, 1500);
+  return { base, ...an, sens, mc };
+}
+
+function mcEnsure(){
+  if (!mcCache) mcCache = mcCompute(mcCtx);
+  return mcCache;
+}
+
+/* ---------- 状态图 ---------- */
+function mcNodePos(id){ return MC_STATES.find(s=>s.id===id); }
+
+function mcEdge(a, b, offset){
+  const dx = b.x-a.x, dy = b.y-a.y;
+  const len = Math.hypot(dx,dy) || 1;
+  const ux = dx/len, uy = dy/len;
+  const padA = 46, padB = 50;
+  const x1 = a.x + ux*padA, y1 = a.y + uy*padA;
+  const x2 = b.x - ux*padB, y2 = b.y - uy*padB;
+  const mx = (x1+x2)/2, my = (y1+y2)/2;
+  const ox = -uy*offset, oy = ux*offset;
+  const cx = mx+ox, cy = my+oy;
+  // 二次贝塞尔在 t=0.5 处的真实中点，比控制点更贴近曲线
+  const lx = 0.25*x1 + 0.5*cx + 0.25*x2;
+  const ly = 0.25*y1 + 0.5*cy + 0.25*y2;
+  return {
+    d:`M ${x1.toFixed(1)} ${y1.toFixed(1)} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`,
+    lx, ly, short: Math.hypot(x2-x1, y2-y1) < 125,
+  };
+}
+
+function mcSvg(base, B, steps){
+  const { T, A } = base;
+  const n = T.length, m = A[0].length;
+  const edges = [];
+  // 瞬态 → 瞬态
+  for (let i=0;i<n;i++){
+    for (let j=0;j<n;j++){
+      const p = T[i][j];
+      if (p < 0.045 || i===j) continue;
+      const a = mcNodePos(MC_T[i].id), b = mcNodePos(MC_T[j].id);
+      const e = mcEdge(a,b, j<i ? -22 : 20);
+      edges.push({ ...e, p, kind:'t', from:MC_T[i].id, to:MC_T[j].id });
+    }
+  }
+  // 瞬态 → 吸收
+  for (let i=0;i<n;i++){
+    for (let j=0;j<m;j++){
+      const p = A[i][j];
+      if (p < 0.045) continue;
+      const a = mcNodePos(MC_T[i].id), b = mcNodePos(MC_A[j].id);
+      const e = mcEdge(a,b, (j-(m-1)/2)*10);
+      edges.push({ ...e, p, kind:'a', from:MC_T[i].id, to:MC_A[j].id });
+    }
+  }
+  const maxStep = Math.max(...edges.map(e=>e.p));
+  const nodes = MC_STATES.map(s=>{
+    const isT = s.kind==='t';
+    const fill = isT ? '#FCF9F0' : '#23314C';
+    const stroke = isT ? '#C7BB9D' : '#23314C';
+    const color = isT ? '#23314C' : '#F3EFE2';
+    const w = isT ? 88 : 92;
+    return `<g>
+      <rect x="${s.x-w/2}" y="${s.y-18}" width="${w}" height="36" rx="9" fill="${fill}" stroke="${stroke}" stroke-width="1.4"/>
+      <text x="${s.x}" y="${s.y+4}" text-anchor="middle" font-size="12" fill="${color}" font-weight="${isT?600:600}">${s.name}</text>
+    </g>`;
+  }).join('');
+  const paths = edges.map(e=>{
+    const col = e.kind==='a' ? (e.to==='approve'?'#2F6B5C':e.to==='reject'?'#B03A2E':e.to==='conditional'?'#B8862B':'#707C94') : '#8A90A0';
+    const wdt = 1.0 + (e.p/maxStep)*2.4;
+    const op = 0.35 + (e.p/maxStep)*0.55;
+    return `<path d="${e.d}" fill="none" stroke="${col}" stroke-width="${wdt.toFixed(2)}" opacity="${op.toFixed(2)}" marker-end="url(#mc-arrow)"/>`;
+  }).join('');
+  const labels = edges.filter(e=>e.p>=0.08 && !e.short).map(e=>`
+    <g><rect x="${(e.lx-17).toFixed(1)}" y="${(e.ly-8).toFixed(1)}" width="34" height="15" rx="4" fill="#F3EFE2" opacity="0.92"/>
+    <text x="${e.lx.toFixed(1)}" y="${e.ly.toFixed(1)}" text-anchor="middle" font-size="10" fill="#46536F" font-family="var(--f-body)">${(e.p*100).toFixed(0)}%</text></g>`).join('');
+  return `<svg viewBox="0 0 940 400" style="width:100%;height:auto" role="img" aria-label="审查流程马尔可夫链">
+    <defs><marker id="mc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8A90A0"/></marker></defs>
+    ${paths}${labels}${nodes}
+    <text x="60" y="380" font-size="11" fill="#707C94">瞬态（可停留/可回退）</text>
+    <text x="820" y="380" font-size="11" fill="#707C94" text-anchor="middle">吸收态（决议作出后不再转移）</text>
+  </svg>`;
+}
+
+/* ---------- 页面 ---------- */
+function renderMarkov(){
+  const c = mcEnsure();
+  const box = document.getElementById('mcRoot');
+  if (!box) return;
+
+  if (!c){
+    box.innerHTML = '<div class="card">转移矩阵奇异，无法求解吸收概率。</div>';
+    return;
+  }
+
+  const { base, B, steps, norm, sens, mc } = c;
+  const fromIntake = B[0];
+  const total = fromIntake.reduce((a,b)=>a+b,0) || 1;
+  const topIdx = fromIntake.indexOf(Math.max(...fromIntake));
+  const expSteps = steps[0];
+  const conv = norm > 20 ? 'bad' : (norm > 8 ? 'warn' : 'ok');
+  const convText = norm > 20 ? '收敛风险高：存在大量回退边，建议增设时限与人工兜底'
+                : (norm > 8 ? '收敛偏慢：补正回路较多，关注审查周期'
+                            : '收敛良好：流程可在有限步内进入决议');
+
+  const bars = MC_A.map((a,i)=>{
+    const p = fromIntake[i]/total;
+    const cls = MC_ABS_CLASS[a.id] || 'ink';
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px">
+        <span><span class="pill ${cls}" style="font-size:11px">${a.name}</span></span>
+        <span style="font-family:var(--f-display);font-weight:700">${(p*100).toFixed(1)}%</span>
+      </div>
+      <div class="qbar"><i style="width:${(p*100).toFixed(1)}%;background:${a.id==='approve'?'#2F6B5C':a.id==='conditional'?'#B8862B':a.id==='reject'?'#B03A2E':'#707C94'}"></i></div>
+    </div>`;
+  }).join('');
+
+  const stepRows = MC_T.map((s,i)=>`
+    <tr><td style="font-weight:600">${s.name}</td>
+    <td style="font-family:var(--f-display)">${steps[i].toFixed(2)}</td>
+    <td style="color:var(--ink-3);font-size:12px">${i===0?'（受理起点）':''}</td></tr>`).join('');
+
+  const sensRows = sens.map(s=>`
+    <tr><td>ε = ${s.eps.toFixed(2)}</td><td>${(s.mean*100).toFixed(2)} pp</td>
+    <td>${(s.p95*100).toFixed(2)} pp</td><td>${(s.max*100).toFixed(2)} pp</td></tr>`).join('');
+
+  const mcTotal = mc.outc.reduce((a,b)=>a+b,0) || 1;
+  const mcBars = MC_A.map((a,i)=>{
+    const p = mc.outc[i]/mcTotal;
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <span style="width:76px;font-size:12px">${a.name}</span>
+      <div class="qbar" style="flex:1"><i style="width:${(p*100).toFixed(1)}%;background:${a.id==='approve'?'#2F6B5C':a.id==='conditional'?'#B8862B':a.id==='reject'?'#B03A2E':'#707C94'}"></i></div>
+      <span style="width:48px;text-align:right;font-size:12px;font-family:var(--f-display)">${(p*100).toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+
+  const stepKeys = Object.keys(mc.stepHist).map(Number).sort((a,b)=>a-b);
+  const maxH = Math.max(...stepKeys.map(k=>mc.stepHist[k]));
+  const hist = stepKeys.map(k=>{
+    const h = mc.stepHist[k]/maxH*70;
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px" title="${k} 步 · ${mc.stepHist[k]} 次">
+      <div style="width:18px;height:${h.toFixed(0)}px;background:var(--ink);opacity:.75;border-radius:2px 2px 0 0"></div>
+      <div style="font-size:9.5px;color:var(--ink-3)">${k}</div></div>`;
+  }).join('');
+
+  const cmp = MC_A.map((a,i)=>{
+    const model = fromIntake[i]/total;
+    const prior = CORPUS_PRIOR[a.id] || 0;
+    const d = (model - prior)*100;
+    return `<tr><td>${a.name}</td>
+      <td style="font-family:var(--f-display)">${(model*100).toFixed(1)}%</td>
+      <td style="font-family:var(--f-display);color:var(--ink-3)">${(prior*100).toFixed(1)}%</td>
+      <td style="color:${Math.abs(d)>10?'var(--bad)':'var(--ink-2)'}">${d>=0?'+':''}${d.toFixed(1)} pp</td></tr>`;
+  }).join('');
+
+  const samples = mc.samples.map(p=>p.map(id=>{
+    const s = MC_STATES.find(x=>x.id===id);
+    return `<span class="pill ${s.kind==='a'?(MC_ABS_CLASS[s.id]||'ink'):'ink'}" style="font-size:10.5px;margin:1px">${s.name}</span>`;
+  }).join(' → ')).map(x=>`<div style="margin-bottom:6px;line-height:1.9">${x}</div>`).join('');
+
+  box.innerHTML = `
+    <div class="card">
+      <div class="sec-head">
+        <div class="sec-title">状态转移图 <span class="tag">吸收马尔可夫链</span></div>
+        <div class="sec-sub">线宽与透明度表示转移概率；仅标注 ≥ 8% 的边</div>
+      </div>
+      ${mcSvg(base, B, steps)}
+      <div class="statline" style="margin-top:6px">
+        <span class="pill ink">当前推演对象：${esc(mcCtx.name)}</span>
+        <span class="pill ${mcCtx.tier==='high'?'bad':(mcCtx.tier==='med'?'warn':'ok')}">风险定级 ${MC_TIER_NAME[mcCtx.tier]}</span>
+        ${mcCtx.flag==='expert'?'<span class="pill seal">命中复核清单</span>':''}
+        ${mcCtx.flag==='emergency'?'<span class="pill warn">应急场景</span>':''}
+      </div>
+    </div>
+
+    <div class="grid g-4" style="margin-top:20px">
+      <div class="metric"><div class="k">期望审查步数</div><div class="v">${expSteps.toFixed(2)}</div><div class="d">从受理到决议</div></div>
+      <div class="metric"><div class="k">最可能决议</div><div class="v" style="font-size:20px">${MC_A[topIdx].name}</div><div class="d">${(fromIntake[topIdx]/total*100).toFixed(1)}%</div></div>
+      <div class="metric"><div class="k">基本矩阵 ‖N‖∞</div><div class="v">${norm.toFixed(2)}</div><div class="d">收敛诊断指标</div></div>
+      <div class="metric"><div class="k">收敛诊断</div><div class="v" style="font-size:18px;color:var(--${conv})">${norm>20?'需干预':(norm>8?'偏慢':'良好')}</div><div class="d">${convText}</div></div>
+    </div>
+
+    <div class="grid g-2" style="margin-top:20px">
+      <div class="card">
+        <div class="sec-head"><div class="sec-title">吸收概率</div><div class="sec-sub">自「受理建档」出发</div></div>
+        ${bars}
+      </div>
+      <div class="card">
+        <div class="sec-head"><div class="sec-title">各状态期望步数</div><div class="sec-sub">N·1 分量</div></div>
+        <table class="tbl"><thead><tr><th>状态</th><th>期望剩余步数</th><th></th></tr></thead><tbody>${stepRows}</tbody></table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="sec-head">
+        <div class="sec-title">扰动敏感性 <span class="tag">标注噪声 → 吸收概率</span></div>
+        <div class="sec-sub">对转移核施加均匀扰动并保持行随机性，重复 90 次</div>
+      </div>
+      <table class="tbl"><thead><tr><th>扰动幅度</th><th>平均偏差</th><th>95 分位偏差</th><th>最大偏差</th></tr></thead><tbody>${sensRows}</tbody></table>
+      <div style="font-size:12.5px;color:var(--ink-3);margin-top:10px;line-height:1.7">
+        偏差以「批准」吸收概率为观察量（百分点）。当流程中补正回退边较多时，基本矩阵范数增大，同样的评审噪声会被放大为更大的决议概率偏移——这正是需要为「高风险/低置信度」案件保留人工兜底的数学理由。
+      </div>
+    </div>
+
+    <div class="grid g-2" style="margin-top:20px">
+      <div class="card">
+        <div class="sec-head"><div class="sec-title">蒙特卡洛轨迹</div><div class="sec-sub">1500 次抽样</div></div>
+        ${mcBars}
+        <div style="display:flex;align-items:flex-end;gap:5px;height:86px;margin-top:14px;border-bottom:1px solid var(--line);padding-bottom:2px">${hist}</div>
+        <div style="font-size:12px;color:var(--ink-3);margin-top:6px">横轴：到达决议所需步数；纵轴：频次</div>
+      </div>
+      <div class="card">
+        <div class="sec-head"><div class="sec-title">抽样路径</div><div class="sec-sub">前 3 条轨迹</div></div>
+        <div style="font-size:12.5px">${samples}</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="sec-head">
+        <div class="sec-title">与语料经验分布对照</div>
+        <div class="sec-sub">3767 条外部语料裁决分布 · 见附录数据</div>
+      </div>
+      <table class="tbl"><thead><tr><th>决议类型</th><th>模型推演</th><th>语料经验</th><th>差异</th></tr></thead><tbody>${cmp}</tbody></table>
+      <div style="font-size:12.5px;color:var(--ink-3);margin-top:10px">
+        经验分布：${esc(CORPUS_PRIOR.note)}。语料先验只用于校准专家复核与应急通道的出口分布，不直接决定个体案件的走向；差异超过 10 个百分点时以红色标记。
+      </div>
+    </div>`;
+}
+
+/* ---------- 审查意见书中的简版推演 ---------- */
+function mcBrief(d){
+  try{
+    const base = buildChain({ tier:d.stateId, flag:d.flag });
+    const an = absorbAnalysis(base.T, base.A);
+    if (!an) return '';
+    const b = an.B[0];
+    const total = b.reduce((x,y)=>x+y,0) || 1;
+    const top = MC_A[b.indexOf(Math.max(...b))];
+    return `<span class="pill ${MC_ABS_CLASS[top.id]||'ink'}">流程推演 · 期望 ${an.steps[0].toFixed(1)} 步 · 最可能「${top.name}」${(Math.max(...b)/total*100).toFixed(0)}%</span>
+      <span class="pill ink" style="cursor:pointer" onclick="location.hash='#/markov'">查看转移图 →</span>`;
+  }catch(e){ return ''; }
+}
 
 /* ---- 启动 ---- */
 loadRecords();
